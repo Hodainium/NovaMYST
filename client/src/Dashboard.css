@@ -1,0 +1,247 @@
+.dashboard-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #13111a 0%, #1a1625 100%);
+}
+
+.dashboard-nav {
+    background: #1a1625;
+    border-bottom: 1px solid #2c2937;
+    padding: 1rem;
+}
+
+.nav-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.logout-btn {
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid #6c5dd3;
+    border-radius: 8px;
+    color: #6c5dd3;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: #6c5dd3;
+    color: white;
+}
+
+.dashboard-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 20px;
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
+}
+
+/* Quests Section */
+.quests-section {
+    background: #1a1625;
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid #2c2937;
+}
+
+.quest-form {
+    margin: 1.5rem 0;
+}
+
+.input-group {
+    display: flex;
+    gap: 1rem;
+}
+
+.quest-input {
+    flex: 1;
+    padding: 12px;
+    background: #13111a;
+    border: 1px solid #2c2937;
+    border-radius: 8px;
+    color: white;
+    font-size: 16px;
+}
+
+.time-select {
+    padding: 12px;
+    background: #13111a;
+    border: 1px solid #2c2937;
+    border-radius: 8px;
+    color: white;
+    min-width: 140px;
+}
+
+.add-quest-btn {
+    padding: 12px 24px;
+    background: #6c5dd3;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.add-quest-btn:hover {
+    background: #8677e9;
+}
+
+/* Quest Items */
+.quests-list {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.quest-item {
+    background: #13111a;
+    border: 1px solid #2c2937;
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.quest-item.completed {
+    opacity: 0.7;
+    border-color: #2c2937;
+}
+
+.quest-info h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+}
+
+.quest-meta {
+    display: flex;
+    gap: 1rem;
+    color: #a5a5a5;
+    font-size: 0.9rem;
+}
+
+.time-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.complete-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 8px 16px;
+    background: #2c2937;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.complete-btn:hover {
+    background: #3c3947;
+}
+
+.complete-btn.completed {
+    background: #4CAF50;
+}
+
+/* Character Section */
+.character-card {
+    background: #1a1625;
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid #2c2937;
+}
+
+.level-info {
+    margin: 1.5rem 0;
+}
+
+.xp-bar {
+    background: #13111a;
+    border-radius: 8px;
+    height: 24px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.xp-progress {
+    background: linear-gradient(45deg, #6c5dd3, #8677e9);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.9rem;
+    transition: width 0.3s ease;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.stat-item {
+    background: #13111a;
+    border: 1px solid #2c2937;
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-text h4 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #a5a5a5;
+}
+
+.stat-text p {
+    margin: 0.25rem 0 0 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.achievements-section {
+    margin-top: 2rem;
+}
+
+.achievement-text {
+    color: #a5a5a5;
+    font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .dashboard-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .character-section {
+        order: -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .input-group {
+        flex-direction: column;
+    }
+    
+    .time-select {
+        width: 100%;
+    }
+}
