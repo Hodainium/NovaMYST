@@ -6,7 +6,6 @@ body {
     padding: 0;
 }
 
-/* Logo styles (shared between landing and dashboard) */
 .logo-section {
     display: flex;
     align-items: center;
@@ -27,7 +26,6 @@ body {
     -webkit-text-fill-color: transparent;
 }
 
-/* Landing page specific styles */
 .landing-container {
     min-height: 100vh;
     display: flex;
@@ -46,7 +44,6 @@ body {
     align-items: center;
 }
 
-/* Auth section styles */
 .auth-section {
     flex: 1;
     max-width: 460px;
@@ -131,7 +128,6 @@ body {
     background: #8677e9;
 }
 
-/* Info section styles */
 .info-section {
     flex: 1;
     display: flex;
@@ -180,7 +176,6 @@ body {
     line-height: 1.5;
 }
 
-/* Responsive design */
 @media (max-width: 1024px) {
     .landing-content {
         flex-direction: column;
@@ -205,3 +200,4 @@ body {
         font-size: 36px;
     }
 }
+
