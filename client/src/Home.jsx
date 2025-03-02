@@ -15,7 +15,7 @@ function Home() {
             navigate('/dashboard');
         } else {
             try {
-                await axios.post('', {
+                await axios.post('http://localhost:3000/tasks/register', { //Added this to test connectivity between front and back -Holden
                     name: username,
                     email,
                     password

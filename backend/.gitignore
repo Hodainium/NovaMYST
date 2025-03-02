@@ -1,0 +1,50 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Node.js modules and build outputs
+node_modules/
+dist/
+dist-ssr/
+out/
+*.local
+
+# Firebase (if using local emulators or service accounts)
+firebase-debug.log
+firebase.json
+firestore.rules
+firestore.indexes.json
+serviceAccountKey.json
+
+# Environment files (store sensitive keys locally, not in Git)
+# .env
+# .env.local
+# .env.development.local
+# .env.test.local
+# .env.production.local
+
+# Editor directories and files
+.vscode/
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# React/Vite/Frontend-specific files
+coverage/
+*.cache/
+public/**/*.map
+
+# Mac and Linux system files
+*.DS_Store
+*.AppleDouble
+*.LSOverride
