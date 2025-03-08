@@ -1,0 +1,149 @@
+/* General Styles */
+.login-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #13111a 0%, #1a1625 100%);
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Header Styles */
+.login-header {
+    width: 100%;
+    background: #1a1625;
+    padding: 20px;
+    border-bottom: 1px solid #2c2937;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header-title {
+    font-size: 24px;
+    font-weight: 600;
+    background: linear-gradient(45deg, #ffffff, #6c5dd3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.home-link {
+    color: #a5a5a5;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+.home-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+/* Login Container */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 20px;
+}
+
+.form-container {
+    background: #1a1625;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border: 1px solid #2c2937;
+    width: 1000px;
+    max-width: 460px;
+}
+
+/* Toggle Buttons */
+.auth-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    background: #13111a;
+    padding: 4px;
+    border-radius: 8px;
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    color: #a5a5a5;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn.active {
+    background: #6c5dd3;
+    color: white;
+}
+
+.toggle-btn:hover {
+    background: #6c5dd3;
+    color: white;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #a5a5a5;
+    font-size: 14px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    background: #13111a;
+    border: 1px solid #2c2937;
+    border-radius: 8px;
+    color: white;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    border-color: #6c5dd3;
+    outline: none;
+}
+
+/* Submit Button */
+.submit-button {
+    width: 100%;
+    padding: 14px;
+    background: #6c5dd3;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+    background: #8677e9;
+}
