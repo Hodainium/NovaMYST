@@ -4,8 +4,6 @@ const db = admin.firestore();
 const TASKS_COLLECTION = 'tasks';
 const USERS_COLLECTION = 'users';
 
-//Google node
-
 // Create a new task
 exports.createTask = async (req, res) => {
   try {
@@ -79,8 +77,20 @@ exports.registerUser = async (req, res) => {
           name, 
           email, 
           password,
+          // displayName, // make this in the register
+          xp: 0, 
+          level: 0,
+          rank: "bronze", // default rank to bronze
+          streak: 0,
+          completionRate: 0.00,
+          totalTasks: 0, // tot
+          currentTasks:[], // store an array of task IDs
+          achievements:[], // store an array of achievement IDs
           createdAt: admin.firestore.FieldValue.serverTimestamp()
       });
+
+
+
 
       res.status(201).json({ id: newUser.id, message: 'User registered!' });
   } catch (err) {
