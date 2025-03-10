@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Timer, CheckCircle2, Trophy, Coins, LayoutDashboard, ListChecks, User, Award, BarChart2, ChevronLeft, ChevronRight } from 'lucide-react';
+import AchievementCollection from "./Achievements";
 
 function Dashboard() {
     const [quests, setQuests] = useState([]);
@@ -190,10 +191,12 @@ function Dashboard() {
                     )}
 
                     {activeSection === 'achievements' && (
-                        <div className="achievements-section">
-                            <h2>Achievements</h2>
-                            {/* Achievements content goes here */}
-                        </div>
+                        <>
+                            <div className="achievements-section">
+                                <h2>Achievements</h2>
+                            </div>
+                            <AchievementCollection/>
+                        </>
                     )}
 
                     {activeSection === 'leaderboard' && (
