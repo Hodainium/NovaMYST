@@ -38,7 +38,7 @@ function Dashboard() {
 
     const completedQuests = quests.filter(q => q.completed).length;
     const completionRate = quests.length > 0 ? ((completedQuests / quests.length) * 100).toFixed(2) : 0;
-    const recentQuests = quests.slice(0, 3); // Show the 3 most recent quests
+    const recentQuests = quests.slice(0, 3); 
 
     return (
         <div className="dashboard-container">

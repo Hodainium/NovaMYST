@@ -1,29 +1,37 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import './Login.css';
+import './Signup.css';
 import googleimg from './assets/google.png';
 
-function Login() {
+function Signup() {
     const navigate = useNavigate();
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (password !== confirmPassword) {
+            alert("Passwords do not match");
+            return;
+        }
         try {
-            const response = { data: { success: true } };
-            if (response.data.success) {
-                navigate('/dashboard');
-            }
+            await axios.post('', {
+                name: username,
+                email,
+                password
+            });
+            navigate('/dashboard');
         } catch (err) {
             console.log(err);
         }
     };
 
     return (
-        <div className="login-page">
-            <header className="login-header">
+        <div className="signup-page">
+            <header className="signup-header">
                 <div className="header-content">
                     <h1 className="header-title">NovaMyst</h1>
                     <Link to="/" className="home-link">
@@ -32,10 +40,19 @@ function Login() {
                 </div>
             </header>
 
-            <div className="login-container">
+            <div className="signup-container">
                 <div className="form-container">
-                    <h2>Login</h2>
+                    <h2>Sign Up</h2>
                     <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label>Username</label>
+                            <input
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                className="form-input"
+                            />
+                        </div>
                         <div className="form-group">
                             <label>Email</label>
                             <input
@@ -54,11 +71,20 @@ function Login() {
                                 className="form-input"
                             />
                         </div>
-                        <button type="submit" className="submit-button">Login</button>
+                        <div className="form-group">
+                            <label>Confirm Password</label>
+                            <input
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                className="form-input"
+                            />
+                        </div>
+                        <button type="submit" className="submit-button">Sign Up</button>
                         <div className="or-divider">OR</div>
-                        <button type="button" className="google-login-button">
+                        <button type="button" className="google-signup-button">
                             <img src= {googleimg}  className="google-logo" />
-                            Login with Google
+                            Sign up with Google
                         </button>
                     </form>
                 </div>
@@ -67,4 +93,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default Signup;
