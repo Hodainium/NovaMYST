@@ -1,6 +1,12 @@
+html, body {
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
 .achievements-layout {
-    background: #1a1625;
-    border: 1px solid #2c2937;
+    background: #f9f9f9; 
+    border: 1px solid #e0e0e0;
     border-radius: 12px;
     padding: 1rem;
     display: grid;
@@ -10,44 +16,50 @@
 
 .achievements-outer {
     font-size: 1.2rem;
-    background: #13111a;
-    border: 1px solid #2c2937;
+    background: #ffffff; 
+    border: 1px solid #e0e0e0; 
     border-radius: 12px;
     padding: 1rem;
-    text-align:center;
+    text-align: center;
 }
 
-.achievements-icon{
+.achievements-icon {
     display: block;
     font-size: 3rem;
     margin-bottom: 2rem;
+    color: #6c5dd3; 
 }
 
 .achievements-inner {
-    background: #1a1625;
-    border: 1px solid #2c2937;
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
     border-radius: 12px;
     padding: 1rem;
     text-align: center;
 }
 
 .achievements-reward {
-    color: gold
+    color: #6c5dd3;
 }
 
 .task-font {
-    color: rgb(9, 219, 9);
+    color: #4CAF50;
 }
 
 .exp-font {
-    color: rgb(212, 3, 212);
+    color: #9C27B0; 
 }
 
 .time-font {
-    color: orange;
+    color: #FF9800;
 }
 
 .achievements-progress {
     width: 80%;
     margin-bottom: 1rem;
+    background-color: #e0e0e0;
+}
+
+.achievements-progress::-webkit-progress-value {
+    background-color: #6c5dd3;
 }

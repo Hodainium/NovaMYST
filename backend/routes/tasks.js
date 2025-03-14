@@ -5,7 +5,9 @@ const {
   updateTask,
   deleteTask,
   calculateReward,
-  registerUser, 
+  registerUser,
+  loginUser,
+  testdb, 
 } = require('../controllers/taskController');
 
 const router = express.Router();
@@ -18,6 +20,8 @@ router.delete('/delete/:id', deleteTask);
 
 // User registration route
 router.post('/register', registerUser);
+router.post('/login', loginUser);
+router.get('/test-firestore', testdb);
 
 // Reward calculation route
 router.post('/calculateReward', calculateReward);
