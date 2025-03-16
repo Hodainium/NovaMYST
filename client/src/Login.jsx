@@ -9,15 +9,28 @@ function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const isDevMode = false; // Set to true to skip login, false to enable login check
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (isDevMode) {
+            navigate('/dashboard');
+            return;
+        }
+
         try {
-            const response = { data: { success: true } };
-            if (response.data.success) {
+            const response = await axios.post('http://localhost:3000/tasks/login', {
+                email,
+                password
+            });
+
+            if (response.status === 200) {
                 navigate('/dashboard');
             }
         } catch (err) {
-            console.log(err);
+            console.log('Login failed:', err.response?.data?.message || err.message);
+            alert('Login failed: ' + (err.response?.data?.message || 'Please try again.'));
         }
     };
 

@@ -11,8 +11,10 @@ function Signup() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    const handleSubmit = async (e) => {
+    const handleSubmit1 = async (e) => {
         e.preventDefault();
+        alert("Form submitted");
+        console.log("Form submitted");  // Check if this shows up
         if (password !== confirmPassword) {
             alert("Passwords do not match");
             return;
@@ -43,7 +45,7 @@ function Signup() {
             <div className="signup-container">
                 <div className="form-container">
                     <h2>Sign Up</h2>
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit1}>
                         <div className="form-group">
                             <label>Username</label>
                             <input
