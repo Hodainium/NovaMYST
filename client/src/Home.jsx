@@ -1,12 +1,41 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import './Home.css';
+import axios from 'axios';
 import googleimg from './assets/google.png';
 
 function Home() {
     const navigate = useNavigate();
     const [activeSection, setActiveSection] = useState('hero');
     const [showBackToTop, setShowBackToTop] = useState(false);
+    
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        console.log("Form submitted");  // Check if this shows up
+        if (password !== confirmPassword) {
+            alert("Passwords do not match");
+            return;
+        }
+        else if (!username || !email || !password || !confirmPassword) {
+            alert("Please fill in all fields.");
+            return;
+        }
+        try {
+            await axios.post('http://localhost:3000/tasks/register', {
+                name: username,
+                email,
+                password
+            });
+            navigate('/dashboard');
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
     const scrollToSection = (id) => {
         const section = document.getElementById(id);
@@ -91,22 +120,42 @@ function Home() {
                     </div>
                     <div className="register-form">
                         <h2>Sign Up</h2>
-                        <form>
+                        <form onSubmit={handleRegister}>
                             <div className="form-group">
                                 <label>Username</label>
-                                <input type="text" className="form-input" />
+                                <input 
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)} 
+                                    className="form-input" 
+                                />
                             </div>
                             <div className="form-group">
                                 <label>Email</label>
-                                <input type="email" className="form-input" />
+                                <input 
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)} 
+                                    className="form-input" 
+                                />
                             </div>
                             <div className="form-group">
                                 <label>Password</label>
-                                <input type="password" className="form-input" />
+                                <input 
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)} 
+                                    className="form-input" 
+                                />
                             </div>
                             <div className="form-group">
                                 <label>Confirm Password</label>
-                                <input type="password" className="form-input" />
+                                <input 
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)} 
+                                    className="form-input" 
+                                />
                             </div>
                             <button type="submit" className="submit-button">Sign Up</button>
                             <div className="or-divider">OR</div>
