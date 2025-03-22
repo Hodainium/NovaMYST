@@ -1,14 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import './Home.css';
-import axios from 'axios';
 import googleimg from './assets/google.png';
+import { DarkModeContext } from './DarkMode';
+import axios from 'axios';
 
 function Home() {
     const navigate = useNavigate();
     const [activeSection, setActiveSection] = useState('hero');
-    const [showBackToTop, setShowBackToTop] = useState(false);
-    
+    const { darkMode, toggleDarkMode } = useContext(DarkModeContext);
+
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -16,12 +17,11 @@ function Home() {
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        console.log("Form submitted");  // Check if this shows up
         if (password !== confirmPassword) {
             alert("Passwords do not match");
             return;
         }
-        else if (!username || !email || !password || !confirmPassword) {
+        if (!username || !email || !password || !confirmPassword) {
             alert("Please fill in all fields.");
             return;
         }
@@ -53,24 +53,23 @@ function Home() {
                     setActiveSection(section);
                 }
             }
-
-            if (window.scrollY > 500) {
-                setShowBackToTop(true);
-            } else {
-                setShowBackToTop(false);
-            }
         };
 
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const scrollToTop = () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+    const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    const renderInput = (label, type, value, onChange) => (
+        <div className="form-group">
+            <label>{label}</label>
+            <input type={type} value={value} onChange={onChange} className="form-input" />
+        </div>
+    );
 
     return (
-        <div className="landing-container">
+        <div className={`landing-container ${darkMode ? 'dark-mode' : ''}`}>
             <nav className="sticky-nav">
                 <div className="nav-content">
                     <div className="nav-left">
@@ -78,31 +77,25 @@ function Home() {
                     </div>
                     <div className="nav-right">
                         <ul className="nav-links">
-                            <li>
-                                <button
-                                    className={activeSection === 'why-choose' ? 'active' : ''}
-                                    onClick={() => scrollToSection('why-choose')}
-                                >
-                                    Why Choose Us
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    className={activeSection === 'features' ? 'active' : ''}
-                                    onClick={() => scrollToSection('features')}
-                                >
-                                    Features
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    className={activeSection === 'how-it-works' ? 'active' : ''}
-                                    onClick={() => scrollToSection('how-it-works')}
-                                >
-                                    How It Works
-                                </button>
-                            </li>
+                            {['why-choose', 'features', 'how-it-works'].map(section => (
+                                <li key={section}>
+                                    <button
+                                        className={activeSection === section ? 'active' : ''}
+                                        onClick={() => scrollToSection(section)}
+                                    >
+                                        {section.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                                    </button>
+                                </li>
+                            ))}
                         </ul>
+                        <label className="dark-mode-toggle">
+                            <input
+                                type="checkbox"
+                                checked={darkMode}
+                                onChange={toggleDarkMode}
+                            />
+                            <span className="slider"></span>
+                        </label>
                         <button className="login-button" onClick={() => navigate('/login')}>
                             Login
                         </button>
@@ -121,46 +114,14 @@ function Home() {
                     <div className="register-form">
                         <h2>Sign Up</h2>
                         <form onSubmit={handleRegister}>
-                            <div className="form-group">
-                                <label>Username</label>
-                                <input 
-                                    type="text"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)} 
-                                    className="form-input" 
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Email</label>
-                                <input 
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)} 
-                                    className="form-input" 
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Password</label>
-                                <input 
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)} 
-                                    className="form-input" 
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Confirm Password</label>
-                                <input 
-                                    type="password"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)} 
-                                    className="form-input" 
-                                />
-                            </div>
+                            {renderInput("Username", "text", username, (e) => setUsername(e.target.value))}
+                            {renderInput("Email", "email", email, (e) => setEmail(e.target.value))}
+                            {renderInput("Password", "password", password, (e) => setPassword(e.target.value))}
+                            {renderInput("Confirm Password", "password", confirmPassword, (e) => setConfirmPassword(e.target.value))}
                             <button type="submit" className="submit-button">Sign Up</button>
                             <div className="or-divider">OR</div>
                             <button type="button" className="google-signup-button">
-                                <img src= {googleimg}  className="google-logo" />
+                                <img src={googleimg} className="google-logo" />
                                 Sign up with Google
                             </button>
                         </form>
@@ -171,119 +132,80 @@ function Home() {
             <section id="why-choose" className="why-choose-section">
                 <h2>Why Choose NovaMyst?</h2>
                 <div className="why-choose-grid">
-                    <div className="why-choose-box">
-                        <h3>🌟 Turn Tasks into Adventures</h3>
-                        <p>Transform your daily responsibilities into epic quests with rewards and achievements.</p>
-                    </div>
-                    <div className="why-choose-box">
-                        <h3>🚀 Stay Motivated</h3>
-                        <p>Level up your character and earn rewards as you complete tasks and build productive habits.</p>
-                    </div>
-                    <div className="why-choose-box">
-                        <h3>🎉 Make Productivity Fun</h3>
-                        <p>Enjoy completing tasks with our gamified system that makes every achievement feel rewarding.</p>
-                    </div>
+                    {[
+                        ["🌟 Turn Tasks into Adventures", "Transform your daily responsibilities into epic quests with rewards and achievements."],
+                        ["🚀 Stay Motivated", "Level up your character and earn rewards as you complete tasks and build productive habits."],
+                        ["🎉 Make Productivity Fun", "Enjoy completing tasks with our gamified system that makes every achievement feel rewarding."]
+                    ].map(([title, desc], i) => (
+                        <div key={i} className="why-choose-box">
+                            <h3>{title}</h3>
+                            <p>{desc}</p>
+                        </div>
+                    ))}
                 </div>
             </section>
 
             <section id="features" className="powerful-features-section">
                 <h2>Features</h2>
                 <div className="powerful-features-grid">
-                    <div className="powerful-feature-box">
-                        <h3>📊 Experience Points & Leveling</h3>
-                        <p>Earn XP for completing tasks and watch your character grow stronger.</p>
-                    </div>
-                    <div className="powerful-feature-box">
-                        <h3>💰 Virtual Currency & Rewards</h3>
-                        <p>Collect coins to unlock character customizations and special items.</p>
-                    </div>
-                    <div className="powerful-feature-box">
-                        <h3>⏲️ Task Timer & Tracking</h3>
-                        <p>Track your productivity with built-in timers and progress monitoring.</p>
-                    </div>
-                    <div className="powerful-feature-box">
-                        <h3>🏅 Achievement System</h3>
-                        <p>Complete challenges and unlock badges to showcase your accomplishments.</p>
-                    </div>
-                    <div className="powerful-feature-box">
-                        <h3>👥 Social Features</h3>
-                        <p>Compete with friends and join a community of productive achievers.</p>
-                    </div>
-                    <div className="powerful-feature-box">
-                        <h3>🎁 Daily Rewards</h3>
-                        <p>Log in daily to receive bonus rewards and maintain your streak.</p>
-                    </div>
+                    {[
+                        ["📊 Experience Points & Leveling", "Earn XP for completing tasks and watch your character grow stronger."],
+                        ["💰 Virtual Currency & Rewards", "Collect coins to unlock character customizations and special items."],
+                        ["⏲️ Task Timer & Tracking", "Track your productivity with built-in timers and progress monitoring."],
+                        ["🏅 Achievement System", "Complete challenges and unlock badges to showcase your accomplishments."],
+                        ["👥 Social Features", "Compete with friends and join a community of productive achievers."],
+                        ["🎁 Daily Rewards", "Log in daily to receive bonus rewards and maintain your streak."]
+                    ].map(([title, desc], i) => (
+                        <div key={i} className="powerful-feature-box">
+                            <h3>{title}</h3>
+                            <p>{desc}</p>
+                        </div>
+                    ))}
                 </div>
             </section>
 
             <section id="how-it-works" className="how-it-works-section">
                 <h2>How It Works</h2>
                 <div className="steps-grid">
-                    <div className="step">
-                        <div className="step-circle">1</div>
-                        <div className="step-text">
-                            <h3>Create Tasks</h3>
-                            <p>Set up your tasks and organize them by priority.</p>
+                    {[
+                        ["1", "Create Tasks", "Set up your tasks and organize them by priority."],
+                        ["2", "Track Progress", "Use the timer to focus and complete your tasks."],
+                        ["3", "Earn Rewards", "Complete tasks to gain XP and unlock achievements."],
+                        ["4", "Customize Character", "Use rewards earned from completing tasks to customize your character."]
+                    ].map(([num, title, desc], i) => (
+                        <div key={i} className="step">
+                            <div className="step-circle">{num}</div>
+                            <div className="step-text">
+                                <h3>{title}</h3>
+                                <p>{desc}</p>
+                            </div>
                         </div>
-                    </div>
-                    <div className="step">
-                        <div className="step-circle">2</div>
-                        <div className="step-text">
-                            <h3>Track Progress</h3>
-                            <p>Use the timer to focus and complete your tasks.</p>
-                        </div>
-                    </div>
-                    <div className="step">
-                        <div className="step-circle">3</div>
-                        <div className="step-text">
-                            <h3>Earn Rewards</h3>
-                            <p>Complete tasks to gain XP and unlock achievements.</p>
-                        </div>
-                    </div>
-                    <div className="step">
-                        <div className="step-circle">4</div>
-                        <div className="step-text">
-                            <h3>Customize Character</h3>
-                            <p>Use rewards earned from completing tasks to customize your character.</p>
-                        </div>
-                    </div>
+                    ))}
                 </div>
             </section>
 
             <section id="ready" className="ready-section">
                 <h2>Ready to Level Up Your Productivity?</h2>
                 <p>Join NovaMyst today and transform your task management experience.</p>
-                <button className="cta-button" onClick={() => navigate('/signup')}>
+                <button className="cta-button" onClick={scrollToTop}>
                     Get Started
                 </button>
             </section>
 
             <footer className="footer-section">
                 <div className="footer-content">
-                    <div className="footer-column">
-                        <h3>About Us</h3>
-                        <p>Placeholder for about us content.</p>
-                    </div>
-                    <div className="footer-column">
-                        <h3>Quick Links</h3>
-                        <ul>
-                            <li>Placeholder Link 1</li>
-                            <li>Placeholder Link 2</li>
-                            <li>Placeholder Link 3</li>
-                        </ul>
-                    </div>
-                    <div className="footer-column">
-                        <h3>Contact Us</h3>
-                        <p>Placeholder for contact information.</p>
-                    </div>
+                    {[
+                        ["About Us", "Placeholder for about us content."],
+                        ["Quick Links", <ul><li>Placeholder Link 1</li><li>Placeholder Link 2</li><li>Placeholder Link 3</li></ul>],
+                        ["Contact Us", "Placeholder for contact information."]
+                    ].map(([title, content], i) => (
+                        <div key={i} className="footer-column">
+                            <h3>{title}</h3>
+                            <p>{content}</p>
+                        </div>
+                    ))}
                 </div>
             </footer>
-
-            {showBackToTop && (
-                <button className="back-to-top" onClick={scrollToTop}>
-                    ↑
-                </button>
-            )}
         </div>
     );
 }
