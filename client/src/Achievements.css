@@ -4,62 +4,185 @@ html, body {
     padding: 0;
 }
 
-.achievements-layout {
-    background: #f9f9f9; 
+.achievement-layout {
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+    max-height: 80vh;
+    gap: 3rem;
+}
+
+.achievement-stat {
+    display: flex;
+    flex-flow: column;   
+    gap: 2rem;
+    align-self: flex-start;
+}
+
+.achievement-stat-box {
+    background: #ffffff;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
     padding: 1rem;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+    display: flex;
+    align-items: center;
     gap: 1rem;
 }
 
-.achievements-outer {
+.achievement-stat-text p {
+    margin: 0.25rem 0 0 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333333;
+}
+
+.achievement-stat-text h4 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666666;
+}
+
+.achievement-list {
+    background: #d4d4d4;
+    border: 1px solid #e0e0e0; 
+    border-radius: 12px;
+    padding: 1rem;
+    gap: 1rem;
+    max-height: 70vh;
+    display: flex;
+    flex-flow: column;
+    overflow-y: auto;
+}
+
+.achievement-box{
+    display: flex;
     font-size: 1.2rem;
     background: #ffffff; 
     border: 1px solid #e0e0e0; 
     border-radius: 12px;
     padding: 1rem;
+}
+
+.achievement-title-icon, .achievement-desc-progress, .achievement-claim {
+    display: flex;
+    justify-content: center;
+    flex-flow: column;
+    padding: 1rem;
+}
+
+.achievement-title-icon {
+    flex: 1;
+    align-items: center;
+    gap: 1rem;
     text-align: center;
 }
 
-.achievements-icon {
-    display: block;
-    font-size: 3rem;
-    margin-bottom: 2rem;
-    color: #6c5dd3; 
+.achievement-title-icon h3{
+    margin: 0;
 }
 
-.achievements-inner {
+.achievement-desc-progress {
+    flex: 3;
+    gap: 2rem;
+}
+
+.achievement-claim {
+    flex: 1;
+    align-items: center;
+}
+
+.achievement-progress-bar {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.achievement-icon {
+    display: block;
+    font-size: 3rem;
+    color: #6c5dd3;
+}
+
+.achievement-claim-button.locked {
+    background-color: #919191; 
+    pointer-events: none;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 1rem;
+    border: none;
+    border-radius: 12px;
+  }
+  
+  .achievement-claim-button.enabled {
+    background-color: #4cc050;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 1rem;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  
+  .achievement-claim-button.locked:focus, .achievement-claim-button.claimed:focus, .achievement-claim-button.enabled:focus {
+    outline: none;
+  }
+
+  .achievement-claim-button.enabled:hover {
+    background-color: #45a049; 
+  }
+  
+  .achievement-claim-button.claimed {
+    background-color: #4cc050; 
+    opacity: 0.5;
+    pointer-events: none;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 1rem;
+    border: none;
+    border-radius: 12px;
+  }
+
+.achievement-description {
     background: #f9f9f9;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
-    padding: 1rem;
     text-align: center;
+    padding: 1rem;
 }
 
-.achievements-reward {
+.achievement-reward {
     color: #6c5dd3;
 }
 
 .task-font {
+    font-weight: 600;
     color: #4CAF50;
 }
 
 .exp-font {
+    font-weight: 600;
     color: #9C27B0; 
 }
 
 .time-font {
+    font-weight: 600;
     color: #FF9800;
 }
 
-.achievements-progress {
-    width: 80%;
-    margin-bottom: 1rem;
-    background-color: #e0e0e0;
+.progress-bar{
+    width: 100%;
+    height: 1rem;
+    border: 1px solid #000000;
+    background-color: #f8f8f8;
 }
 
-.achievements-progress::-webkit-progress-value {
-    background-color: #6c5dd3;
+.progress-bar-fill {
+    height: 100%;
+    max-width: 100%;
+    transition: width 0.3s;
+    background-color: #0d6ad4;
+}
+
+.progress-text {
+    font-size: 0.7em;
+    font-weight: 600;
+    color: #333333;
 }

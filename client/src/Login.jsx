@@ -9,7 +9,7 @@ function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const isDevMode = false; // Set to true to skip login, false to enable login check
+    const isDevMode = true; // Set to true to skip login, false to enable login check
 
     const handleSubmit = async (e) => {
         e.preventDefault();

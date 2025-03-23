@@ -4,7 +4,7 @@ import {
   Timer, CheckCircle2, Trophy, Coins, LayoutDashboard, ListChecks, User, Award,
   BarChart2, ChevronLeft, ChevronRight, Edit, Trash, Plus
 } from 'lucide-react';
-import AchievementCollection from "./Achievements";
+import AchievementDashboard from "./Achievements";
 
 function Dashboard() {
   const [quests, setQuests] = useState([]);
@@ -227,12 +227,10 @@ function Dashboard() {
           )}
 
           {activeSection === 'achievements' && (
-            <>
               <div className="achievements-section">
                 <h2>Achievements</h2>
+                <AchievementDashboard/>
               </div>
-              <AchievementCollection />
-            </>
           )}
 
           {activeSection === 'leaderboard' && (
