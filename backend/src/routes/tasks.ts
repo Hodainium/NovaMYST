@@ -8,7 +8,7 @@ const {
   registerUser,
   loginUser,
   testdb, 
-} = require('../controllers/taskController'); // one dot -> you are in the current directory two dot -> you go into dist
+} = require('../controllers/taskController'); // one dot -> you are in routes two dot -> you go into dist
 
 const router = express.Router();
 
