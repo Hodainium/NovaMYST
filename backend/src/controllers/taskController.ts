@@ -11,29 +11,40 @@ const USERS_COLLECTION = 'users'; //users
 
 // console.log("Imported Task Model:", Task, difficultyConfig);
 // Create a new task
+
 exports.createTask = async (req: Request, res: Response) => {
   try {
-    const {assignedTo, difficulty, title, completed} = req.body; // input from user
-    // const newTask = await db.collection(TASKS_COLLECTION).add({ 
-    //   title: title || 'New Task', 
-    //   completed: completed || false,
-    //   createdAt: admin.firestore.FieldValue.serverTimestamp()
-    // });
-    // Generate a unique ID first from firebase
-    const taskRef = db.collection("tasks").doc(); 
-    // Firebase-generated unique ID to store into userID
-    const taskID = taskRef.id; 
-    const newTask: Task = { 
-      taskID: taskID, 
-      title: title,
-      assignedTo: assignedTo, // ID of the user
+    const { assignedTo, difficulty, title, dueDate } = req.body;
+
+    // Generate unique ID from Firestore
+    const taskRef = db.collection("tasks").doc();
+    const taskID = taskRef.id;
+
+    const newTask : Task = { // generate a task to put into firestore with some attributes from the frontend
+      taskID, 
+      title,
+      assignedTo,
       difficulty,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(), // change this to date if needed
-      isComplete: false
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      isComplete: false,
+      dueDate: dueDate,
     };
-    // Store the task with the ID in Firestore (single write)
+
+    // Store task in Firestore
     await taskRef.set(newTask);
-    res.status(201).json({ id: taskID, message: 'Task created!' });
+
+    // Send full task data back to frontend
+    res.status(201).json({ 
+      id: taskID, 
+      title, 
+      assignedTo, 
+      difficulty, 
+      dueDate, 
+      isComplete: false,
+      createdAt: new Date().toISOString(),
+      message: 'Task created!' 
+    });
+
   } catch (err: unknown) {
     if (err instanceof Error) {
       res.status(500).json({ error: 'Failed to create task', details: err.message });
