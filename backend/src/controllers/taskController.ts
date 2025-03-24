@@ -1,22 +1,50 @@
-const admin = require('firebase-admin');
+const admin = require('firebase-admin'); // we are reinitalizing firebase here; might need to change that in the future to call firebase from index file
 const db = admin.firestore();
 const bcrypt = require('bcryptjs');
+const { User } = require('../models/user') // import user models
+const { Task, difficultyConfig } = require('../models/task') // import task models
 import type { Request, Response} from "express"; // have to import key words (types) for type script
 import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 const TASKS_COLLECTION = 'tasks';
 const USERS_COLLECTION = 'users'; //users
 
+// console.log("Imported Task Model:", Task, difficultyConfig);
 // Create a new task
+
 exports.createTask = async (req: Request, res: Response) => {
   try {
-    const { title, completed } = req.body;
-    const newTask = await db.collection(TASKS_COLLECTION).add({ 
-      title: title || 'New Task', 
-      completed: completed || false,
-      createdAt: admin.firestore.FieldValue.serverTimestamp()
+    const { assignedTo, difficulty, title, dueDate } = req.body;
+
+    // Generate unique ID from Firestore
+    const taskRef = db.collection("tasks").doc();
+    const taskID = taskRef.id;
+
+    const newTask : Task = { // generate a task to put into firestore with some attributes from the frontend
+      taskID, 
+      title,
+      assignedTo,
+      difficulty,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      isComplete: false,
+      dueDate: dueDate,
+    };
+
+    // Store task in Firestore
+    await taskRef.set(newTask);
+
+    // Send full task data back to frontend
+    res.status(201).json({ 
+      id: taskID, 
+      title, 
+      assignedTo, 
+      difficulty, 
+      dueDate, 
+      isComplete: false,
+      createdAt: new Date().toISOString(),
+      message: 'Task created!' 
     });
-    res.status(201).json({ id: newTask.id, message: 'Task created!' });
+
   } catch (err: unknown) {
     if (err instanceof Error) {
       res.status(500).json({ error: 'Failed to create task', details: err.message });
@@ -83,6 +111,7 @@ exports.calculateReward = (req: Request, res: Response) => {
   res.json({ reward: taskDifficulty === 'hard' ? 'Gold Star' : 'Silver Star' });
 };
 
+// console.log("Imported User Model:", User);
 exports.registerUser = async (req: Request, res: Response) => {
   try {
       const { name, email, password } = req.body;
@@ -94,27 +123,32 @@ exports.registerUser = async (req: Request, res: Response) => {
       // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
 
+      // Generate a unique ID first from firebase
+      const userRef = db.collection("users").doc(); 
+      // Firebase-generated unique ID to store into userID
+      const userID = userRef.id; 
+
       // Save user data to Firestore
-      const newUser = await db.collection(USERS_COLLECTION).add({ 
-          name, 
-          email, 
+      const newUser: User = { 
+          userID: userID,
+          userName: name, 
+          email: email, 
           password: hashedPassword, // Store the hashed password         
           xp: 0, 
           level: 0,
           rank: "bronze", // default rank to bronze
           streak: 0,
-          completionRate: 0.00,
-          totalTasks: 0, // tot
-          currentTasks:[], // store an array of task IDs
-          achievements:[], // store an array of achievement IDs
+          currentTasks:[], // store an array of task IDs of current tasks
+          completedTasks:[], // store an array of task IDs of finished tasks
+          unfinishedTasks:[], // store an array of task IDs of unfinished tasks
+          achievements:[], // store an array of achievement IDs that the user has earned
           createdAt: admin.firestore.FieldValue.serverTimestamp()
-          // displayName, // make this in the register
-      });
+      };
 
-
-
-
-      res.status(201).json({ id: newUser.id, message: 'User registered!' });
+      // Store the user with the ID in Firestore (single write)
+      await userRef.set(newUser);
+      res.status(201).json({ id: userID, message: 'User registered!' }); 
+      // add edge case where there are duplicate emails (user names too? Dont know if we want to make user names unique)
   } catch (err: unknown) {
       if (err instanceof Error) {
         console.error("Registration Error:", err);
@@ -123,8 +157,6 @@ exports.registerUser = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Failed to register user', details: 'Unknown error occurred' });
     }
   }
-
-  
 };
 
 exports.loginUser = async (req: Request, res: Response) => {

@@ -22,24 +22,44 @@ function Dashboard() {
     { value: 'hard', label: 'Hard', reward: { coins: 5, xp: 5 }, timeEstimate: '1 day - 1 year' },
   ];
 
-  const handleAddQuest = (e) => {
+  const handleAddQuest = async (e) => {
     e.preventDefault();
-    if (newQuest.trim()) {
-      const newTask = {
-        id: Date.now(),
-        title: newQuest,
-        difficulty: selectedDifficulty,
-        dueDate,
+    if (!newQuest.trim()) return;
+
+    try { // send backend this information to store 
+      const response = await fetch("http://localhost:3000/tasks/create", {
+        method: "POST", // post request to backendAPI 
+        headers: { "Content-Type": "application/json" }, // request body contains JSON data
+        body: JSON.stringify({ // converts task object into a json string to be sent into the request body
+          title: newQuest,
+          difficulty: selectedDifficulty,
+          dueDate: new Date(dueDate).toISOString(), // Convert to ISO string
+          assignedTo: "test-user", // Replace with real user ID later; need to link backend models
+        }),
+      });
+
+      const data = await response.json(); // parses JSON response from backend into a javascript model
+      if (!response.ok) throw new Error(data.error || "Failed to create task");
+
+      // Update front end quests state with new task in the database then has variables only important for the frontend such as late
+      setQuests([...quests, {
+        id: data.id, // Use ID from backend
+        title: data.title,
+        difficulty: data.difficulty,
+        dueDate: data.dueDate,
         completed: false,
         late: false,
-        reward: taskTypes.find(t => t.value === selectedDifficulty).reward,
-        timestamp: new Date().getTime(),
-      };
-      setQuests([...quests, newTask]);
+        reward: taskTypes.find(t => t.value === selectedDifficulty)?.reward || { coins: 0, xp: 0 },
+        timestamp: Date.now(),
+      }]);
+
       setIsModalOpen(false);
       setNewQuest('');
       setSelectedDifficulty('easy');
       setDueDate('');
+    } catch (error) {
+      console.error("Error creating task:", error);
+      alert(error.message);
     }
   };
 
