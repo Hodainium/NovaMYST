@@ -259,6 +259,13 @@ function Dashboard() {
               {/* Leaderboard content goes here */}
             </div>
           )}
+
+          {activeSection === 'setting' && (
+            <div className="setting-section">
+              <h2>Setting</h2>
+              <Settings/>
+            </div>
+        )}
         </div>
       </div>
     </div>
