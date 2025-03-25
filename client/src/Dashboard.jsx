@@ -5,6 +5,7 @@ import {
   BarChart2, ChevronLeft, ChevronRight, Edit, Trash, Plus
 } from 'lucide-react';
 import AchievementDashboard from "./Achievements";
+import Settings from "./Settings";
 
 function Dashboard() {
   const [quests, setQuests] = useState([]);
