@@ -5,6 +5,7 @@ import {
   BarChart2, ChevronLeft, ChevronRight, Edit, Trash, Plus
 } from 'lucide-react';
 import AchievementDashboard from "./Achievements";
+import Settings from "./Settings";
 
 function Dashboard() {
   const [quests, setQuests] = useState([]);
@@ -259,6 +260,13 @@ function Dashboard() {
               {/* Leaderboard content goes here */}
             </div>
           )}
+
+          {activeSection === 'setting' && (
+            <div className="setting-section">
+              <h2>Setting</h2>
+              <Settings/>
+            </div>
+        )}
         </div>
       </div>
     </div>
