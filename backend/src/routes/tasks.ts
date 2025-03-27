@@ -1,4 +1,5 @@
 const express = require('express');
+const { authenticateFirebaseToken } = require('../middleware/authMiddleware');
 const {
   createTask,
   getTasks,
@@ -13,14 +14,13 @@ const {
 const router = express.Router();
 
 // Task routes
-router.post('/create', createTask);
-router.get('/list', getTasks);
-router.put('/update/:id', updateTask);
-router.delete('/delete/:id', deleteTask);
+router.post('/create', authenticateFirebaseToken, createTask);
+router.get('/list', authenticateFirebaseToken, getTasks);
+router.put('/update/:id', authenticateFirebaseToken, updateTask);
+router.delete('/delete/:id', authenticateFirebaseToken, deleteTask);
 
 // User registration route
-router.post('/register', registerUser);
-router.post('/login', loginUser);
+router.post('/register', authenticateFirebaseToken, registerUser);
 router.get('/test-firestore', testdb);
 
 // Reward calculation route
