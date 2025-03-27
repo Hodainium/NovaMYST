@@ -5,7 +5,9 @@ const { User } = require('../models/user') // import user models
 const { Task, difficultyConfig } = require('../models/task') // import task models
 import type { Request, Response} from "express"; // have to import key words (types) for type script
 import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
+import fetch from 'node-fetch';
 
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const TASKS_COLLECTION = 'tasks';
 const USERS_COLLECTION = 'users'; //users
 
@@ -13,198 +15,255 @@ const USERS_COLLECTION = 'users'; //users
 // Create a new task
 
 exports.createTask = async (req: Request, res: Response) => {
-  try {
-    const { assignedTo, difficulty, title, dueDate } = req.body;
+    try {
+      const user = (req as any).user; // Verified Firebase user
+  
+      const { difficulty, title, dueDate } = req.body;
+  
+      const taskRef = db.collection("tasks").doc();
+      const taskID = taskRef.id;
 
-    // Generate unique ID from Firestore
-    const taskRef = db.collection("tasks").doc();
-    const taskID = taskRef.id;
-
-    const newTask : Task = { // generate a task to put into firestore with some attributes from the frontend
-      taskID, 
-      title,
-      assignedTo,
-      difficulty,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      isComplete: false,
-      dueDate: dueDate,
-    };
-
-    // Store task in Firestore
-    await taskRef.set(newTask);
-
-    // Send full task data back to frontend
-    res.status(201).json({ 
-      id: taskID, 
-      title, 
-      assignedTo, 
-      difficulty, 
-      dueDate, 
-      isComplete: false,
-      createdAt: new Date().toISOString(),
-      message: 'Task created!' 
-    });
-
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      res.status(500).json({ error: 'Failed to create task', details: err.message });
-    } else {
-      res.status(500).json({ error: 'Failed to create task', details: 'Unknown error occurred' });
+      const rewardRes = await fetch('http://localhost:3000/tasks/calculateReward', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          taskTitle: title,
+          estimatedMinutes: 60, // You can later replace this with real input from frontend
+          difficulty: difficulty === 'easy' ? 1 : difficulty === 'medium' ? 3 : 5
+        })
+      });
+      
+      const rewardData = await rewardRes.json();
+      const xp = (rewardData as any).xp || 1;
+  
+      const newTask: Task = {
+        taskID,
+        title,
+        assignedTo: user.uid, // secure — ignore client-provided assignedTo
+        difficulty,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        isComplete: false,
+        dueDate,
+        xp
+      };
+  
+      await taskRef.set(newTask);
+  
+      res.status(201).json({ 
+        id: taskID,
+        title,
+        assignedTo: user.uid,
+        difficulty,
+        dueDate,
+        isComplete: false,
+        createdAt: new Date().toISOString(),
+        message: 'Task created!'
+      });
+  
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        res.status(500).json({ error: 'Failed to create task', details: err.message });
+      } else {
+        res.status(500).json({ error: 'Failed to create task', details: 'Unknown error occurred' });
+      }
     }
-  }
 };
 
 // List all tasks
 exports.getTasks = async (req: Request, res: Response) => {
-  try {
-    const snapshot = await db.collection(TASKS_COLLECTION).get();
-    const tasks = snapshot.docs.map((doc: QueryDocumentSnapshot) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    res.json(tasks);
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      res.status(500).json({ error: 'Failed to fetch tasks', details: err.message });
-    } else {
-      res.status(500).json({ error: 'Failed to fetch tasks', details: 'Unknown error occurred' });
-    }
-  }
-};
-
-// Update a task
-exports.updateTask = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const updatedData = req.body;
-
-    await db.collection(TASKS_COLLECTION).doc(id).update(updatedData);
-    res.json({ message: 'Task updated successfully' });
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      res.status(500).json({ error: 'Failed to update task', details: err.message });
-    } else {
-      res.status(500).json({ error: 'Failed to update task', details: 'Unknown error occurred' });
-    }
-  }
-};
-
-// Delete a task
-exports.deleteTask = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    await db.collection(TASKS_COLLECTION).doc(id).delete();
-    res.json({ message: 'Task deleted successfully' });
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      res.status(500).json({ error: 'Failed to delete task', details: err.message });
-    } else {
-      res.status(500).json({ error: 'Failed to delete task', details: 'Unknown error occurred' });
-    }
-  }
-};
-
-// Calculate reward (placeholder logic)
-exports.calculateReward = (req: Request, res: Response) => {
-  const { taskDifficulty } = req.body;
-  // Call Gemini API or use a custom algorithm
-  res.json({ reward: taskDifficulty === 'hard' ? 'Gold Star' : 'Silver Star' });
-};
-
-// console.log("Imported User Model:", User);
-exports.registerUser = async (req: Request, res: Response) => {
-  try {
-      const { name, email, password } = req.body;
-
-      if (!name || !email || !password) {
-          return res.status(400).json({ error: 'Name, email, and password are required' });
-      }
-
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
-
-      // Generate a unique ID first from firebase
-      const userRef = db.collection("users").doc(); 
-      // Firebase-generated unique ID to store into userID
-      const userID = userRef.id; 
-
-      // Save user data to Firestore
-      const newUser: User = { 
-          userID: userID,
-          userName: name, 
-          email: email, 
-          password: hashedPassword, // Store the hashed password         
-          xp: 0, 
-          level: 0,
-          rank: "bronze", // default rank to bronze
-          streak: 0,
-          currentTasks:[], // store an array of task IDs of current tasks
-          completedTasks:[], // store an array of task IDs of finished tasks
-          unfinishedTasks:[], // store an array of task IDs of unfinished tasks
-          achievements:[], // store an array of achievement IDs that the user has earned
-          createdAt: admin.firestore.FieldValue.serverTimestamp()
-      };
-
-      // Store the user with the ID in Firestore (single write)
-      await userRef.set(newUser);
-      res.status(201).json({ id: userID, message: 'User registered!' }); 
-      // add edge case where there are duplicate emails (user names too? Dont know if we want to make user names unique)
-  } catch (err: unknown) {
+    try {
+      const user = (req as any).user;
+      const snapshot = await db
+        .collection(TASKS_COLLECTION)
+        .where('assignedTo', '==', user.uid) // filter by user
+        .get();
+  
+      const tasks = snapshot.docs.map((doc: QueryDocumentSnapshot) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+  
+      res.json(tasks);
+    } catch (err: unknown) {
       if (err instanceof Error) {
-        console.error("Registration Error:", err);
-        res.status(500).json({ error: 'Failed to register user', details: err.message });
-    } else {
-        res.status(500).json({ error: 'Failed to register user', details: 'Unknown error occurred' });
-    }
-  }
-};
-
-exports.loginUser = async (req: Request, res: Response) => {
-  try {
-      const { email, password } = req.body;
-
-      if (!email || !password) {
-          return res.status(400).json({ error: 'Email and password are required' });
-      }
-
-      console.log(db);
-
-      const normalizedEmail = email.toLowerCase();
-      console.log("Normalized Email for Login:", normalizedEmail);
-
-      const usersRef = db.collection(USERS_COLLECTION);
-      console.log("Hiya");
-      const snapshot = await usersRef.where('email', '==', normalizedEmail).get();
-
-      console.log("Snapshot size:", snapshot.size);
-
-      if (snapshot.empty) {
-          return res.status(404).json({ error: 'Login failed. Please try again with a valid email.' });
-      }
-
-      let userData: any;
-      snapshot.forEach((doc: QueryDocumentSnapshot) => {
-          userData = { id: doc.id, ...doc.data() };
-      });
-
-      // if (userData.password !== password) {
-      //     return res.status(401).json({ error: 'Incorrect password' });
-      // }
-
-      // Compare entered password with the hashed password from the database
-      const isPasswordCorrect = await bcrypt.compare(password, userData.password);
-
-      if (!isPasswordCorrect) {
-        return res.status(401).json({ error: 'Incorrect password' });
-      }
-
-      res.status(200).json({ message: 'Login successful', user: userData });
-  } catch (err: unknown) {
-      if (err instanceof Error) {
-        res.status(500).json({ error: 'Failed to log in', details: err.message });
+        res.status(500).json({ error: 'Failed to fetch tasks', details: err.message });
       } else {
-        res.status(500).json({ error: 'Failed to log in', details: 'Unknown error occurred' });
+        res.status(500).json({ error: 'Failed to fetch tasks', details: 'Unknown error occurred' });
       }
+    }
+};
+
+exports.updateTask = async (req: Request, res: Response) => {
+    try {
+      const user = (req as any).user;
+      const { id } = req.params;
+      const updatedData = req.body;
+  
+      const taskRef = db.collection(TASKS_COLLECTION).doc(id);
+      const doc = await taskRef.get();
+  
+      if (!doc.exists || doc.data()?.assignedTo !== user.uid) {
+        return res.status(403).json({ error: 'Unauthorized to update this task' });
+      }
+  
+      const wasPreviouslyComplete = doc.data()?.isComplete === true;
+      const isNowComplete = updatedData.isComplete === true;
+  
+      await taskRef.update(updatedData);
+  
+      if (!wasPreviouslyComplete && isNowComplete) {
+        const taskXP = doc.data()?.xp || 0;
+        const userRef = db.collection(USERS_COLLECTION).doc(user.uid);
+        await userRef.update({
+          xp: admin.firestore.FieldValue.increment(taskXP),
+          completedTasks: admin.firestore.FieldValue.arrayUnion(id)
+        });
+      }
+  
+      res.json({ message: 'Task updated successfully' });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        res.status(500).json({ error: 'Failed to update task', details: err.message });
+      } else {
+        res.status(500).json({ error: 'Failed to update task', details: 'Unknown error occurred' });
+      }
+    }
+  };
+
+exports.deleteTask = async (req: Request, res: Response) => {
+    try {
+      const user = (req as any).user;
+      const { id } = req.params;
+  
+      const taskRef = db.collection(TASKS_COLLECTION).doc(id);
+      const doc = await taskRef.get();
+  
+      if (!doc.exists || doc.data()?.assignedTo !== user.uid) {
+        return res.status(403).json({ error: 'Unauthorized to delete this task' });
+      }
+  
+      await taskRef.delete();
+      res.json({ message: 'Task deleted successfully' });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        res.status(500).json({ error: 'Failed to delete task', details: err.message });
+      } else {
+        res.status(500).json({ error: 'Failed to delete task', details: 'Unknown error occurred' });
+      }
+    }
+};
+
+exports.calculateReward = async (req: Request, res: Response) => {
+    const { taskTitle, estimatedMinutes, difficulty } = req.body;
+  
+    const prompt = `Given a task with the following details:
+  - Description: ${taskTitle}
+  - Estimated time: ${estimatedMinutes} minutes
+  - Self-assigned difficulty: ${difficulty} (1-5)
+  
+  Assign an appropriate XP value between 1 and 100,000, considering task complexity, time, and difficulty. Please provide the XP value as a number.
+  
+  The XP value should be consistent across different runs for the same input. If you generate multiple responses, ensure that the XP value is consistent each time.
+  
+  Example tasks:
+  1. Task: Doing the dishes
+     Estimated time: 15 minutes
+     Difficulty: 1
+     XP: 100
+  
+  2. Task: Studying for an exam
+     Estimated time: 120 minutes
+     Difficulty: 3
+     XP: 2500
+  
+  3. Task: Writing a report
+     Estimated time: 60 minutes
+     Difficulty: 2
+     XP: 500
+  
+  4. Task: Buying a house
+     Estimated time: 50000 minutes
+     Difficulty: 5
+     XP: 100000
+  
+  5. Task: Having a baby
+     Estimated time: 525600 minutes (1 year)
+     Difficulty: 5
+     XP: 100000
+  
+  Now, process the following task:
+  Task: ${taskTitle}
+  Estimated time: ${estimatedMinutes} minutes
+  Difficulty: ${difficulty}
+  `;
+  
+    try {
+      const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          generationConfig: {
+            temperature: 0
+          },
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt
+                }
+              ]
+            }
+          ]
+        })
+      });
+  
+      const data = await geminiRes.json() as any;
+      const outputText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  
+      const xpMatch = outputText?.match(/(\d{1,6})/); // match 1-6 digit number
+      const xp = xpMatch ? parseInt(xpMatch[1], 10) : null;
+  
+      if (!xp) {
+        return res.status(400).json({ error: 'Could not extract XP value from Gemini response.', raw: outputText });
+      }
+  
+      res.json({ xp, raw: outputText });
+    } catch (err: any) {
+      console.error("Gemini API call failed:", err);
+      res.status(500).json({ error: 'Gemini API call failed', details: err.message });
+    }
+};
+
+exports.registerUser = async (req: Request, res: Response) => {
+    try {
+        const user = (req as any).user;
+        const { name } = req.body;
+  
+      const userRef = db.collection("users").doc(user.uid);
+  
+      const newUser = {
+        userID: user.uid,
+        userName: name || user.name || "Anonymous",
+        email: user.email,
+        xp: 0,
+        level: 0,
+        rank: "bronze",
+        streak: 0,
+        currentTasks: [],
+        completedTasks: [],
+        unfinishedTasks: [],
+        achievements: [],
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+      };
+  
+      await userRef.set(newUser, { merge: true });
+      res.status(201).json({ message: 'User document created/updated!' });
+    } catch (err: any) {
+      res.status(500).json({ error: 'Failed to create user', details: err.message });
     }
 };
 

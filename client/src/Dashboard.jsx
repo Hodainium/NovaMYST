@@ -6,6 +6,9 @@ import {
 } from 'lucide-react';
 import AchievementDashboard from "./Achievements";
 import Settings from "./Settings";
+import { auth } from "./firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
   const [quests, setQuests] = useState([]);
@@ -15,6 +18,51 @@ function Dashboard() {
   const [isTaskbarOpen, setIsTaskbarOpen] = useState(true);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        navigate("/login");
+        setLoading(false);
+        return;
+      }
+  
+      try {
+        const token = await user.getIdToken();
+  
+        const res = await fetch("http://localhost:3000/tasks/list", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to fetch tasks");
+  
+        setQuests(data.map(task => ({
+          id: task.id,
+          title: task.title,
+          difficulty: task.difficulty,
+          dueDate: task.dueDate,
+          completed: task.isComplete,
+          late: false,
+          reward: taskTypes.find(t => t.value === task.difficulty)?.reward || { coins: 0, xp: 0 },
+          timestamp: Date.now(),
+        })));
+      } catch (err) {
+        console.error("Error fetching tasks:", err);
+      } finally {
+        setLoading(false);
+      }
+    });
+  
+    return () => unsubscribe();
+  }, []);
 
   const taskTypes = [
     /*The coins, xp, and time estimates are just placeholders I made up. Subject to change*/
@@ -26,60 +74,126 @@ function Dashboard() {
   const handleAddQuest = async (e) => {
     e.preventDefault();
     if (!newQuest.trim()) return;
-
-    try { // send backend this information to store 
-      const response = await fetch("http://localhost:3000/tasks/create", {
-        method: "POST", // post request to backendAPI 
-        headers: { "Content-Type": "application/json" }, // request body contains JSON data
-        body: JSON.stringify({ // converts task object into a json string to be sent into the request body
-          title: newQuest,
-          difficulty: selectedDifficulty,
-          dueDate: new Date(dueDate).toISOString(), // Convert to ISO string
-          assignedTo: "test-user", // Replace with real user ID later; need to link backend models
-        }),
-      });
-
-      const data = await response.json(); // parses JSON response from backend into a javascript model
-      if (!response.ok) throw new Error(data.error || "Failed to create task");
-
-      // Update front end quests state with new task in the database then has variables only important for the frontend such as late
-      setQuests([...quests, {
-        id: data.id, // Use ID from backend
-        title: data.title,
-        difficulty: data.difficulty,
-        dueDate: data.dueDate,
-        completed: false,
-        late: false,
-        reward: taskTypes.find(t => t.value === selectedDifficulty)?.reward || { coins: 0, xp: 0 },
-        timestamp: Date.now(),
-      }]);
-
+  
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error("User not logged in");
+  
+      const token = await user.getIdToken();
+  
+      const taskData = {
+        title: newQuest,
+        difficulty: selectedDifficulty,
+        dueDate: new Date(dueDate).toISOString()
+      };
+  
+      if (editingTaskId) {
+        // Update existing task
+        await fetch(`http://localhost:3000/tasks/update/${editingTaskId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(taskData)
+        });
+  
+        // Update local state
+        setQuests((prev) =>
+          prev.map((q) =>
+            q.id === editingTaskId ? { ...q, ...taskData } : q
+          )
+        );
+      } else {
+        // Create new task
+        const response = await fetch("http://localhost:3000/tasks/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ ...taskData, assignedTo: user.uid })
+        });
+  
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Failed to create task");
+  
+        setQuests([...quests, {
+          id: data.id,
+          ...taskData,
+          completed: false,
+          late: false,
+          reward: taskTypes.find(t => t.value === selectedDifficulty)?.reward || { coins: 0, xp: 0 },
+          timestamp: Date.now()
+        }]);
+      }
+  
+      // Reset form and modal
       setIsModalOpen(false);
       setNewQuest('');
       setSelectedDifficulty('easy');
       setDueDate('');
+      setEditingTaskId(null);
     } catch (error) {
-      console.error("Error creating task:", error);
+      console.error("Error saving task:", error);
       alert(error.message);
     }
   };
 
-  const handleCompleteQuest = (id) => {
-    setQuests((prev) => prev.map((q) => q.id === id ? { ...q, completed: true } : q));
+  const handleCompleteQuest = async (id) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error("User not logged in");
+      const token = await user.getIdToken();
+  
+      // Tell backend to mark this task as complete
+      await fetch(`http://localhost:3000/tasks/update/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ isComplete: true })
+      });
+  
+      // Reflect change in local state
+      setQuests((prev) =>
+        prev.map((q) =>
+          q.id === id ? { ...q, completed: true, timestamp: Date.now() } : q
+        )
+      );
+    } catch (err) {
+      console.error("Error completing task:", err);
+    }
   };
 
-  const handleDeleteQuest = (id) => {
-    setQuests((prev) => prev.filter((q) => q.id !== id));
+  const handleDeleteQuest = async (id) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error("User not logged in");
+      const token = await user.getIdToken();
+  
+      await fetch(`http://localhost:3000/tasks/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+  
+      setQuests((prev) => prev.filter((q) => q.id !== id));
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
   };
 
   const handleEditQuest = (id) => {
     const quest = quests.find((q) => q.id === id);
     if (quest) {
+      setEditingTaskId(id); // track the ID being edited
       setNewQuest(quest.title);
       setSelectedDifficulty(quest.difficulty);
       setDueDate(quest.dueDate);
       setIsModalOpen(true);
-      handleDeleteQuest(id);
     }
   };
 
@@ -98,6 +212,10 @@ function Dashboard() {
   const completionRate = quests.length ? ((completedQuests / quests.length) * 100).toFixed(2) : 0;
   const totalCoins = quests.reduce((acc, q) => q.completed ? acc + q.reward.coins : acc, 0);
   const totalXP = quests.reduce((acc, q) => q.completed ? acc + q.reward.xp : acc, 0);
+
+  if (loading) {
+    return <div className="loading-screen">Loading tasks...</div>;
+  }
 
   const renderQuest = (quest) => (
     <div key={quest.id} className="quest-item">

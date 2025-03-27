@@ -4,6 +4,8 @@ import './Home.css';
 import googleimg from './assets/google.png';
 import { DarkModeContext } from './DarkMode';
 import axios from 'axios';
+import { signInWithPopup, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth, googleProvider } from "./firebase";
 
 function Home() {
     const navigate = useNavigate();
@@ -17,23 +19,55 @@ function Home() {
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        if (password !== confirmPassword) {
-            alert("Passwords do not match");
-            return;
-        }
-        if (!username || !email || !password || !confirmPassword) {
-            alert("Please fill in all fields.");
-            return;
-        }
+        if (password !== confirmPassword) return alert("Passwords don't match!");
+      
         try {
-            await axios.post('http://localhost:3000/tasks/register', {
-                name: username,
-                email,
-                password
-            });
-            navigate('/dashboard');
+            const userCred = await createUserWithEmailAndPassword(auth, email, password);
+            await updateProfile(userCred.user, { displayName: username });
+      
+            const token = await userCred.user.getIdToken();
+
+            console.log("Firebase token from signup:", token);
+      
+            // Optional: send token to backend to create user doc
+            await fetch("http://localhost:3000/tasks/register", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name: username })
+          });
+      
+          navigate('/dashboard');
+        } catch (error) {
+          console.error("Firebase Registration Error:", error.message);
+          alert("Registration failed: " + error.message);
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        try {
+          const result = await signInWithPopup(auth, googleProvider);
+          const user = result.user;
+          const token = await user.getIdToken();
+      
+          console.log("Google user:", user);
+      
+          // Send token to backend to create/check user in Firestore
+          await fetch("http://localhost:3000/tasks/register", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name: user.displayName })
+          });
+      
+          navigate("/dashboard");
         } catch (err) {
-            console.log(err);
+          console.error("Google login failed:", err.message);
+          alert("Google login failed: " + err.message);
         }
     };
 
@@ -120,7 +154,7 @@ function Home() {
                             {renderInput("Confirm Password", "password", confirmPassword, (e) => setConfirmPassword(e.target.value))}
                             <button type="submit" className="submit-button">Sign Up</button>
                             <div className="or-divider">OR</div>
-                            <button type="button" className="google-signup-button">
+                            <button type="button" className="google-signup-button" onClick={handleGoogleLogin}>
                                 <img src={googleimg} className="google-logo" />
                                 Sign up with Google
                             </button>

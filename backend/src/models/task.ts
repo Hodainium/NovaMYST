@@ -8,6 +8,7 @@ interface Task {
     createdAt: FirebaseFirestore.Timestamp; // change this to date if needed
     isComplete: boolean; 
     dueDate: Date;
+    xp: number;
 }
 
 const difficultyConfig: { // make a map that takes in a key (difficulty) to give you the XP and time needed for the difficulty
@@ -26,7 +27,8 @@ module.exports = {
         title: "",
         createdAt: null, // change this to date if needed
         isComplete: false,
-        dueDate: null
+        dueDate: null,
+        xp: 1
     },
     difficultyConfig
   };
