@@ -4,7 +4,8 @@ import axios from 'axios';
 import './Login.css';
 import googleimg from './assets/google.png';
 import { signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "./firebase"; // adjust path as needed
+import { auth, googleProvider } from "./firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 function Login() {
     const navigate = useNavigate();
