@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Timer, CheckCircle2, Trophy, Coins, LayoutDashboard, ListChecks, User, Award,
-  BarChart2, ChevronLeft, ChevronRight, Edit, Trash, Plus
+  BarChart2, ChevronLeft, ChevronRight, Edit, Trash, Plus, Cog
 } from 'lucide-react';
 import AchievementDashboard from "./Achievements";
 import Settings from "./Settings";
@@ -253,7 +253,8 @@ function Dashboard() {
               { icon: <ListChecks size={24} />, name: 'tasks' },
               { icon: <User size={24} />, name: 'character' },
               { icon: <Award size={24} />, name: 'achievements' },
-              { icon: <BarChart2 size={24} />, name: 'leaderboard' }
+              { icon: <BarChart2 size={24} />, name: 'leaderboard' },
+              { icon: <Cog size={24} />, name: 'settings'}
             ].map(({ icon, name }) => (
               <div key={name} className="taskbar-section" onClick={() => setActiveSection(name)}>
                 {icon}
@@ -379,9 +380,9 @@ function Dashboard() {
             </div>
           )}
 
-          {activeSection === 'setting' && (
+          {activeSection === 'settings' && (
             <div className="setting-section">
-              <h2>Setting</h2>
+              <h2>Settings</h2>
               <Settings/>
             </div>
         )}

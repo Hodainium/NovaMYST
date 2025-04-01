@@ -11,6 +11,7 @@ function Login() {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [open, setOpen] = useState(false);
 
     const isDevMode = false; // Set to true to skip login, false to enable login check
 
@@ -62,6 +63,48 @@ function Login() {
         }
     };
 
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleOpen = () => {
+        setOpen(true);
+    };
+
+    const Modal = ({isOpen, onClose, children }) => {
+        if (!isOpen) return null;
+
+        return (
+            <div onClick = {onClose}
+            style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                background: "rgba(0, 0, 0, 0.5)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+            }}
+            > 
+                <div
+                    style={{
+                        background: "white",
+                        margin: "auto",
+                        padding: "20px",
+                        border: "3px solid",
+                        width: "20%",
+                        borderRadius: "10px",
+                        borderColor: "#6c5dd3",
+                    }}
+                >
+                    {children}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="login-page">
             <header className="login-header">
@@ -94,6 +137,22 @@ function Login() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="form-input"
                             />
+                            <button type="button" className="forgot-button" onClick={handleOpen}>Forgot Password</button>
+
+                            <Modal isOpen={open}> 
+                                <span className="close" onClick={handleClose}>&times;</span>
+                                    <h1 className="forgotText">Forgot Password?</h1>
+                                    <h5 className="emailHeader">Email Address</h5>
+                                    <input type="text" className="email-input"/>
+
+                                    
+                                    <button className="submitEmail" onClick={handleClose}>Send Email</button>
+                                    {/*If there is nothing in the input, a popup will appear saying "Please add an email" */}
+                                    
+                                    {/*A condition that before the send email button --> If there exists an email, then send an email
+                                        If there isn't, then a message saying "Please enter an existing email" will appear*/}
+                            </Modal>
+
                         </div>
                         <button type="submit" className="submit-button">Login</button>
                         <div className="or-divider">OR</div>
