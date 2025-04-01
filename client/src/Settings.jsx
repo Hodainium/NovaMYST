@@ -12,7 +12,6 @@ export default function Settings () {
                 <h4>Username Change</h4>
                 <input type="text" className="TypeUsername" placeholder="Enter a new username"/>
                 <button className="SubmitName">Change Username</button>
-                // Change Username
             </div>
 
             <div className="PasswordChange">
