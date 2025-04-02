@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './Login.css';
@@ -6,37 +6,36 @@ import googleimg from './assets/google.png';
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "./firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { DarkModeContext } from './DarkMode';
 
 function Login() {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [open, setOpen] = useState(false);
-
-    const isDevMode = false; // Set to true to skip login, false to enable login check
+    const { darkMode, toggleDarkMode } = useContext(DarkModeContext);
 
     const handleGoogleLogin = async () => {
         try {
-          const result = await signInWithPopup(auth, googleProvider);
-          const user = result.user;
-          const token = await user.getIdToken();
-      
-          console.log("Google user:", user);
-      
-          // Send token to backend to create/check user in Firestore
-          await fetch("http://localhost:3000/tasks/register", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ name: user.displayName })
-          });
-      
-          navigate("/dashboard");
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            const token = await user.getIdToken();
+        
+            console.log("Google user:", user);
+        
+            await fetch("http://localhost:3000/tasks/register", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ name: user.displayName })
+            });
+        
+            navigate("/dashboard");
         } catch (err) {
-          console.error("Google login failed:", err.message);
-          alert("Google login failed: " + err.message);
+            console.error("Google login failed:", err.message);
+            alert("Google login failed: " + err.message);
         }
     };
 
@@ -49,11 +48,10 @@ function Login() {
 
             console.log("Firebase token from login:", token);
 
-            // Optional: Send token to backend to fetch user-specific tasks
             await fetch("http://localhost:3000/tasks/list", {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
             });
 
             navigate('/dashboard');
@@ -71,26 +69,27 @@ function Login() {
         setOpen(true);
     };
 
-    const Modal = ({isOpen, onClose, children }) => {
+    const Modal = ({ isOpen, onClose, children }) => {
         if (!isOpen) return null;
 
         return (
-            <div onClick = {onClose}
-            style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                background: "rgba(0, 0, 0, 0.5)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-            }}
+            <div onClick={onClose}
+                style={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    background: "rgba(0, 0, 0, 0.5)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}
             > 
                 <div
                     style={{
-                        background: "white",
+                        background: darkMode ? "#2a2a2a" : "white",
+                        color: darkMode ? "#f5f5f5" : "#333333",
                         margin: "auto",
                         padding: "20px",
                         border: "3px solid",
@@ -106,13 +105,23 @@ function Login() {
     };
 
     return (
-        <div className="login-page">
+        <div className={`login-page ${darkMode ? 'dark-mode' : ''}`}>
             <header className="login-header">
                 <div className="header-content">
                     <h1 className="header-title">NovaMyst</h1>
-                    <Link to="/" className="home-link">
-                        Home
-                    </Link>
+                    <div className="header-right">
+                        <label className="dark-mode-toggle">
+                            <input
+                                type="checkbox"
+                                checked={darkMode}
+                                onChange={toggleDarkMode}
+                            />
+                            <span className="slider"></span>
+                        </label>
+                        <Link to="/" className="home-link">
+                            Home
+                        </Link>
+                    </div>
                 </div>
             </header>
 
@@ -137,27 +146,22 @@ function Login() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="form-input"
                             />
-                            <button type="button" className="forgot-button" onClick={handleOpen}>Forgot Password</button>
+                            <button type="button" className="forgot-button" onClick={handleOpen}>
+                                Forgot Password
+                            </button>
 
-                            <Modal isOpen={open}> 
+                            <Modal isOpen={open} onClose={handleClose}>
                                 <span className="close" onClick={handleClose}>&times;</span>
-                                    <h1 className="forgotText">Forgot Password?</h1>
-                                    <h5 className="emailHeader">Email Address</h5>
-                                    <input type="text" className="email-input"/>
-
-                                    
-                                    <button className="submitEmail" onClick={handleClose}>Send Email</button>
-                                    {/*If there is nothing in the input, a popup will appear saying "Please add an email" */}
-                                    
-                                    {/*A condition that before the send email button --> If there exists an email, then send an email
-                                        If there isn't, then a message saying "Please enter an existing email" will appear*/}
+                                <h1 className="forgotText">Forgot Password?</h1>
+                                <h5 className="emailHeader">Email Address</h5>
+                                <input type="text" className="email-input"/>
+                                <button className="submitEmail" onClick={handleClose}>Send Email</button>
                             </Modal>
-
                         </div>
                         <button type="submit" className="submit-button">Login</button>
                         <div className="or-divider">OR</div>
                         <button type="button" className="google-login-button" onClick={handleGoogleLogin}>
-                            <img src= {googleimg}  className="google-logo" />
+                            <img src={googleimg} className="google-logo" />
                             Login with Google
                         </button>
                     </form>
