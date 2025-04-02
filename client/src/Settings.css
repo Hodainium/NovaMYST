@@ -1,48 +1,176 @@
-.UsernameChange,.PasswordChange {
+.settings-container {
+    width: 100%;
+    padding: 1rem;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+form {
+    width: 95%;
+}
+
+form h4 {
+    color: #6c5dd3;
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.UsernameChange, .PasswordChange {
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
-    padding: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: #fafafa;
     border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    color: #333333;
+    border: 1px solid #eee;
+    width: 100%;
 }
 
 .TypeUsername, .TypePassword {
-    display: flex;
-    flex: 1;
-    padding: 12px;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    color: #333333;
-    font-size: 16px;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    color: #333;
+    font-size: 15px;
+    transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.TypeUsername:focus, .TypePassword:focus {
+    outline: none;
+    border-color: #6c5dd3;
+    box-shadow: 0 0 0 3px rgba(108, 93, 211, 0.1);
 }
 
 .SubmitName, .SubmitPassword {
     padding: 12px 24px;
     background: #6c5dd3;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     color: white;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.2s ease;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.SubmitName:hover, .SubmitPassword:hover {
+    background: #5a4bc2;
+    transform: translateY(-1px);
+}
+
+.side-by-side-boxes {
+    display: flex;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.appearance-settings, .danger-zone {
+    flex: 1;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.appearance-settings {
+    background: #fafafa;
+    border: 1px solid #eee;
+}
+
+.danger-zone {
+    background: #fff8f8;
+    border: 1px solid #ffdddd;
+}
+
+.mode-text{
+    width: 50px;
+}
+
+.dark-mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 30px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #6c5dd3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(30px);
+}
+
+.toggle-label {
+    font-weight: 500;
+    color: #333;
 }
 
 .AccountDeletion {
     padding: 12px 24px;
-    color:rgb(255, 60, 60);
-    background: #6c5dd3;
+    background: #ff3c3c;
+    color: white;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.2s ease;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
+    width: 100%;
 }
 
 .AccountDeletion:hover {
-    background: #ff0000;
-    color: #ffffff;
+    background: #e60000;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .side-by-side-boxes {
+        flex-direction: column;
+    }
+    
+    .SubmitName, .SubmitPassword {
+        width: auto;
+        align-self: flex-start;
+    }
 }

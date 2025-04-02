@@ -39,7 +39,7 @@ function Home() {
             body: JSON.stringify({ name: username })
           });
       
-          navigate('/dashboard');
+          navigate('/login');
         } catch (error) {
           console.error("Firebase Registration Error:", error.message);
           alert("Registration failed: " + error.message);
@@ -64,7 +64,7 @@ function Home() {
             body: JSON.stringify({ name: user.displayName })
           });
       
-          navigate("/dashboard");
+          navigate("/login");
         } catch (err) {
           console.error("Google login failed:", err.message);
           alert("Google login failed: " + err.message);
@@ -227,17 +227,8 @@ function Home() {
             </section>
 
             <footer className="footer-section">
-                <div className="footer-content">
-                    {[
-                        ["About Us", "Placeholder for about us content."],
-                        ["Quick Links", <ul><li>Placeholder Link 1</li><li>Placeholder Link 2</li><li>Placeholder Link 3</li></ul>],
-                        ["Contact Us", "Placeholder for contact information."]
-                    ].map(([title, content], i) => (
-                        <div key={i} className="footer-column">
-                            <h3>{title}</h3>
-                            <p>{content}</p>
-                        </div>
-                    ))}
+                <div className="footer-bottom">
+                    <p>&copy; {new Date().getFullYear()} NovaMyst. All rights reserved.</p>
                 </div>
             </footer>
         </div>

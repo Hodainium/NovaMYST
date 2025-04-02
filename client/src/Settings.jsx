@@ -1,29 +1,73 @@
-import './Settings.css'
-import { useState } from 'react';
+import './Settings.css';
+import { useState, useContext } from 'react';
+import { DarkModeContext } from './DarkMode';
 
-export default function Settings () {
+export default function Settings() {
     const [Username, SetnewUsername] = useState('');
     const [Password, SetnewPassword] = useState('');
-    const [Delete, DeleteAccount] = useState('');
+    const { darkMode, toggleDarkMode } = useContext(DarkModeContext);
 
     return (
-        <form>
-            <div className="UsernameChange"> 
-                <h4>Username Change</h4>
-                <input type="text" className="TypeUsername" placeholder="Enter a new username"/>
-                <button className="SubmitName">Change Username</button>
-            </div>
+        <div className="settings-container">
+            <form>
+                <div className="UsernameChange"> 
+                    <h4>Change Username</h4>
+                    <input 
+                        type="text" 
+                        className="TypeUsername" 
+                        placeholder="Enter new username"
+                        value={Username}
+                        onChange={(e) => SetnewUsername(e.target.value)}
+                    />
+                    <button className="SubmitName">Update Username</button>
+                </div>
 
-            <div className="PasswordChange">
-                <h4>Password Change</h4>
-                <input type="text" className="TypePassword" placeholder="Enter your current password"/>
-                <input type="text" className="TypePassword" placeholder="Enter your new password"/>
-                <input type="text" className="TypePassword" placeholder="Enter your new password again"/>
-                <button className="SubmitPassword">Change Password</button>
-            </div>
+                <div className="PasswordChange">
+                    <h4>Change Password</h4>
+                    <input 
+                        type="password" 
+                        className="TypePassword" 
+                        placeholder="Current password"
+                        value={Password}
+                        onChange={(e) => SetnewPassword(e.target.value)}
+                    />
+                    <input 
+                        type="password" 
+                        className="TypePassword" 
+                        placeholder="New password"
+                    />
+                    <input 
+                        type="password" 
+                        className="TypePassword" 
+                        placeholder="Confirm new password"
+                    />
+                    <button className="SubmitPassword">Update Password</button>
+                </div>
 
-            <button className="AccountDeletion">Delete Account</button>
-            
-        </form>
-    )
+                <div className="side-by-side-boxes">
+                    <div className="appearance-settings">
+                        <h4>Appearance</h4>
+                        <div className="dark-mode-toggle-container">
+                            <label className="dark-mode-toggle">
+                                <div className="switch">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={darkMode}
+                                        onChange={toggleDarkMode}
+                                    />
+                                    <span className="slider"></span>
+                                </div>
+                                
+                            </label>
+                        </div>
+                    </div>
+
+                    <div className="danger-zone">
+                        <h4>Account Actions</h4>
+                        <button className="AccountDeletion">Delete My Account</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    );
 }

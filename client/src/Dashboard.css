@@ -118,7 +118,10 @@ html, body {
 .dashboard-section, .tasks-section, .character-section, .achievements-section, .leaderboard-section {
     background: #f9f9f9;
     border-radius: 16px;
-    padding: 2rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
     border: 1px solid #e0e0e0;
     margin-bottom: 2rem;
 }
