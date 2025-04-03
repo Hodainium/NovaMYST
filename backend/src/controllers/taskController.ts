@@ -6,6 +6,7 @@ const { Task, difficultyConfig } = require('../models/task') // import task mode
 import type { Request, Response} from "express"; // have to import key words (types) for type script
 import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import fetch from 'node-fetch';
+import { syncUserAchievements } from './achievementController';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const TASKS_COLLECTION = 'tasks';
@@ -50,6 +51,8 @@ exports.createTask = async (req: Request, res: Response) => {
       };
   
       await taskRef.set(newTask);
+
+      await syncUserAchievements(user.uid);
   
       res.status(201).json({ 
         id: taskID,
@@ -114,12 +117,17 @@ exports.updateTask = async (req: Request, res: Response) => {
       await taskRef.update(updatedData);
   
       if (!wasPreviouslyComplete && isNowComplete) {
-        const taskXP = doc.data()?.xp || 0;
+        const updatedDoc = await taskRef.get();
+        const taskXP = updatedDoc.data()?.xp || 0;
+
+        console.log(`Granting ${taskXP} XP to user ${user.uid} for completing task ${id}`);
+
         const userRef = db.collection(USERS_COLLECTION).doc(user.uid);
         await userRef.update({
-          xp: admin.firestore.FieldValue.increment(taskXP),
-          completedTasks: admin.firestore.FieldValue.arrayUnion(id)
+            xp: admin.firestore.FieldValue.increment(taskXP),
+            completedTasks: admin.firestore.FieldValue.arrayUnion(id)
         });
+        await syncUserAchievements(user.uid);
       }
   
       res.json({ message: 'Task updated successfully' });
@@ -240,28 +248,35 @@ exports.calculateReward = async (req: Request, res: Response) => {
 
 exports.registerUser = async (req: Request, res: Response) => {
     try {
-        const user = (req as any).user;
-        const { name } = req.body;
+      const user = (req as any).user;
+      const { name } = req.body;
   
       const userRef = db.collection("users").doc(user.uid);
+      const userSnap = await userRef.get();
   
-      const newUser = {
-        userID: user.uid,
-        userName: name || user.name || "Anonymous",
-        email: user.email,
-        xp: 0,
-        level: 0,
-        rank: "bronze",
-        streak: 0,
-        currentTasks: [],
-        completedTasks: [],
-        unfinishedTasks: [],
-        achievements: [],
-        createdAt: admin.firestore.FieldValue.serverTimestamp()
-      };
+      if (!userSnap.exists) {
+        const newUser = {
+          userID: user.uid,
+          userName: name || user.name || "Anonymous",
+          email: user.email,
+          xp: 0,
+          level: 0,
+          rank: "bronze",
+          streak: 0,
+          coins: 0,
+          currentTasks: [],
+          completedTasks: [],
+          unfinishedTasks: [],
+          achievements: [],
+          createdAt: admin.firestore.FieldValue.serverTimestamp()
+        };
   
-      await userRef.set(newUser, { merge: true });
-      res.status(201).json({ message: 'User document created/updated!' });
+        await userRef.set(newUser);
+        await syncUserAchievements(user.uid);
+        return res.status(201).json({ message: 'User document created!' });
+      }
+  
+      res.status(200).json({ message: 'User already exists. No update needed.' });
     } catch (err: any) {
       res.status(500).json({ error: 'Failed to create user', details: err.message });
     }

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Award, CheckCircle2 } from 'lucide-react';
+import { auth } from './firebase';
 import "./Achievements.css";
 
 function AchievementDashboard() {
@@ -14,84 +15,66 @@ function AchievementDashboard() {
         achievementProgress: leave here but replace variables, this makes achievementCurrent/achievementTotal into a percent
         Can also replace it with some other stat if you want.
     */
-    const [achievementCurrent, setAchievementCurrent] = useState(0); 
-    const achievementTotal = 9; 
-    const achievementProgress = (achievementCurrent/achievementTotal) * 100; 
+
+    const [achievements, setAchievements] = useState([]);
+
+    useEffect(() => {
+        const fetchAchievements = async () => {
+        try {
+            const user = auth.currentUser;
+            if (!user) return;
     
-    const achievementList = [{ 
-        id: 1,
-        icon: "🤩",
-        title: "First Taste", 
-        type: "EXP", 
-        amount: 100, 
-        reward: "10 🪙",
-        claimed: false
-    }, { 
-        id: 2,
-        icon: "🤖",
-        title: "Grinder", 
-        type: "EXP", 
-        amount: 1000, 
-        reward: "100 🪙",
-        claimed: false
-    }, { 
-        id: 3,
-        icon: "♾️",
-        title: "Infinity", 
-        type: "EXP", 
-        amount: 1000000, 
-        reward: "1000 🪙",
-        claimed: false
-    }, { 
-        id: 4,
-        icon: "⌚",
-        title: "Lunch Break", 
-        type: "TIME", 
-        amount: 1, 
-        reward: "10 🪙",
-        claimed: true
-    },
-    { 
-        id: 5,
-        icon: "🧠",
-        title: "Addiction", 
-        type: "TIME", 
-        amount: 10 , 
-        reward: "100 🪙",
-        claimed: false
-    }, { 
-        id: 6,
-        icon: "🦖☄️",
-        title: "Time Master", 
-        type: "TIME", 
-        amount: 100, 
-        reward: "10000 🪙",
-        claimed: false
-    }, { 
-        id: 7,
-        icon: "🐒",
-        title: "Task Novice", 
-        type: "TASK", 
-        amount: 5, 
-        reward: "10 🪙",
-        claimed: true
-    }, { 
-        id: 8,
-        icon: "🦄",
-        title: "Task Guru", 
-        type: "TASK", 
-        amount: 50,
-        reward: "100 🪙",
-        claimed: false 
-    }, { 
-        id: 9,
-        icon: "🗿",
-        title: "Task Titan", 
-        type: "TASK", 
-        amount: 100, 
-        reward: "1000 🪙",
-        claimed: false 
-    }];
+            const token = await user.getIdToken();
+    
+            const res = await fetch('http://localhost:3000/achievements/progress', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            });
+    
+            const data = await res.json();
+            setAchievements(data);
+            console.log("Fetched achievements:", data);
+        } catch (err) {
+            console.error('Failed to fetch achievements:', err);
+        }
+        };
+    
+        fetchAchievements();
+    }, []);
+
+    const handleClaim = async (achievementID) => {
+        try {
+          const user = auth.currentUser;
+          const token = await user.getIdToken();
+      
+          const res = await fetch(`http://localhost:3000/achievements/claim/${achievementID}`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+      
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Claim failed");
+      
+          // Refetch updated achievements after claiming
+          const refreshed = await fetch('http://localhost:3000/achievements/progress', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+      
+          const updated = await refreshed.json();
+          setAchievements(updated);
+        } catch (err) {
+          console.error("Claim error:", err);
+        }
+    };
+    
+    const achievementTotal = achievements.length;
+    const achievementCurrent = achievements.filter(a => a.completed).length;
+    const achievementProgress = (achievementCurrent / achievementTotal) * 100;
 
     /*
         handles the achievementCurrent/achievementTotal stat on the side
@@ -119,35 +102,20 @@ function AchievementDashboard() {
                 achievementTotal={achievementTotal}
             />
             <div className="achievement-list">
-                {achievementList.map((achievementList) => (
+                {achievements.map((a) => (
                     <AchievementBox
-                        /*
-                            Maps each data from our list to an individual box
-
-                            id is mainly there for the "missing key prop" issue that comes from mapping/arrays, 
-                            search up the issue if you need
-                            
-                            To do:
-                            We need to do this part to handle the different types of achievements and because
-                            our progressBar is tracking three different types of data.
-
-                            Add a prop (name whatever you like) example: currentNumber={user.EXP or user.taskCount}
-
-                            if achievementList.type == EXP, TASK, or TIME, 
-                                currentNumber={user.whatevertype}
-
-                            currentNumber gets passed into the spots needed
-                        */
-                        key={achievementList.id} 
-                        icon={achievementList.icon}
-                        title={achievementList.title}
-                        type={achievementList.type}
-                        amount={achievementList.amount}
-                        reward={achievementList.reward}
-                        claimed={achievementList.claimed}
-                        onClaim={handleClaimStats}
+                        key={a.achievementID}
+                        icon={a.icon}
+                        title={a.name}
+                        description={a.description}
+                        type={a.goalType}
+                        amount={a.goalNum}
+                        reward={`${a.rewardValue} ${a.rewardType === 'xp' ? 'XP' : a.rewardType === 'coins' ? '💰' : '🎁'}`}
+                        current={a.current}
+                        claimed={a.claimed}
+                        onClaim={() => handleClaim(a.achievementID)} // We'll wire this in soon
                     />
-                ))}
+                    ))}
             </div>
         </div>
     );
@@ -165,9 +133,9 @@ function AchievementDashboard() {
     Replace the mockCounts with that prop.
     mockCount tells us the current number of whatever activity we are doing. We need it for our progressBar and state of button.
 */
-function AchievementBox ({ icon, title, type, amount, reward, claimed, onClaim }) {
+function AchievementBox ({ icon, title, description, type, amount, reward, claimed, current, onClaim }) {
     const [isClaimed, setClaimed] = useState(claimed); // claimed variable from our achievements
-    const mockCount = 50;
+    const progressCount = current ?? 0;
     /*
         Can move the description into the database but not sure how that interacts with styling (colored numbers in the view)
         If you do decide to move it into the database and turn it into a full on string including the numbers, 
@@ -175,11 +143,6 @@ function AchievementBox ({ icon, title, type, amount, reward, claimed, onClaim }
 
         You can probably just leave it here.
     */
-    const achievement_description = { 
-        EXP: <p>You have accumulated <span className="exp-font">{amount}</span> EXP.</p>,
-        TASK: <p>You have completed <span className="task-font">{amount}</span> tasks.</p>,
-        TIME: <p>You have spent <span className="time-font">{amount}</span> hours completing tasks.</p>,
-    };
     /*
         Decides what happens when we click our claim button
 
@@ -188,7 +151,7 @@ function AchievementBox ({ icon, title, type, amount, reward, claimed, onClaim }
         Database functionality
     */
     const handleClaimButton = () => { 
-        if (!isClaimed && mockCount >= amount) {
+        if (!isClaimed && progressCount >= amount) {
             setClaimed(true); // sets the achievement to completed so our claimed variable will now be true
             onClaim(); // calls the function that updates our stats since onClaim={handleClaimStats}
         }
@@ -206,7 +169,7 @@ function AchievementBox ({ icon, title, type, amount, reward, claimed, onClaim }
         Change to database variables (mockCount, isClaimed)
     */
     let buttonClass = 'locked'; 
-    if (mockCount >= amount && !isClaimed) {
+    if (progressCount >= amount && !isClaimed) {
         buttonClass = 'enabled'; 
     } else if (isClaimed) {
         buttonClass = 'claimed'; 
@@ -229,12 +192,12 @@ function AchievementBox ({ icon, title, type, amount, reward, claimed, onClaim }
             </div>
             <div className="achievement-desc-progress">
                 <div className="achievement-description">
-                    {achievement_description[type]}
+                    {description}
                 </div>
                 <ProgressBar 
                     className="achievement-progress-bar" 
-                    current={mockCount} 
-                    total={amount} 
+                    current={progressCount} 
+                    total={amount ?? 1} 
                 />
             </div>
             <div className="achievement-claim">
@@ -242,7 +205,7 @@ function AchievementBox ({ icon, title, type, amount, reward, claimed, onClaim }
                     className={`achievement-claim-button ${buttonClass}`}
                     onClick={handleClaimButton}
                 > 
-                    {isClaimed ? 'Claimed' : (mockCount >= amount ? 'Claim' : 'Locked')}
+                    {isClaimed ? 'Claimed' : (progressCount >= amount ? 'Claim' : 'Locked')}
                 </button> 
                 <div className="achievement-reward">
                     <p>+{reward}</p>

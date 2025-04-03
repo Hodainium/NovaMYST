@@ -20,9 +20,32 @@ function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [userXP, setUserXP] = useState(0);
+  const [userCoins, setUserCoins] = useState(0);
   
 
   const navigate = useNavigate();
+
+  const refreshUserData = async () => {
+    try {
+        console.log("🔄 refreshUserData called");
+      const user = auth.currentUser;
+      if (!user) return;
+      const token = await user.getIdToken();
+
+      const res = await fetch("http://localhost:3000/user/data", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      setUserXP(data.xp || 0);
+      setUserCoins(data.coins || 0);
+    } catch (err) {
+      console.error("Failed to refresh user data:", err);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -34,6 +57,17 @@ function Dashboard() {
   
       try {
         const token = await user.getIdToken();
+
+        // Fetch user data (xp and coins)
+        const userRes = await fetch("http://localhost:3000/user/data", {
+            headers: {
+            Authorization: `Bearer ${token}`,
+            },
+        });
+
+        const userData = await userRes.json();
+        setUserXP(userData.xp || 0);
+        setUserCoins(userData.coins || 0);
   
         const res = await fetch("http://localhost:3000/tasks/list", {
           headers: {
@@ -210,8 +244,8 @@ function Dashboard() {
 
   const completedQuests = quests.filter((q) => q.completed).length;
   const completionRate = quests.length ? ((completedQuests / quests.length) * 100).toFixed(2) : 0;
-  const totalCoins = quests.reduce((acc, q) => q.completed ? acc + q.reward.coins : acc, 0);
-  const totalXP = quests.reduce((acc, q) => q.completed ? acc + q.reward.xp : acc, 0);
+  const totalCoins = userCoins;
+  const totalXP = userXP;
 
   if (loading) {
     return <div className="loading-screen">Loading tasks...</div>;
@@ -256,7 +290,16 @@ function Dashboard() {
               { icon: <BarChart2 size={24} />, name: 'leaderboard' },
               { icon: <Cog size={24} />, name: 'settings'}
             ].map(({ icon, name }) => (
-              <div key={name} className="taskbar-section" onClick={() => setActiveSection(name)}>
+              <div 
+                key={name} 
+                className="taskbar-section" 
+                onClick={() => {
+                    setActiveSection(name);
+                    if (name === 'dashboard') {
+                    refreshUserData();
+                    }
+                }}
+                >
                 {icon}
                 {isTaskbarOpen && <span>{name.charAt(0).toUpperCase() + name.slice(1)}</span>}
               </div>
