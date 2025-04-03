@@ -115,13 +115,11 @@ html, body {
     max-height: 100vh;
 }
 
-.dashboard-section, .tasks-section, .character-section, .achievements-section, .leaderboard-section {
+.dashboard-section, .tasks-section, .character-section, 
+.achievements-section, .leaderboard-section, .setting-section {
     background: #f9f9f9;
     border-radius: 16px;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    padding: 1rem 2rem;
     border: 1px solid #e0e0e0;
     margin-bottom: 2rem;
 }
@@ -156,29 +154,6 @@ html, body {
     color: #333333;
 }
 
-.recent-tasks {
-    margin-top: 2rem;
-}
-
-.quest-form {
-    margin: 1.5rem 0;
-}
-
-.input-group {
-    display: flex;
-    gap: 1rem;
-}
-
-.quest-input, .time-select {
-    flex: 1;
-    padding: 12px;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    color: #333333;
-    font-size: 16px;
-}
-
 .add-quest-btn {
     padding: 12px 24px;
     background: #6c5dd3;
@@ -195,40 +170,69 @@ html, body {
     background: #8677e9;
 }
 
-.quests-list {
-    margin-top: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.quest-item {
+.quest-item, .finished-task-item {
     background: #ffffff;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
+    padding: 1.25rem;
+    margin-bottom: 0.56rem;
+}
+
+.quest-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    transition: all 0.3s ease;
+    justify-content: space-between;
 }
 
-.quest-item.completed {
-    opacity: 0.7;
-    border-color: #e0e0e0;
-}
-
-.quest-item h4 {
-    margin: 0 0 0.5rem 0;
+.quest-header h4, .finished-task-item h4 {
+    margin: 0;
     font-size: 1.1rem;
-    color: #333333;
+    color: #333;
+}
+
+.late-indicator {
+    background: #ffebee;
+    color: #d32f2f;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.late-indicator-inline {
+    color: #d32f2f;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-left: 0.5rem;
+}
+
+.quest-meta, .task-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
+}
+
+.meta-item {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.meta-label {
+    color: #666;
+}
+
+.meta-value {
+    color: #333;
+    font-weight: 500;
 }
 
 .quest-actions {
     display: flex;
     gap: 0.5rem;
     justify-content: flex-end;
+    margin-top: 0.5rem;
 }
 
 .complete-btn, .edit-btn, .delete-btn {
@@ -248,10 +252,6 @@ html, body {
     background: #8677e9;
 }
 
-.complete-btn.completed {
-    background: #4CAF50;
-}
-
 .edit-btn {
     background: #ffc107;
     color: white;
@@ -268,40 +268,6 @@ html, body {
 
 .delete-btn:hover {
     background: #c82333;
-}
-
-.finished-tasks {
-    margin-top: 2rem;
-}
-
-.finished-tasks h3 {
-    margin-bottom: 1rem;
-    color: #6c5dd3;
-}
-
-.finished-tasks-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.finished-task-item {
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 1rem;
-}
-
-.finished-task-item h4 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.1rem;
-    color: #333333;
-}
-
-.finished-task-item p {
-    margin: 0;
-    font-size: 0.9rem;
-    color: #666666;
 }
 
 .modal-overlay {
@@ -332,14 +298,14 @@ html, body {
 }
 
 .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
-    color: #666666;
-    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
 }
 
 .form-group input,
@@ -354,8 +320,38 @@ html, body {
     box-sizing: border-box;
 }
 
-.form-group select[multiple] {
-    height: 100px;
+.time-inputs {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.time-input-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.time-input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.time-input-group span {
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
 }
 
 .cancel-btn {
@@ -371,80 +367,6 @@ html, body {
 
 .cancel-btn:hover {
     background: #c82333;
-}
-
-.tags-input {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.tags-input input {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 14px;
-}
-
-.add-tag-btn {
-    padding: 8px 12px;
-    background: #6c5dd3;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.add-tag-btn:hover {
-    background: #8677e9;
-}
-
-.tags-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.tag {
-    background: #e0e0e0;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    color: #333333;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.remove-tag-btn {
-    background: none;
-    border: none;
-    color: #666666;
-    cursor: pointer;
-    font-size: 0.8rem;
-    padding: 0;
-    display: flex;
-    align-items: center;
-}
-
-.remove-tag-btn:hover {
-    color: #333333;
-}
-
-.late-indicator {
-    color: #dc3545;
-    font-size: 0.9rem;
-    font-weight: bold;
-    margin: 0.25rem 0;
-}
-
-.late-indicator-inline {
-    color: #dc3545;
-    font-size: 0.9rem;
-    font-weight: bold;
-    margin-left: 0.5rem;
 }
 
 .task-divider {
@@ -470,4 +392,18 @@ html, body {
     gap: 1rem;
     margin-top: 1.5rem;
     padding: 1rem;
+}
+
+.finished-tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.loading-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 1.2rem;
 }

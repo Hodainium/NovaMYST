@@ -14,6 +14,7 @@ function Dashboard() {
   const [quests, setQuests] = useState([]);
   const [newQuest, setNewQuest] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('easy');
+  const [estimatedTime, setEstimatedTime] = useState({ hours: 0, minutes: 0 });
   const [dueDate, setDueDate] = useState('');
   const [isTaskbarOpen, setIsTaskbarOpen] = useState(true);
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -23,12 +24,11 @@ function Dashboard() {
   const [userXP, setUserXP] = useState(0);
   const [userCoins, setUserCoins] = useState(0);
   
-
   const navigate = useNavigate();
 
   const refreshUserData = async () => {
     try {
-        console.log("🔄 refreshUserData called");
+      console.log("🔄 refreshUserData called");
       const user = auth.currentUser;
       if (!user) return;
       const token = await user.getIdToken();
@@ -58,7 +58,6 @@ function Dashboard() {
       try {
         const token = await user.getIdToken();
 
-        // Fetch user data (xp and coins)
         const userRes = await fetch("http://localhost:3000/user/data", {
             headers: {
             Authorization: `Bearer ${token}`,
@@ -82,6 +81,7 @@ function Dashboard() {
           id: task.id,
           title: task.title,
           difficulty: task.difficulty,
+          estimatedTime: task.estimatedTime || { hours: 0, minutes: 0 },
           dueDate: task.dueDate,
           completed: task.isComplete,
           late: false,
@@ -99,7 +99,6 @@ function Dashboard() {
   }, []);
 
   const taskTypes = [
-    /*The coins, xp, and time estimates are just placeholders I made up. Subject to change*/
     { value: 'easy', label: 'Easy', reward: { coins: 1, xp: 1 }, timeEstimate: '5 mins - 1 hour' },  
     { value: 'medium', label: 'Medium', reward: { coins: 3, xp: 3 }, timeEstimate: '1 hour - 1 day' },
     { value: 'hard', label: 'Hard', reward: { coins: 5, xp: 5 }, timeEstimate: '1 day - 1 year' },
@@ -118,11 +117,11 @@ function Dashboard() {
       const taskData = {
         title: newQuest,
         difficulty: selectedDifficulty,
+        estimatedTime,
         dueDate: new Date(dueDate).toISOString()
       };
   
       if (editingTaskId) {
-        // Update existing task
         await fetch(`http://localhost:3000/tasks/update/${editingTaskId}`, {
           method: "PUT",
           headers: {
@@ -132,14 +131,12 @@ function Dashboard() {
           body: JSON.stringify(taskData)
         });
   
-        // Update local state
         setQuests((prev) =>
           prev.map((q) =>
             q.id === editingTaskId ? { ...q, ...taskData } : q
           )
         );
       } else {
-        // Create new task
         const response = await fetch("http://localhost:3000/tasks/create", {
           method: "POST",
           headers: {
@@ -162,10 +159,10 @@ function Dashboard() {
         }]);
       }
   
-      // Reset form and modal
       setIsModalOpen(false);
       setNewQuest('');
       setSelectedDifficulty('easy');
+      setEstimatedTime({ hours: 0, minutes: 0 });
       setDueDate('');
       setEditingTaskId(null);
     } catch (error) {
@@ -180,7 +177,6 @@ function Dashboard() {
       if (!user) throw new Error("User not logged in");
       const token = await user.getIdToken();
   
-      // Tell backend to mark this task as complete
       await fetch(`http://localhost:3000/tasks/update/${id}`, {
         method: "PUT",
         headers: {
@@ -190,7 +186,6 @@ function Dashboard() {
         body: JSON.stringify({ isComplete: true })
       });
   
-      // Reflect change in local state
       setQuests((prev) =>
         prev.map((q) =>
           q.id === id ? { ...q, completed: true, timestamp: Date.now() } : q
@@ -223,9 +218,10 @@ function Dashboard() {
   const handleEditQuest = (id) => {
     const quest = quests.find((q) => q.id === id);
     if (quest) {
-      setEditingTaskId(id); // track the ID being edited
+      setEditingTaskId(id);
       setNewQuest(quest.title);
       setSelectedDifficulty(quest.difficulty);
+      setEstimatedTime(quest.estimatedTime || { hours: 0, minutes: 0 });
       setDueDate(quest.dueDate);
       setIsModalOpen(true);
     }
@@ -253,8 +249,33 @@ function Dashboard() {
 
   const renderQuest = (quest) => (
     <div key={quest.id} className="quest-item">
-      <h4>{quest.title}{quest.late && <p className="late-indicator">Late</p>}</h4>
-      <p>Due: {new Date(quest.dueDate).toLocaleString()}</p>
+      <div className="quest-header">
+        <h4>{quest.title}</h4>
+        {quest.late && <span className="late-indicator">Late</span>}
+      </div>
+      
+      <div className="quest-meta">
+        <div className="meta-item">
+          <span className="meta-label">Difficulty:</span>
+          <span className="meta-value">{quest.difficulty}</span>
+        </div>
+        
+        {quest.estimatedTime && (
+          <div className="meta-item">
+            <span className="meta-label">Estimated:</span>
+            <span className="meta-value">
+              {quest.estimatedTime.hours > 0 && `${quest.estimatedTime.hours}h `}
+              {quest.estimatedTime.minutes > 0 && `${quest.estimatedTime.minutes}m`}
+            </span>
+          </div>
+        )}
+        
+        <div className="meta-item">
+          <span className="meta-label">Due:</span>
+          <span className="meta-value">{new Date(quest.dueDate).toLocaleString()}</span>
+        </div>
+      </div>
+      
       <div className="quest-actions">
         <button className="complete-btn" onClick={() => handleCompleteQuest(quest.id)}>
           <CheckCircle2 size={20} /> Complete
@@ -345,8 +366,16 @@ function Dashboard() {
                         {quest.title}
                         {quest.late && <span className="late-indicator-inline"> (Late)</span>}
                       </h4>
-                      <p>Difficulty: {quest.difficulty}</p>
-                      <p>Completed on: {new Date(quest.timestamp).toLocaleString()}</p>
+                      <div className="task-meta">
+                        <span>Difficulty: {quest.difficulty}</span>
+                        {quest.estimatedTime && (
+                          <span>
+                            Estimated: {quest.estimatedTime.hours > 0 && `${quest.estimatedTime.hours}h `}
+                            {quest.estimatedTime.minutes > 0 && `${quest.estimatedTime.minutes}m`}
+                          </span>
+                        )}
+                        <span>Completed on: {new Date(quest.timestamp).toLocaleString()}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -358,7 +387,17 @@ function Dashboard() {
             <>
               <div className="tasks-section">
                 <h2>Tasks</h2>
-                <button className="add-quest-btn" onClick={() => setIsModalOpen(true)}>
+                <button 
+                  className="add-quest-btn" 
+                  onClick={() => {
+                    setIsModalOpen(true);
+                    setEditingTaskId(null); 
+                    setNewQuest('');
+                    setSelectedDifficulty('easy');
+                    setEstimatedTime({ hours: 0, minutes: 0 });
+                    setDueDate('');
+                  }}
+                >
                   <Plus size={20} /> Add Quest
                 </button>
               </div>
@@ -377,7 +416,7 @@ function Dashboard() {
           {isModalOpen && (
             <div className="modal-overlay">
               <div className="modal">
-                <h2>Add Quest</h2>
+                <h2>{editingTaskId ? 'Edit Quest' : 'Add Quest'}</h2>
                 <form onSubmit={handleAddQuest}>
                   <div className="form-group">
                     <label>Title</label>
@@ -392,11 +431,38 @@ function Dashboard() {
                     </select>
                   </div>
                   <div className="form-group">
+                    <label>Estimated Time</label>
+                    <div className="time-inputs">
+                      <div className="time-input-group">
+                        <input 
+                          type="number" 
+                          min="0"
+                          placeholder="0"
+                          value={estimatedTime.hours}
+                          onChange={(e) => setEstimatedTime({...estimatedTime, hours: parseInt(e.target.value) || 0})}
+                        />
+                        <span>Hours</span>
+                      </div>
+                      <div className="time-input-group">
+                        <input 
+                          type="number" 
+                          min="0"
+                          placeholder="0"
+                          value={estimatedTime.minutes}
+                          onChange={(e) => setEstimatedTime({...estimatedTime, minutes: parseInt(e.target.value) || 0})}
+                        />
+                        <span>Minutes</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="form-group">
                     <label>Due Date</label>
                     <input type="datetime-local" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
                   </div>
-                  <button type="submit" className="add-quest-btn">Add Quest</button>
-                  <button type="button" className="cancel-btn" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                  <div className="modal-actions">
+                    <button type="submit" className="add-quest-btn">{editingTaskId ? 'Update Quest' : 'Add Quest'}</button>
+                    <button type="button" className="cancel-btn" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                  </div>
                 </form>
               </div>
             </div>
@@ -405,7 +471,6 @@ function Dashboard() {
           {activeSection === 'character' && (
             <div className="character-section">
               <h2>Character</h2>
-              {/* Character content goes here */}
             </div>
           )}
 
@@ -419,7 +484,6 @@ function Dashboard() {
           {activeSection === 'leaderboard' && (
             <div className="leaderboard-section">
               <h2>Leaderboard</h2>
-              {/* Leaderboard content goes here */}
             </div>
           )}
 
@@ -428,7 +492,7 @@ function Dashboard() {
               <h2>Settings</h2>
               <Settings/>
             </div>
-        )}
+          )}
         </div>
       </div>
     </div>
