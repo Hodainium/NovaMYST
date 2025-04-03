@@ -27,6 +27,12 @@ const taskRoutes = require('./routes/tasks'); // you are in index.js here not in
 // Task routes
 app.use('/tasks', taskRoutes);
 
+import achievementRoutes from './routes/achievements';
+app.use('/achievements', achievementRoutes);
+
+import userRoutes from './routes/users';
+app.use('/user', userRoutes);
+
 // Test route
 app.get('/', (req: Request, res: Response) => {
   res.send('Backend is running with Firebase!');
