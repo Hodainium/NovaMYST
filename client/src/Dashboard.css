@@ -5,7 +5,7 @@ html, body {
 }
 
 .dashboard-container {
-    min-height: 100vh;
+    max-height: 100vh;
     background: #ffffff;
     color: #333333;
     display: flex;
@@ -112,7 +112,6 @@ html, body {
     flex: 1;
     padding: 2rem;
     overflow-y: auto;
-    max-height: 100vh;
 }
 
 .dashboard-section, .tasks-section, .character-section, 
@@ -164,6 +163,9 @@ html, body {
     cursor: pointer;
     transition: background-color 0.3s;
     margin-right: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .add-quest-btn:hover {
@@ -176,6 +178,9 @@ html, body {
     border-radius: 8px;
     padding: 1.25rem;
     margin-bottom: 0.56rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .quest-header {
@@ -232,7 +237,6 @@ html, body {
     display: flex;
     gap: 0.5rem;
     justify-content: flex-end;
-    margin-top: 0.5rem;
 }
 
 .complete-btn, .edit-btn, .delete-btn {
@@ -241,11 +245,15 @@ html, body {
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .complete-btn {
     background: #6c5dd3;
     color: white;
+    gap: 4px;
 }
 
 .complete-btn:hover {
