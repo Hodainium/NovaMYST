@@ -8,12 +8,12 @@
 }
 
 .dark-mode {
-    --background-color: #1a1a1a;
-    --text-color: #f5f5f5;
+    --background-color: #2a2a2a;
+    --text-color: #f0f0f0;
     --primary-color: #8677e9;
     --secondary-color: #6c5dd3;
     --border-color: #333333;
-    --card-background: #2a2a2a;
+    --card-background: #3a3a3a;
 }
 
 .why-choose-box, .powerful-feature-box {
@@ -255,7 +255,7 @@ input:checked + .slider {
     display: block;
     margin-bottom: 6px;
     color: var(--text-color);
-    font-size: 14px;
+    font-size: 4px;
 }
 
 .form-input {
@@ -466,6 +466,11 @@ input:checked + .slider {
     margin-top: 20px;
     color: var(--text-color);
     font-size: 14px;
+}
+
+.dark-mode .form-group label,
+.dark-mode label {
+  color: #ffffff !important;
 }
 
 @media (max-width: 1024px) {
