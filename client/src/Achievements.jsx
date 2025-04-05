@@ -17,6 +17,7 @@ function AchievementDashboard() {
     */
 
     const [achievements, setAchievements] = useState([]);
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         const fetchAchievements = async () => {
@@ -33,10 +34,12 @@ function AchievementDashboard() {
             });
     
             const data = await res.json();
+            setLoading(false);
             setAchievements(data);
             console.log("Fetched achievements:", data);
         } catch (err) {
             console.error('Failed to fetch achievements:', err);
+            setLoading(false);
         }
         };
     
@@ -72,27 +75,17 @@ function AchievementDashboard() {
         }
     };
     
+    if (loading) {
+        return (
+            <div className="loading-achievements">
+                <p>Loading achievements...</p>
+            </div>
+        );
+    }
+
     const achievementTotal = achievements.length;
     const achievementCurrent = achievements.filter(a => a.completed).length;
     const achievementProgress = (achievementCurrent / achievementTotal) * 100;
-
-    /*
-        handles the achievementCurrent/achievementTotal stat on the side
-        When you click claim on an achievement, it increases the count of how many achievements you completed
-
-        Probably do not need the else statement but it's there to handle a problem I had 
-        if the user is allowed to click more than the total but that shouldn't be possible now.
-
-        To do:
-        replace with database functionality
-    */
-    function handleClaimStats() {
-        if (achievementCurrent < achievementTotal) {
-            setAchievementCurrent(prevachievementCurrent => prevachievementCurrent + 1);
-        } else {
-            setAchievementCurrent(achievementTotal);
-        }
-    }
 
     return (
         <div className="achievement-layout">
@@ -215,14 +208,6 @@ function AchievementBox ({ icon, title, description, type, amount, reward, claim
     );
 }
 
-/*
-    Reference AchievementDashboard() for this:
-    replace the props with the data from the database
-
-    achievementTotal can be removed if you decide to just enter the number instead of allowing it to dynamically change.
-
-    You can also just ask me to delete this and move it into AchievementDashboard if that makes it easier to code.
-*/
 function AchievementStat({ achievementCurrent, achievementProgress, achievementTotal }) {
     return (
         <div className="achievement-stat">
@@ -244,12 +229,9 @@ function AchievementStat({ achievementCurrent, achievementProgress, achievementT
     );
 }
 
-/*
-Do not have to change anything here I think
-*/
 function ProgressBar({ className, current, total }) {
-    const progress = (current/total) * 100; // shows current progress
-    const displayCurrent = (current > total) ? total : current; // prevents overflowing so 150/100
+    const progress = (current/total) * 100;
+    const displayCurrent = (current > total) ? total : current;
 
     return (
         <div className={className}>

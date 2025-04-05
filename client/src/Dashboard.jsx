@@ -257,7 +257,13 @@ function Dashboard() {
       <div className="quest-meta">
         <div className="meta-item">
           <span className="meta-label">Difficulty:</span>
-          <span className="meta-value">{quest.difficulty}</span>
+          <span className="meta-value">
+            {
+              quest.difficulty === 'easy' ? 'Easy' :
+              quest.difficulty === 'medium' ? 'Medium' :
+              'Hard'
+            }
+          </span>
         </div>
         
         {quest.estimatedTime && (

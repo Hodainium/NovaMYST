@@ -7,7 +7,6 @@ html, body {
 .achievement-layout {
     display: grid;
     grid-template-columns: 1fr 5fr;
-    max-height: 80vh;
     gap: 3rem;
 }
 
@@ -47,7 +46,7 @@ html, body {
     border-radius: 12px;
     padding: 1rem;
     gap: 1rem;
-    max-height: 70vh;
+    max-height: 74vh;
     display: flex;
     flex-flow: column;
     overflow-y: auto;
@@ -145,7 +144,8 @@ html, body {
     border: 1px solid #e0e0e0;
     border-radius: 12px;
     text-align: center;
-    padding: 1rem;
+    padding: 3rem;
+    font-weight: bold;
 }
 
 .achievement-reward {
@@ -185,4 +185,16 @@ html, body {
     font-size: 0.7em;
     font-weight: 600;
     color: #333333;
+}
+
+.loading-achievements {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 74vh;
+}
+
+.loading-achievements p {
+    font-weight: bold;
+    font-size: 2rem;
 }
