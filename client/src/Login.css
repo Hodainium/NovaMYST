@@ -124,13 +124,13 @@ html, body {
     color: #6c5dd3;
 }
 
-.emailHeader {
+.forgotemailHeader {
     margin-bottom: 5px;
     color:black;
     font-size: 15px;
 }
 
-.email-input {
+.forgotemail-input {
     margin-top: 0px;
     margin-bottom: 10px;
     border-color: gray;

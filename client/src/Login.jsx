@@ -6,12 +6,14 @@ import googleimg from './assets/google.png';
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "./firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+//import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 
 function Login() {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [open, setOpen] = useState(false);
+    // const [forgotemail, setforgotemail] = useState('');
 
     const isDevMode = false; // Set to true to skip login, false to enable login check
 
@@ -63,6 +65,21 @@ function Login() {
         }
     };
 
+    // const handleConfirmEmail = async (e) => {
+    //     e.preventDefault();
+
+    //     try {
+    //         const UserEmail = getAuth();
+    //         sendPasswordResetEmail(UserEmail, forgotemail);
+
+    //         console.log("Password reset email sent");
+    //     } catch (error)
+    //     {
+    //         console.error("Firebase Email Error:", error.message);
+    //         alert("Email not found: " + error.message);
+    //     }
+    // }
+
     const handleClose = () => {
         setOpen(false);
     };
@@ -94,7 +111,7 @@ function Login() {
                         margin: "auto",
                         padding: "20px",
                         border: "3px solid",
-                        width: "20%",
+                        width: "30%",
                         borderRadius: "10px",
                         borderColor: "#6c5dd3",
                     }}
@@ -139,16 +156,20 @@ function Login() {
                             />
                             <button type="button" className="forgot-button" onClick={handleOpen}>Forgot Password</button>
 
-                            <Modal isOpen={open}> 
+                            <Modal isOpen={open} /*onSubmit={handleConfirmEmail}*/> 
                                 <span className="close" onClick={handleClose}>&times;</span>
                                     <h1 className="forgotText">Forgot Password?</h1>
-                                    <h5 className="emailHeader">Email Address</h5>
-                                    <input type="text" className="email-input"/>
+                                    <h5 className="forgotemailHeader">Email Address</h5>
 
-                                    
-                                    <button className="submitEmail" onClick={handleClose}>Send Email</button>
-                                    {/*If there is nothing in the input, a popup will appear saying "Please add an email" */}
-                                    
+                                    <input 
+                                    type="email" 
+                                    value={forgotemail} 
+                                    onChange={(e) => setforgotemail(e.target.value)} 
+                                    placeholder = "Enter your email"
+                                    className="forgotemail-input"/>
+
+                                    <button type="submit" className="submitEmail">Send Email</button>
+
                                     {/*A condition that before the send email button --> If there exists an email, then send an email
                                         If there isn't, then a message saying "Please enter an existing email" will appear*/}
                             </Modal>
