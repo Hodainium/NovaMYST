@@ -26,21 +26,24 @@ exports.createTask = async (req: Request, res: Response) => {
       const taskRef = db.collection("tasks").doc();
       const taskID = taskRef.id;
       const estimatedMinutes = (time?.hours || 0) * 60 + (time?.minutes || 0);
+      const difficultyLevel = difficulty === 'easy' ? 1 : difficulty === 'medium' ? 3 : 5;
 
-      const rewardRes = await fetch(`${API_URL}/tasks/calculateReward`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          taskTitle: title,
-          estimatedMinutes, // You can later replace this with real input from frontend
-          difficulty: difficulty === 'easy' ? 1 : difficulty === 'medium' ? 3 : 5
-        })
-      });
+      const xp = await getXPFromGemini(title, estimatedMinutes, difficultyLevel);
+
+    //   const rewardRes = await fetch(`${API_URL}/tasks/calculateReward`, {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json'
+    //     },
+    //     body: JSON.stringify({
+    //       taskTitle: title,
+    //       estimatedMinutes, // You can later replace this with real input from frontend
+    //       difficulty: difficulty === 'easy' ? 1 : difficulty === 'medium' ? 3 : 5
+    //     })
+    //   });
       
-      const rewardData = await rewardRes.json();
-      const xp = (rewardData as any).xp || 1;
+    //   const rewardData = await rewardRes.json();
+    //   const xp = (rewardData as any).xp || 1;
   
       const newTask: Task = {
         taskID,
@@ -163,6 +166,75 @@ exports.deleteTask = async (req: Request, res: Response) => {
       } else {
         res.status(500).json({ error: 'Failed to delete task', details: 'Unknown error occurred' });
       }
+    }
+};
+
+export const getXPFromGemini = async (taskTitle: string, estimatedMinutes: number, difficulty: number): Promise<number> => {
+    const prompt = `Given a task with the following details:
+  - Description: ${taskTitle}
+  - Estimated time: ${estimatedMinutes} minutes
+  - Self-assigned difficulty: ${difficulty} (1-5)
+  
+  Assign an appropriate XP value between 1 and 100,000, considering task complexity, time, and difficulty. Please provide the XP value as a number.
+  
+  The XP value should be consistent across different runs for the same input. If you generate multiple responses, ensure that the XP value is consistent each time.
+  
+  Example tasks:
+  1. Task: Doing the dishes
+     Estimated time: 15 minutes
+     Difficulty: 1
+     XP: 100
+  
+  2. Task: Studying for an exam
+     Estimated time: 120 minutes
+     Difficulty: 3
+     XP: 2500
+  
+  3. Task: Writing a report
+     Estimated time: 60 minutes
+     Difficulty: 2
+     XP: 500
+  
+  4. Task: Buying a house
+     Estimated time: 50000 minutes
+     Difficulty: 5
+     XP: 100000
+  
+  5. Task: Having a baby
+     Estimated time: 525600 minutes (1 year)
+     Difficulty: 5
+     XP: 100000
+  
+  Now, process the following task:
+  Task: ${taskTitle}
+  Estimated time: ${estimatedMinutes} minutes
+  Difficulty: ${difficulty}
+  `;
+  
+    console.log("🚀 Calling Gemini with:", { taskTitle, estimatedMinutes, difficulty });
+  
+    try {
+      const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          generationConfig: { temperature: 0 },
+          contents: [{ parts: [{ text: prompt }] }],
+        }),
+      });
+  
+      const data = await geminiRes.json();
+      const outputText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      const xpMatch = outputText?.match(/(\d{1,6})/); // match first 1-6 digit number
+      const xp = xpMatch ? parseInt(xpMatch[1], 10) : null;
+  
+      console.log("🔎 Gemini raw output:", outputText);
+      console.log(`✅ Assigned XP: ${xp} for task "${taskTitle}"`);
+  
+      return xp || 1; // Fallback to 1 if parsing fails
+    } catch (err: any) {
+      console.error("❌ Gemini API call failed:", err);
+      return 1; // Fallback XP in case of error
     }
 };
 
