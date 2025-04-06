@@ -27,7 +27,7 @@ function AchievementDashboard() {
     
             const token = await user.getIdToken();
     
-            const res = await fetch('http://localhost:3000/achievements/progress', {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/achievements/progress`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -51,7 +51,7 @@ function AchievementDashboard() {
           const user = auth.currentUser;
           const token = await user.getIdToken();
       
-          const res = await fetch(`http://localhost:3000/achievements/claim/${achievementID}`, {
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/achievements/claim/${achievementID}`, {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${token}`,
@@ -62,7 +62,7 @@ function AchievementDashboard() {
           if (!res.ok) throw new Error(data.error || "Claim failed");
       
           // Refetch updated achievements after claiming
-          const refreshed = await fetch('http://localhost:3000/achievements/progress', {
+          const refreshed = await fetch(`${import.meta.env.VITE_API_URL}/achievements/progress`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
