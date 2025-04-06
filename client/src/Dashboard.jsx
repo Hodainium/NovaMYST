@@ -33,7 +33,7 @@ function Dashboard() {
       if (!user) return;
       const token = await user.getIdToken();
 
-      const res = await fetch("http://localhost:3000/user/data", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/user/data`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -58,7 +58,7 @@ function Dashboard() {
       try {
         const token = await user.getIdToken();
 
-        const userRes = await fetch("http://localhost:3000/user/data", {
+        const userRes = await fetch(`${import.meta.env.VITE_API_URL}/user/data`, {
             headers: {
             Authorization: `Bearer ${token}`,
             },
@@ -68,7 +68,7 @@ function Dashboard() {
         setUserXP(userData.xp || 0);
         setUserCoins(userData.coins || 0);
   
-        const res = await fetch("http://localhost:3000/tasks/list", {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks/list`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -122,7 +122,7 @@ function Dashboard() {
       };
   
       if (editingTaskId) {
-        await fetch(`http://localhost:3000/tasks/update/${editingTaskId}`, {
+        await fetch(`${import.meta.env.VITE_API_URL}/tasks/update/${editingTaskId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -137,7 +137,7 @@ function Dashboard() {
           )
         );
       } else {
-        const response = await fetch("http://localhost:3000/tasks/create", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/tasks/create`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -177,7 +177,7 @@ function Dashboard() {
       if (!user) throw new Error("User not logged in");
       const token = await user.getIdToken();
   
-      await fetch(`http://localhost:3000/tasks/update/${id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/tasks/update/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -202,7 +202,7 @@ function Dashboard() {
       if (!user) throw new Error("User not logged in");
       const token = await user.getIdToken();
   
-      await fetch(`http://localhost:3000/tasks/delete/${id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/tasks/delete/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`

@@ -30,7 +30,7 @@ function Home() {
             console.log("Firebase token from signup:", token);
       
             // Optional: send token to backend to create user doc
-            await fetch("http://localhost:3000/tasks/register", {
+            await fetch(`${import.meta.env.VITE_API_URL}/tasks/register`, {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -55,7 +55,7 @@ function Home() {
           console.log("Google user:", user);
       
           // Send token to backend to create/check user in Firestore
-          await fetch("http://localhost:3000/tasks/register", {
+          await fetch(`${import.meta.env.VITE_API_URL}/tasks/register`, {
             method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,

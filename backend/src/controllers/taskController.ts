@@ -8,6 +8,8 @@ import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import fetch from 'node-fetch';
 import { syncUserAchievements } from './achievementController';
 
+const API_URL = process.env.API_URL || "http://localhost:3000";
+
 const GEMINI_API_KEY = 'AIzaSyAiLjiiDRYgo129Pj7k7Ba5FTel42EmAFk';
 const TASKS_COLLECTION = 'tasks';
 const USERS_COLLECTION = 'users'; //users
@@ -25,7 +27,7 @@ exports.createTask = async (req: Request, res: Response) => {
       const taskID = taskRef.id;
       const estimatedMinutes = (time?.hours || 0) * 60 + (time?.minutes || 0);
 
-      const rewardRes = await fetch('http://localhost:3000/tasks/calculateReward', {
+      const rewardRes = await fetch(`${API_URL}/tasks/calculateReward`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

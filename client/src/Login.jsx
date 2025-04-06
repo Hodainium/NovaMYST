@@ -23,7 +23,7 @@ function Login() {
         
             console.log("Google user:", user);
         
-            await fetch("http://localhost:3000/tasks/register", {
+            await fetch(`${import.meta.env.VITE_API_URL}/tasks/register`, {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -48,7 +48,7 @@ function Login() {
 
             console.log("Firebase token from login:", token);
 
-            await fetch("http://localhost:3000/tasks/list", {
+            await fetch(`${import.meta.env.VITE_API_URL}/tasks/list`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
