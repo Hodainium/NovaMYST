@@ -117,7 +117,7 @@ function Dashboard() {
       const taskData = {
         title: newQuest,
         difficulty: selectedDifficulty,
-        estimatedTime,
+        time: estimatedTime,
         dueDate: new Date(dueDate).toISOString()
       };
   

@@ -8,7 +8,7 @@ import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import fetch from 'node-fetch';
 import { syncUserAchievements } from './achievementController';
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GEMINI_API_KEY = 'AIzaSyAiLjiiDRYgo129Pj7k7Ba5FTel42EmAFk';
 const TASKS_COLLECTION = 'tasks';
 const USERS_COLLECTION = 'users'; //users
 
@@ -19,10 +19,11 @@ exports.createTask = async (req: Request, res: Response) => {
     try {
       const user = (req as any).user; // Verified Firebase user
   
-      const { difficulty, title, dueDate } = req.body;
+      const { difficulty, title, time, dueDate } = req.body;
   
       const taskRef = db.collection("tasks").doc();
       const taskID = taskRef.id;
+      const estimatedMinutes = (time?.hours || 0) * 60 + (time?.minutes || 0);
 
       const rewardRes = await fetch('http://localhost:3000/tasks/calculateReward', {
         method: 'POST',
@@ -31,7 +32,7 @@ exports.createTask = async (req: Request, res: Response) => {
         },
         body: JSON.stringify({
           taskTitle: title,
-          estimatedMinutes: 60, // You can later replace this with real input from frontend
+          estimatedMinutes, // You can later replace this with real input from frontend
           difficulty: difficulty === 'easy' ? 1 : difficulty === 'medium' ? 3 : 5
         })
       });
@@ -206,6 +207,8 @@ exports.calculateReward = async (req: Request, res: Response) => {
   Estimated time: ${estimatedMinutes} minutes
   Difficulty: ${difficulty}
   `;
+
+  console.log("🚀 Calling Gemini with:", { taskTitle, estimatedMinutes, difficulty });
   
     try {
       const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
@@ -240,6 +243,8 @@ exports.calculateReward = async (req: Request, res: Response) => {
       }
   
       res.json({ xp, raw: outputText });
+      console.log("Gemini raw output:", outputText);
+      console.log(`Assigned XP: ${xp} for task "${taskTitle}"`);
     } catch (err: any) {
       console.error("Gemini API call failed:", err);
       res.status(500).json({ error: 'Gemini API call failed', details: err.message });

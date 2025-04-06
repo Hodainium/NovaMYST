@@ -64,7 +64,7 @@ function Home() {
             body: JSON.stringify({ name: user.displayName })
           });
       
-          navigate("/login");
+          navigate("/dashboard");
         } catch (err) {
           console.error("Google login failed:", err.message);
           alert("Google login failed: " + err.message);
