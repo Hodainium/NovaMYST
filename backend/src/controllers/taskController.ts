@@ -7,6 +7,7 @@ import type { Request, Response} from "express"; // have to import key words (ty
 import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import fetch from 'node-fetch';
 import { syncUserAchievements } from './achievementController';
+import { updateLeaderboard } from './leaderboardController';
 
 const API_URL = process.env.API_URL || "http://localhost:3000";
 
@@ -134,6 +135,10 @@ exports.updateTask = async (req: Request, res: Response) => {
             completedTasks: admin.firestore.FieldValue.arrayUnion(id)
         });
         await syncUserAchievements(user.uid);
+        // --- CALL UPDATE LEADERBOARD HERE ---
+        await updateLeaderboard(user.uid);
+        console.log(`Leaderboard update triggered for user: ${user.uid} on task completion.`);
+        // --- END LEADERBOARD INTEGRATION ---
       }
   
       res.json({ message: 'Task updated successfully' });
@@ -283,7 +288,7 @@ exports.calculateReward = async (req: Request, res: Response) => {
   `;
 
   console.log("🚀 Calling Gemini with:", { taskTitle, estimatedMinutes, difficulty });
-  
+
     try {
       const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
@@ -315,7 +320,7 @@ exports.calculateReward = async (req: Request, res: Response) => {
       if (!xp) {
         return res.status(400).json({ error: 'Could not extract XP value from Gemini response.', raw: outputText });
       }
-  
+
       res.json({ xp, raw: outputText });
       console.log("Gemini raw output:", outputText);
       console.log(`Assigned XP: ${xp} for task "${taskTitle}"`);

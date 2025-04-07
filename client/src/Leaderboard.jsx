@@ -1,26 +1,49 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { auth } from './firebase'; // Import your Firebase auth instance
 
 const Leaderboard = () => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Fetch leaderboard data on component mount
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/leaderboard`); // Use environment variable
-        const data = await response.json();
+        setLoading(true);
+        setError('');
 
-        if (response.ok) {
-          setLeaderboard(data);  // Set the leaderboard state with data
-        } else {
-          throw new Error(data.error || 'Failed to load leaderboard2');
+        const user = auth.currentUser;
+        if (!user) {
+          setError('User not authenticated.');
+          setLoading(false);
+          return;
         }
+
+        const token = await user.getIdToken();
+        if (!token) {
+          setError('Could not retrieve authentication token.');
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/leaderboard`, { // Changed line
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData?.error || `Failed to fetch leaderboard (status: ${response.status})`);
+        }
+
+        const data = await response.json();
+        setLeaderboard(data);
+        setLoading(false);
+
       } catch (err) {
-        setError('Failed to load leaderboard error');
+        setError(err.message);
         console.error('Error fetching leaderboard:', err);
-      } finally {
         setLoading(false);
       }
     };
@@ -29,15 +52,15 @@ const Leaderboard = () => {
   }, []);
 
   return (
-    <div>
-      <h1>Leaderboard</h1>
+    <div className="leaderboard-layout"> {/* You can add a CSS class for styling */}
+      <h1>Global Leaderboard</h1>
 
       {loading ? (
         <p>Loading leaderboard...</p>
       ) : error ? (
-        <p>{error}</p>
+        <p>Error: {error}</p>
       ) : (
-        <table>
+        <table className="leaderboard-table"> {/* You can add a CSS class for styling */}
           <thead>
             <tr>
               <th>Rank</th>
@@ -47,10 +70,10 @@ const Leaderboard = () => {
           </thead>
           <tbody>
             {leaderboard.map((user, index) => (
-              <tr key={user.userID}>
+              <tr key={user.userID} className="leaderboard-row"> {/* You can add a CSS class for styling */}
                 <td>{index + 1}</td>
                 <td>{user.userName}</td>
-                <td>{user.xp}</td>
+                <td>{user.score}</td> {/* Assuming your backend returns 'score' for XP */}
               </tr>
             ))}
           </tbody>
