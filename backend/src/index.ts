@@ -57,6 +57,9 @@ app.use('/achievements', achievementRoutes);
 import userRoutes from './routes/users';
 app.use('/user', userRoutes);
 
+import leaderboardRoutes from './routes/leaderboardRoutes';
+app.use('/leaderboard', leaderboardRoutes);
+
 // Test route
 app.get('/', (req: Request, res: Response) => {
   res.send('Backend is running with Firebase!');
