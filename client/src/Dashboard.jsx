@@ -373,7 +373,14 @@ function Dashboard() {
                         {quest.late && <span className="late-indicator-inline"> (Late)</span>}
                       </h4>
                       <div className="task-meta">
-                        <span>Difficulty: {quest.difficulty}</span>
+                        <span>
+                          Difficulty:  
+                          {
+                            quest.difficulty === 'easy' ? ' Easy' :
+                            quest.difficulty === 'medium' ? ' Medium' :
+                            ' Hard'
+                          }
+                        </span>
                         {quest.estimatedTime && (
                           <span>
                             Estimated: {quest.estimatedTime.hours > 0 && `${quest.estimatedTime.hours}h `}
