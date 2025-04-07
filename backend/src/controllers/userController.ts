@@ -22,3 +22,21 @@ export const getUserData = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to fetch user data' });
   }
 };
+
+// Helper function I added
+export const fetchUserData = async (userID: string) => {
+  try {
+    const userRef = db.collection('users').doc(userID);
+    const userSnap = await userRef.get();
+
+    if (!userSnap.exists) {
+      console.error(`User not found: ${userID}`);
+      return null;
+    }
+
+    return userSnap.data();
+  } catch (err) {
+    console.error("Error fetching user data:", err);
+    throw err;
+  }
+};

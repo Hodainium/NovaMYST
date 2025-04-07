@@ -9,6 +9,7 @@ import Settings from "./Settings";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import Leaderboard from './Leaderboard';
 
 function Dashboard() {
   const [quests, setQuests] = useState([]);
@@ -497,6 +498,7 @@ function Dashboard() {
           {activeSection === 'leaderboard' && (
             <div className="leaderboard-section">
               <h2>Leaderboard</h2>
+              <Leaderboard/>
             </div>
           )}
 
