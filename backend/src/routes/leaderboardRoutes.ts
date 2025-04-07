@@ -9,22 +9,15 @@ const router = Router();
 router.post('/update', authenticateFirebaseToken, updateLeaderboard);
 
 // Route to get the leaderboard with optional limit and order
-router.get('/', authenticateFirebaseToken, getLeaderboard);
-
-// // Sync leaderboard when XP updates
-// router.post('/sync-xp', authenticateFirebaseToken, async (req, res, next) => {
-//     const { userID } = req.body;
-
-//     if (!userID) {
-//       return res.status(400).json({ error: 'UserID is required' });
-//     }
-
-//     try {
-//       await syncLeaderboardOnXPUpdate(userID);
-//       res.status(200).json({ message: 'Leaderboard synced successfully' });
-//     } catch (error) {
-//       next(error); // Passing error to global error handler, if needed
-//     }
-// });
+router.get('/', authenticateFirebaseToken, async (req: Request, res: Response) => {
+    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
+    try {
+        const leaderboardData = await getLeaderboard(limit);
+        res.status(200).json(leaderboardData);
+    } catch (error: any) {
+        console.error("Error fetching leaderboard:", error);
+        res.status(500).json({ error: 'Failed to fetch leaderboard' });
+    }
+});
 
 export default router;
