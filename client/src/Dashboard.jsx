@@ -382,12 +382,12 @@ function Dashboard() {
                             ' Hard'
                           }
                         </span>
-                        {quest.estimatedTime && (
+                        {/*{quest.estimatedTime && (
                           <span>
                             Estimated: {quest.estimatedTime.hours > 0 && `${quest.estimatedTime.hours}h `}
                             {quest.estimatedTime.minutes > 0 && `${quest.estimatedTime.minutes}m`}
                           </span>
-                        )}
+                        )}*/}
                         <span>Completed on: {new Date(quest.timestamp).toLocaleString()}</span>
                       </div>
                     </div>
