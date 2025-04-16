@@ -164,6 +164,33 @@ input:checked + .slider:before {
     transform: translateY(-1px);
 }
 
+body.dark-mode .settings-container,
+body.dark-mode .UsernameChange,
+body.dark-mode .PasswordChange,
+body.dark-mode .appearance-settings,
+body.dark-mode .danger-zone {
+    background-color: #2c2c2c;
+    color: #ffffff;
+    border-color: #444444;
+}
+
+body.dark-mode .TypeUsername,
+body.dark-mode .TypePassword {
+    background-color: #333333;
+    color: #ffffff;
+    border-color: #555555;
+}
+
+body.dark-mode .SubmitName,
+body.dark-mode .SubmitPassword {
+    background-color: #6c5dd3;
+}
+
+body.dark-mode .AccountDeletion {
+    background-color: #ff4c4c;
+}
+
+
 @media (max-width: 768px) {
     .side-by-side-boxes {
         flex-direction: column;
