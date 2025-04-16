@@ -114,8 +114,7 @@ html, body {
     overflow-y: auto;
 }
 
-.dashboard-section, .tasks-section, .character-section, 
-.achievements-section, .leaderboard-section, .setting-section {
+.dashboard-section, .tasks-section, .setting-section {
     background: #f9f9f9;
     border-radius: 16px;
     padding: 1rem 2rem;
@@ -414,4 +413,68 @@ html, body {
     align-items: center;
     height: 100vh;
     font-size: 1.2rem;
+}
+
+body.dark-mode {
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+
+body.dark-mode .dashboard-container,
+body.dark-mode .dashboard-section,
+body.dark-mode .tasks-section,
+body.dark-mode .taskbar,
+body.dark-mode .taskbar-section,
+body.dark-mode .modal,
+body.dark-mode .setting-section {
+    background-color: #2c2c2c;
+    color: #ffffff;
+    border-color: #444444;
+}
+
+body.dark-mode .taskbar-section:hover {
+    background-color: #3a3a3a;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    background-color: #333333;
+    color: #ffffff;
+    border-color: #555555;
+}
+
+body.dark-mode .add-quest-btn,
+body.dark-mode .complete-btn {
+    background-color: #6c5dd3;
+}
+
+body.dark-mode .logout-btn {
+    border-color: #a59fff;
+    color: #a59fff;
+}
+
+body.dark-mode .stat-item,
+body.dark-mode .quest-item,
+body.dark-mode .finished-task-item {
+    background: #333333 !important;
+    color: #ffffff;
+    border-color: #555555;
+}
+
+body.dark-mode .stat-text h4,
+body.dark-mode .stat-text p,
+body.dark-mode .meta-label,
+body.dark-mode .meta-value,
+body.dark-mode .quest-header h4,
+body.dark-mode .finished-task-item h4 {
+    color: #ffffff;
+}
+
+body.dark-mode .task-divider {
+    background: #555;
+}
+
+body.dark-mode .modal h2 {
+    color: #ffffff;
 }

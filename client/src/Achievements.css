@@ -198,3 +198,21 @@ html, body {
     font-weight: bold;
     font-size: 2rem;
 }
+
+body.dark-mode .achievement-box,
+body.dark-mode .achievement-stat-box,
+body.dark-mode .achievement-description,
+body.dark-mode .achievement-list {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+    border-color: #444444;
+}
+
+body.dark-mode .achievement-title-icon h3,
+body.dark-mode .achievement-stat-text p,
+body.dark-mode .achievement-stat-text h4,
+body.dark-mode .achievement-description,
+body.dark-mode .achievement-reward,
+body.dark-mode .progress-text {
+    color: #ffffff !important;
+}
