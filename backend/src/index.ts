@@ -57,6 +57,9 @@ app.use('/achievements', achievementRoutes);
 import userRoutes from './routes/users';
 app.use('/user', userRoutes);
 
+import shopRoutes from './routes/shop';
+app.use('/shop', shopRoutes);
+
 import leaderboardRoutes from './routes/leaderboardRoutes';
 app.use('/leaderboard', leaderboardRoutes);
 
