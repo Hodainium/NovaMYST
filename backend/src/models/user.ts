@@ -2,7 +2,15 @@
 // const admin = require('firebase-admin');
 // const db = admin.firestore();
 
-interface User {
+import { InventoryItem } from "./item";
+
+export type EquippedSlots = {
+    hat: string | null;
+    shirt: string | null;
+    pants: string | null;
+};
+
+export interface User {
     userID: string;
     userName: string; 
     email: string;
@@ -16,6 +24,9 @@ interface User {
     unfinishedTasks: string[]; // store an array of task IDs of unfinished tasks
     achievements: string[]; // store an array of achievement IDs that the user has earned
     createdAt: FirebaseFirestore.Timestamp;
+    inventory: InventoryItem[];
+    equipped: EquippedSlots;
+    coins: number;
     // add in profile pictures; store them as strings here to the URL of their picture?
     // add in character fields when that is implemented
 }
@@ -34,6 +45,13 @@ module.exports = {
       completedTasks: [],
       unfinishedTasks: [],
       achievements: [],
-      createdAt: null
+      createdAt: null,
+      inventory: [],
+      equipped: {
+        hat: null,
+        shirt: null,
+        pants: null
+      },
+      coins: 0
     }
   };
