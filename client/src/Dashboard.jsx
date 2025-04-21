@@ -10,6 +10,7 @@ import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import Leaderboard from './Leaderboard';
+import Character from './Character';
 
 function Dashboard() {
   const [quests, setQuests] = useState([]);
@@ -484,7 +485,7 @@ function Dashboard() {
 
           {activeSection === 'character' && (
             <div className="character-section">
-              <h2>Character</h2>
+              <Character/>
             </div>
           )}
 

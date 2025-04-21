@@ -1,0 +1,113 @@
+.background {
+    width: 100vw;
+    height: 100vh;
+    background-image: url('./assets/Character_screen_background.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 0;
+    margin: 0;
+}
+
+.characterScreen {
+    width: 50%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.genderButton {
+    width: 75px;
+    height: 25px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.wardrobe {
+    width: 50%;
+    height: 100%;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    align-items: center;
+    
+}
+
+.categorySelection 
+{
+    background-color: #cd7f32;
+    width: 28.6%;
+}
+
+.categoryButton {
+    color: black;
+    background-color: #cd7f32;
+}
+
+.clothingSelection {
+    justify-content: space-between;
+}
+
+.default_hat {
+    width: 100px;
+    height: 100px;
+
+}
+
+.knight_helmet {
+    background-image: url('./assets/Knight_Helmet.png');
+    width: 100px;
+    height: 100px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-color: gray;
+}
+
+.knight_helmet:hover {
+    background-color: lightgray;
+}
+
+.knight_chest {
+    background-image: url('./assets/Knight_Chest.png');
+    width: 100px;
+    height: 100px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-color: gray;
+}
+
+.knight_chest:hover {
+    background-color: lightgray;
+}
+
+.knight_leggings {
+    background-image: url('./assets/Knight_Leggings.png');
+    width: 100px;
+    height: 100px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-color: gray;
+}
+
+.knight_leggings:hover {
+    background-color: lightgray;
+}
+
+.knight_boots {
+    background-image: url('./assets/Knight_Boots.png');
+    width: 100px;
+    height: 100px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-color: gray;
+}
+
+.knight_boots:hover {
+    background-color: lightgray;
+}
