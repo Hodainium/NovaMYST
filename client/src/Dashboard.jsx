@@ -57,9 +57,10 @@ function Dashboard() {
         setLoading(false);
         return;
       }
-  
+ 
       try {
         const token = await user.getIdToken();
+
 
         const userRes = await fetch(`${import.meta.env.VITE_API_URL}/user/data`, {
             headers: {
@@ -67,19 +68,20 @@ function Dashboard() {
             },
         });
 
+
         const userData = await userRes.json();
         setUserXP(userData.xp || 0);
         setUserCoins(userData.coins || 0);
-  
+ 
         const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks/list`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-  
+ 
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to fetch tasks");
-  
+ 
         setQuests(data.map(task => ({
           id: task.id,
           title: task.title,
@@ -89,7 +91,6 @@ function Dashboard() {
           completed: task.isComplete,
           late: false,
           reward: taskTypes.find(t => t.value === task.difficulty)?.reward || { coins: 0, xp: 0 },
-          timestamp: Date.now(),
         })));
       } catch (err) {
         console.error("Error fetching tasks:", err);
@@ -97,33 +98,37 @@ function Dashboard() {
         setLoading(false);
       }
     });
-  
+ 
     return () => unsubscribe();
   }, []);
 
+
   const taskTypes = [
-    { value: 'easy', label: 'Easy', reward: { coins: 1, xp: 1 }, timeEstimate: '5 mins - 1 hour' },  
-    { value: 'medium', label: 'Medium', reward: { coins: 3, xp: 3 }, timeEstimate: '1 hour - 1 day' },
-    { value: 'hard', label: 'Hard', reward: { coins: 5, xp: 5 }, timeEstimate: '1 day - 1 year' },
+    { value: 'very_easy', label: 'Very Easy', reward: { coins: 0.5, xp: 0.5 } },
+    { value: 'easy', label: 'Easy', reward: { coins: 1, xp: 1 } },
+    { value: 'medium', label: 'Medium', reward: { coins: 3, xp: 3 } },
+    { value: 'hard', label: 'Hard', reward: { coins: 5, xp: 5 } },
+    { value: 'very_hard', label: 'Very Hard' }
   ];
+
 
   const handleAddQuest = async (e) => {
     e.preventDefault();
     if (!newQuest.trim()) return;
-  
+ 
     try {
       const user = auth.currentUser;
       if (!user) throw new Error("User not logged in");
-  
+ 
       const token = await user.getIdToken();
-  
+ 
       const taskData = {
         title: newQuest,
         difficulty: selectedDifficulty,
         time: estimatedTime,
         dueDate: new Date(dueDate).toISOString()
       };
-  
+ 
       if (editingTaskId) {
         await fetch(`${import.meta.env.VITE_API_URL}/tasks/update/${editingTaskId}`, {
           method: "PUT",
@@ -133,7 +138,7 @@ function Dashboard() {
           },
           body: JSON.stringify(taskData)
         });
-  
+ 
         setQuests((prev) =>
           prev.map((q) =>
             q.id === editingTaskId ? { ...q, ...taskData } : q
@@ -148,10 +153,10 @@ function Dashboard() {
           },
           body: JSON.stringify({ ...taskData, assignedTo: user.uid })
         });
-  
+ 
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Failed to create task");
-  
+ 
         setQuests([...quests, {
           id: data.id,
           ...taskData,
@@ -161,7 +166,7 @@ function Dashboard() {
           timestamp: Date.now()
         }]);
       }
-  
+ 
       setIsModalOpen(false);
       setNewQuest('');
       setSelectedDifficulty('easy');
@@ -174,12 +179,13 @@ function Dashboard() {
     }
   };
 
+
   const handleCompleteQuest = async (id) => {
     try {
       const user = auth.currentUser;
       if (!user) throw new Error("User not logged in");
       const token = await user.getIdToken();
-  
+ 
       await fetch(`${import.meta.env.VITE_API_URL}/tasks/update/${id}`, {
         method: "PUT",
         headers: {
@@ -188,7 +194,7 @@ function Dashboard() {
         },
         body: JSON.stringify({ isComplete: true })
       });
-  
+
       setQuests((prev) =>
         prev.map((q) =>
           q.id === id ? { ...q, completed: true, timestamp: Date.now() } : q
@@ -204,14 +210,14 @@ function Dashboard() {
       const user = auth.currentUser;
       if (!user) throw new Error("User not logged in");
       const token = await user.getIdToken();
-  
+ 
       await fetch(`${import.meta.env.VITE_API_URL}/tasks/delete/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-  
+ 
       setQuests((prev) => prev.filter((q) => q.id !== id));
     } catch (error) {
       console.error("Error deleting task:", error);
@@ -256,7 +262,7 @@ function Dashboard() {
         <h4>{quest.title}</h4>
         {quest.late && <span className="late-indicator">Late</span>}
       </div>
-      
+     
       <div className="quest-meta">
         <div className="meta-item">
           <span className="meta-label">Difficulty:</span>
@@ -268,8 +274,8 @@ function Dashboard() {
             }
           </span>
         </div>
-        
-        {quest.estimatedTime && (
+       
+        {/*{quest.estimatedTime && (
           <div className="meta-item">
             <span className="meta-label">Estimated:</span>
             <span className="meta-value">
@@ -277,14 +283,14 @@ function Dashboard() {
               {quest.estimatedTime.minutes > 0 && `${quest.estimatedTime.minutes}m`}
             </span>
           </div>
-        )}
-        
+        )}*/}
+       
         <div className="meta-item">
           <span className="meta-label">Due:</span>
           <span className="meta-value">{new Date(quest.dueDate).toLocaleString()}</span>
         </div>
       </div>
-      
+     
       <div className="quest-actions">
         <button className="complete-btn" onClick={() => handleCompleteQuest(quest.id)}>
           <CheckCircle2 size={20} /> Complete
@@ -343,6 +349,20 @@ function Dashboard() {
         </div>
 
         <div className="dashboard-content">
+        {(activeSection === 'dashboard' || activeSection === 'tasks') && (
+          <div className="minimal-header">
+            <div className="header-left">
+              <div className="profile-pic-placeholder">test</div>
+                <div className="user-info">
+                  <h2>Username</h2>
+                    <p>XP: {userXP} | Coins: {userCoins}</p>
+                </div>
+              </div>
+              <div className="header-right">
+              <h3>Rank: #123</h3>
+            </div>
+          </div>
+        )}
           {activeSection === 'dashboard' && (
             <>
               <div className="dashboard-section">
@@ -370,14 +390,20 @@ function Dashboard() {
               <div className="finished-tasks-section">
                 <h3>Recent Tasks</h3>
                 <hr className="task-divider" />
-                <div className="finished-tasks-list">
+                <div className="finished-tasks-grid">
                   {quests.filter((q) => q.completed).map((quest) => (
-                    <div key={quest.id} className="finished-task-item">
-                      <h4>
-                        {quest.title}
-                        {quest.late && <span className="late-indicator-inline"> (Late)</span>}
-                      </h4>
-                      <div className="task-meta">
+                    <div key={quest.id} className="finished-task-item aligned-task">
+                      <div className="quest-header">
+                        <h4>
+                          {quest.title}
+                          {quest.late && <span className="late-indicator-inline"> (Late)</span>}
+                        </h4>
+                        <button className="delete-btn" onClick={() => handleDeleteQuest(quest.id)}>
+                          Delete
+                        </button>
+                      </div>
+                      {/*<div className="task-meta">*/}
+                        {/*
                         <span>
                           Difficulty:  
                           {
@@ -386,14 +412,15 @@ function Dashboard() {
                             ' Hard'
                           }
                         </span>
+                        */}
                         {/*{quest.estimatedTime && (
                           <span>
                             Estimated: {quest.estimatedTime.hours > 0 && `${quest.estimatedTime.hours}h `}
                             {quest.estimatedTime.minutes > 0 && `${quest.estimatedTime.minutes}m`}
                           </span>
                         )}*/}
-                        <span>Completed on: {new Date(quest.timestamp).toLocaleString()}</span>
-                      </div>
+                        {/* <span>Completed on: {new Date(quest.timestamp).toLocaleString()}</span> */}
+                      {/*</div>*/}
                     </div>
                   ))}
                 </div>
@@ -405,11 +432,11 @@ function Dashboard() {
             <>
               <div className="tasks-section">
                 <h2>Tasks</h2>
-                <button 
-                  className="add-quest-btn" 
+                <button
+                  className="add-quest-btn"
                   onClick={() => {
                     setIsModalOpen(true);
-                    setEditingTaskId(null); 
+                    setEditingTaskId(null);
                     setNewQuest('');
                     setSelectedDifficulty('easy');
                     setEstimatedTime({ hours: 0, minutes: 0 });
@@ -422,7 +449,7 @@ function Dashboard() {
               <div className="tasks-grid">
                 {taskTypes.map((type) => (
                   <div key={type.value} className="task-column">
-                    <h3>{type.label} Tasks ({type.timeEstimate})</h3>
+                    <h3>{type.label} Tasks </h3>
                     <hr className="task-divider" />
                     {quests.filter((q) => q.difficulty === type.value && !q.completed).map(renderQuest)}
                   </div>
@@ -430,6 +457,7 @@ function Dashboard() {
               </div>
             </>
           )}
+
 
           {isModalOpen && (
             <div className="modal-overlay">
@@ -440,6 +468,7 @@ function Dashboard() {
                     <label>Title</label>
                     <input type="text" value={newQuest} onChange={(e) => setNewQuest(e.target.value)} required />
                   </div>
+                  {/*
                   <div className="form-group">
                     <label>Difficulty</label>
                     <select value={selectedDifficulty} onChange={(e) => setSelectedDifficulty(e.target.value)}>
@@ -448,12 +477,13 @@ function Dashboard() {
                       ))}
                     </select>
                   </div>
+                  */}
                   <div className="form-group">
                     <label>Estimated Time</label>
                     <div className="time-inputs">
                       <div className="time-input-group">
-                        <input 
-                          type="number" 
+                        <input
+                          type="number"
                           min="0"
                           placeholder="0"
                           value={estimatedTime.hours}
@@ -462,8 +492,8 @@ function Dashboard() {
                         <span>Hours</span>
                       </div>
                       <div className="time-input-group">
-                        <input 
-                          type="number" 
+                        <input
+                          type="number"
                           min="0"
                           placeholder="0"
                           value={estimatedTime.minutes}
@@ -485,6 +515,7 @@ function Dashboard() {
               </div>
             </div>
           )}
+
 
           {activeSection === 'character' && (
             <div className="character-section">
