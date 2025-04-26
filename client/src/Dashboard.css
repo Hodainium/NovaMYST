@@ -4,6 +4,7 @@ html, body {
     padding: 0;
 }
 
+
 .dashboard-container {
     max-height: 100vh;
     background: #ffffff;
@@ -11,10 +12,12 @@ html, body {
     display: flex;
 }
 
+
 .dashboard-layout {
     display: flex;
     flex: 1;
 }
+
 
 .taskbar {
     width: 250px;
@@ -27,9 +30,11 @@ html, body {
     flex-direction: column;
 }
 
+
 .taskbar.closed {
     width: 80px;
 }
+
 
 .taskbar-header {
     display: flex;
@@ -39,16 +44,19 @@ html, body {
     border-bottom: 1px solid #e0e0e0;
 }
 
+
 .logo-section {
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
+
 .game-icon {
     font-size: 24px;
     color: #6c5dd3;
 }
+
 
 .toggle-taskbar {
     background: #6c5dd3;
@@ -62,14 +70,17 @@ html, body {
     transition: background 0.3s ease;
 }
 
+
 .toggle-taskbar:hover {
     background: #8677e9;
 }
+
 
 .taskbar-content {
     flex: 1;
     padding: 1rem;
 }
+
 
 .taskbar-section {
     display: flex;
@@ -82,9 +93,11 @@ html, body {
     color: #333333;
 }
 
+
 .taskbar-section:hover {
     background: #e0e0e0;
 }
+
 
 .taskbar-footer {
     padding: 1rem;
@@ -92,6 +105,7 @@ html, body {
     display: flex;
     justify-content: center;
 }
+
 
 .logout-btn {
     padding: 8px 10px;
@@ -103,16 +117,19 @@ html, body {
     transition: all 0.3s ease;
 }
 
+
 .logout-btn:hover {
     background: #6c5dd3;
     color: white;
 }
+
 
 .dashboard-content {
     flex: 1;
     padding: 2rem;
     overflow-y: auto;
 }
+
 
 .dashboard-section, .tasks-section, .setting-section {
     background: #f9f9f9;
@@ -122,12 +139,14 @@ html, body {
     margin-bottom: 2rem;
 }
 
+
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
     margin: 1.5rem 0;
 }
+
 
 .stat-item {
     background: #ffffff;
@@ -139,11 +158,13 @@ html, body {
     gap: 1rem;
 }
 
+
 .stat-text h4 {
     margin: 0;
     font-size: 0.9rem;
     color: #666666;
 }
+
 
 .stat-text p {
     margin: 0.25rem 0 0 0;
@@ -151,6 +172,7 @@ html, body {
     font-weight: 600;
     color: #333333;
 }
+
 
 .add-quest-btn {
     padding: 12px 24px;
@@ -167,9 +189,11 @@ html, body {
     align-items: center;
 }
 
+
 .add-quest-btn:hover {
     background: #8677e9;
 }
+
 
 .quest-item, .finished-task-item {
     background: #ffffff;
@@ -182,17 +206,20 @@ html, body {
     gap: 0.5rem;
 }
 
+
 .quest-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
+
 .quest-header h4, .finished-task-item h4 {
     margin: 0;
     font-size: 1.1rem;
     color: #333;
 }
+
 
 .late-indicator {
     background: #ffebee;
@@ -203,12 +230,14 @@ html, body {
     font-weight: 500;
 }
 
+
 .late-indicator-inline {
     color: #d32f2f;
     font-size: 0.9rem;
     font-weight: 500;
     margin-left: 0.5rem;
 }
+
 
 .quest-meta, .task-meta {
     display: flex;
@@ -218,25 +247,30 @@ html, body {
     margin: 0.5rem 0;
 }
 
+
 .meta-item {
     display: flex;
     gap: 0.5rem;
 }
 
+
 .meta-label {
     color: #666;
 }
+
 
 .meta-value {
     color: #333;
     font-weight: 500;
 }
 
+
 .quest-actions {
     display: flex;
     gap: 0.5rem;
     justify-content: flex-end;
 }
+
 
 .complete-btn, .edit-btn, .delete-btn {
     padding: 8px;
@@ -249,33 +283,40 @@ html, body {
     align-items: center;
 }
 
+
 .complete-btn {
     background: #6c5dd3;
     color: white;
     gap: 4px;
 }
 
+
 .complete-btn:hover {
     background: #8677e9;
 }
+
 
 .edit-btn {
     background: #ffc107;
     color: white;
 }
 
+
 .edit-btn:hover {
     background: #e0a800;
 }
+
 
 .delete-btn {
     background: #dc3545;
     color: white;
 }
 
+
 .delete-btn:hover {
     background: #c82333;
 }
+
 
 .modal-overlay {
     position: fixed;
@@ -290,6 +331,7 @@ html, body {
     z-index: 1000;
 }
 
+
 .modal {
     background: #ffffff;
     border-radius: 16px;
@@ -299,14 +341,17 @@ html, body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+
 .modal h2 {
     margin-top: 0;
     color: #333333;
 }
 
+
 .form-group {
     margin-bottom: 1.5rem;
 }
+
 
 .form-group label {
     display: block;
@@ -314,6 +359,7 @@ html, body {
     font-weight: 500;
     color: #333;
 }
+
 
 .form-group input,
 .form-group select {
@@ -327,11 +373,13 @@ html, body {
     box-sizing: border-box;
 }
 
+
 .time-inputs {
     display: flex;
     gap: 1rem;
     margin-top: 0.5rem;
 }
+
 
 .time-input-group {
     flex: 1;
@@ -339,6 +387,7 @@ html, body {
     flex-direction: column;
     align-items: center;
 }
+
 
 .time-input-group input {
     width: 100%;
@@ -349,17 +398,20 @@ html, body {
     font-size: 14px;
 }
 
+
 .time-input-group span {
     margin-top: 0.25rem;
     font-size: 0.8rem;
     color: #666;
 }
 
+
 .modal-actions {
     display: flex;
     gap: 1rem;
     margin-top: 1.5rem;
 }
+
 
 .cancel-btn {
     padding: 12px 24px;
@@ -372,9 +424,11 @@ html, body {
     color: white;
 }
 
+
 .cancel-btn:hover {
     background: #c82333;
 }
+
 
 .task-divider {
     border: 0;
@@ -383,9 +437,11 @@ html, body {
     margin-bottom: 1rem;
 }
 
+
 .task-column {
     margin-bottom: 2rem;
 }
+
 
 .task-column h3 {
     margin-bottom: 0.5rem;
@@ -393,19 +449,22 @@ html, body {
     text-align: left;
 }
 
+
 .tasks-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 1rem;
     margin-top: 1.5rem;
     padding: 1rem;
 }
 
-.finished-tasks-list {
-    display: flex;
-    flex-direction: column;
+
+.finished-tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     gap: 1rem;
 }
+
 
 .loading-screen {
     display: flex;
@@ -415,10 +474,90 @@ html, body {
     font-size: 1.2rem;
 }
 
+
+.aligned-task .quest-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.minimal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 2rem 1rem 2rem;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 1.5rem;
+    background: transparent;
+    color: inherit;
+}
+
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+
+.profile-pic-placeholder {
+    width: 50px;
+    height: 50px;
+    background: #777;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: white;
+}
+
+
+.user-info h2 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+
+.user-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+
+.header-right h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #666;
+}
+
+
+
+
+body.dark-mode .dashboard-header {
+    background-color: #2c2c2c;
+    color: white;
+    border-color: #444;
+}
+
+
+body.dark-mode .user-info p {
+    color: #aaa;
+}
+
+
+body.dark-mode .header-right h3 {
+    color: #ccc;
+}
+
+
 body.dark-mode {
     background-color: #1e1e1e;
     color: #ffffff;
 }
+
 
 body.dark-mode .dashboard-container,
 body.dark-mode .dashboard-section,
@@ -432,9 +571,11 @@ body.dark-mode .setting-section {
     border-color: #444444;
 }
 
+
 body.dark-mode .taskbar-section:hover {
     background-color: #3a3a3a;
 }
+
 
 body.dark-mode input,
 body.dark-mode select,
@@ -444,15 +585,18 @@ body.dark-mode textarea {
     border-color: #555555;
 }
 
+
 body.dark-mode .add-quest-btn,
 body.dark-mode .complete-btn {
     background-color: #6c5dd3;
 }
 
+
 body.dark-mode .logout-btn {
     border-color: #a59fff;
     color: #a59fff;
 }
+
 
 body.dark-mode .stat-item,
 body.dark-mode .quest-item,
@@ -461,6 +605,7 @@ body.dark-mode .finished-task-item {
     color: #ffffff;
     border-color: #555555;
 }
+
 
 body.dark-mode .stat-text h4,
 body.dark-mode .stat-text p,
@@ -471,10 +616,15 @@ body.dark-mode .finished-task-item h4 {
     color: #ffffff;
 }
 
+
 body.dark-mode .task-divider {
     background: #555;
 }
 
+
 body.dark-mode .modal h2 {
     color: #ffffff;
 }
+
+
+
