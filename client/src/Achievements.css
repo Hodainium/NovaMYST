@@ -191,12 +191,9 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 74vh;
-}
-
-.loading-achievements p {
-    font-weight: bold;
+    font-weight: 600;
     font-size: 2rem;
+    height: 100vh;
 }
 
 body.dark-mode .achievement-box,

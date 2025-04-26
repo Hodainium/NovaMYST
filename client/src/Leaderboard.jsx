@@ -61,59 +61,64 @@ const Leaderboard = () => {
   return (
     <div className="leaderboard-layout"> {/* You can add a CSS class for styling */}
       {loading ? (
-        <p>Loading leaderboard...</p>
+        <div className="loading-leaderboard">
+          <p>Loading leaderboard...</p>
+        </div>
       ) : error ? (
         <p>Error: {error}</p>
       ) : (
         <>
-          <div className="leaderboard-left">
-            <h1>Global Leaderboard</h1>
-            <div className="leaderboard-table"> {/* You can add a CSS class for styling */}
-              <div className="leaderboard-heading">  
-                <h3>Rank</h3>
-                <h3>User Name</h3>
-                <h3>XP</h3>
+          <h2>Leaderboard</h2>
+          <div className="leaderboard-grid">
+            <div className="leaderboard-left">
+              <h1>Global Leaderboard</h1>
+              <div className="leaderboard-table"> {/* You can add a CSS class for styling */}
+                <div className="leaderboard-heading">  
+                  <h3>Rank</h3>
+                  <h3>User Name</h3>
+                  <h3>XP</h3>
+                </div>
+
+                {leaderboard.map((user, index) => {
+                  let rankMedal = ''; 
+
+                  if (index === 0) {
+                    rankMedal = 'gold';
+                  } else if (index === 1) {
+                    rankMedal = 'silver';
+                  } else if (index === 2) {
+                    rankMedal = 'bronze';
+                  }
+
+                  return (
+                    <div key={user.userID} className={`leaderboard-row ${rankMedal}`}>
+                      <span>{index + 1}</span>
+                      <span>{user.userName}</span>
+                      <span>{user.score}</span>
+                    </div>
+                  );
+                })}
               </div>
-
-              {leaderboard.map((user, index) => {
-                let rankMedal = ''; 
-
-                if (index === 0) {
-                  rankMedal = 'gold';
-                } else if (index === 1) {
-                  rankMedal = 'silver';
-                } else if (index === 2) {
-                  rankMedal = 'bronze';
-                }
-
-                return (
-                  <div key={user.userID} className={`leaderboard-row ${rankMedal}`}>
-                    <span>{index + 1}</span>
-                    <span>{user.userName}</span>
-                    <span>{user.score}</span>
-                  </div>
-                );
-              })}
             </div>
-          </div>
-          <div className="leaderboard-right">
-            <button className="filter-button" onClick={toggleDropdown}>
-              <AlignJustify />
-              <span>Sort By</span>
-            </button>
-            
-            {showDropdown && (
-              <div className="dropdown-filter">
-                <button className="dropdown-item">Global</button>
-                <button className="dropdown-item">Similar Rankings</button>
-                <button className="dropdown-item">Friends</button>
-              </div>
-            )}
+            <div className="leaderboard-right">
+              <button className="filter-button" onClick={toggleDropdown}>
+                <AlignJustify size={20} />
+                <span>Sort By</span>
+              </button>
+              
+              {showDropdown && (
+                <div className="dropdown-filter">
+                  <button className="dropdown-item">Global</button>
+                  <button className="dropdown-item">Similar Rankings</button>
+                  <button className="dropdown-item">Friends</button>
+                </div>
+              )}
 
-            <button className="jump-button">
-              <ArrowDown/> 
-              <span>Jump to Me</span>
-            </button>
+              <button className="jump-button">
+                <ArrowDown size={20} /> 
+                <span>Jump to Me</span>
+              </button>
+            </div>
           </div>
         </>
       )}

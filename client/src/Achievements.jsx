@@ -76,29 +76,32 @@ function Achievements() {
     const achievementProgress = (achievementCurrent / achievementTotal) * 100;
 
     return (
-        <div className="achievement-layout">
-            <AchievementStat 
-                achievementCurrent={achievementCurrent}
-                achievementProgress={achievementProgress}
-                achievementTotal={achievementTotal}
-            />
-            <div className="achievement-list">
-                {achievements.map((a) => (
-                    <AchievementBox
-                        key={a.achievementID}
-                        icon={a.icon}
-                        title={a.name}
-                        description={a.description}
-                        type={a.goalType}
-                        amount={a.goalNum}
-                        reward={`${a.rewardValue} ${a.rewardType === 'xp' ? 'XP' : a.rewardType === 'coins' ? '💰' : '🎁'}`}
-                        current={a.current}
-                        claimed={a.claimed}
-                        onClaim={() => handleClaim(a.achievementID)} // We'll wire this in soon
-                    />
-                    ))}
+        <>
+            <h2>Achievements</h2>
+            <div className="achievement-layout">
+                <AchievementStat 
+                    achievementCurrent={achievementCurrent}
+                    achievementProgress={achievementProgress}
+                    achievementTotal={achievementTotal}
+                />
+                <div className="achievement-list">
+                    {achievements.map((a) => (
+                        <AchievementBox
+                            key={a.achievementID}
+                            icon={a.icon}
+                            title={a.name}
+                            description={a.description}
+                            type={a.goalType}
+                            amount={a.goalNum}
+                            reward={`${a.rewardValue} ${a.rewardType === 'xp' ? 'XP' : a.rewardType === 'coins' ? '💰' : '🎁'}`}
+                            current={a.current}
+                            claimed={a.claimed}
+                            onClaim={() => handleClaim(a.achievementID)} // We'll wire this in soon
+                        />
+                        ))}
+                </div>
             </div>
-        </div>
+        </>
     );
 }
 
