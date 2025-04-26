@@ -52,7 +52,7 @@ html, body {
     overflow-y: auto;
 }
 
-.achievement-box{
+.achievement-box {
     display: flex;
     font-size: 1.2rem;
     background: #ffffff; 
@@ -167,7 +167,7 @@ html, body {
     color: #FF9800;
 }
 
-.progress-bar{
+.progress-bar {
     width: 100%;
     height: 1rem;
     border: 1px solid #000000;

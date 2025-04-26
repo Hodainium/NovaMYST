@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { auth } from './firebase'; // Import your Firebase auth instance
+import { AlignJustify, ArrowDown } from 'lucide-react';
+import "./Leaderboard.css";
 
 const Leaderboard = () => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showDropdown, setDropdown] = useState(false);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -51,33 +54,68 @@ const Leaderboard = () => {
     fetchLeaderboard();
   }, []);
 
+  const toggleDropdown = () => {
+    setDropdown(open => !open);
+  };
+
   return (
     <div className="leaderboard-layout"> {/* You can add a CSS class for styling */}
-      <h1>Global Leaderboard</h1>
-
       {loading ? (
         <p>Loading leaderboard...</p>
       ) : error ? (
         <p>Error: {error}</p>
       ) : (
-        <table className="leaderboard-table"> {/* You can add a CSS class for styling */}
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>User Name</th>
-              <th>XP</th>
-            </tr>
-          </thead>
-          <tbody>
-            {leaderboard.map((user, index) => (
-              <tr key={user.userID} className="leaderboard-row"> {/* You can add a CSS class for styling */}
-                <td>{index + 1}</td>
-                <td>{user.userName}</td>
-                <td>{user.score}</td> {/* Assuming your backend returns 'score' for XP */}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <>
+          <div className="leaderboard-left">
+            <h1>Global Leaderboard</h1>
+            <div className="leaderboard-table"> {/* You can add a CSS class for styling */}
+              <div className="leaderboard-heading">  
+                <h3>Rank</h3>
+                <h3>User Name</h3>
+                <h3>XP</h3>
+              </div>
+
+              {leaderboard.map((user, index) => {
+                let rankMedal = ''; 
+
+                if (index === 0) {
+                  rankMedal = 'gold';
+                } else if (index === 1) {
+                  rankMedal = 'silver';
+                } else if (index === 2) {
+                  rankMedal = 'bronze';
+                }
+
+                return (
+                  <div key={user.userID} className={`leaderboard-row ${rankMedal}`}>
+                    <span>{index + 1}</span>
+                    <span>{user.userName}</span>
+                    <span>{user.score}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="leaderboard-right">
+            <button className="filter-button" onClick={toggleDropdown}>
+              <AlignJustify />
+              <span>Sort By</span>
+            </button>
+            
+            {showDropdown && (
+              <div className="dropdown-filter">
+                <button className="dropdown-item">Global</button>
+                <button className="dropdown-item">Similar Rankings</button>
+                <button className="dropdown-item">Friends</button>
+              </div>
+            )}
+
+            <button className="jump-button">
+              <ArrowDown/> 
+              <span>Jump to Me</span>
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

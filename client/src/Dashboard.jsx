@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Timer, CheckCircle2, Trophy, Coins, LayoutDashboard, ListChecks, User, Award,
-  BarChart2, ChevronLeft, ChevronRight, Edit, Trash, Plus, Cog
+  CheckCircle2, Trophy, Coins, LayoutDashboard, ListChecks, User, Award,
+  BarChart2, ChevronLeft, ChevronRight, Edit, Trash, Plus, Cog, Users, NotebookPen
 } from 'lucide-react';
-import AchievementDashboard from "./Achievements";
-import Settings from "./Settings";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import Achievements from "./Achievements";
+import Settings from "./Settings";
 import Leaderboard from './Leaderboard';
 import Character from './Character';
 
@@ -317,6 +317,8 @@ function Dashboard() {
               { icon: <User size={24} />, name: 'character' },
               { icon: <Award size={24} />, name: 'achievements' },
               { icon: <BarChart2 size={24} />, name: 'leaderboard' },
+              { icon: <Users size={24} />, name: 'friends'},
+              { icon: <NotebookPen size={24} />, name: 'reflections'},
               { icon: <Cog size={24} />, name: 'settings'}
             ].map(({ icon, name }) => (
               <div 
@@ -490,16 +492,28 @@ function Dashboard() {
           )}
 
           {activeSection === 'achievements' && (
-              <div className="achievements-section">
-                <h2>Achievements</h2>
-                <AchievementDashboard/>
-              </div>
+            <div className="achievements-section">
+              <h2>Achievements</h2>
+              <Achievements/>
+            </div>
           )}
 
           {activeSection === 'leaderboard' && (
             <div className="leaderboard-section">
               <h2>Leaderboard</h2>
               <Leaderboard/>
+            </div>
+          )}
+
+          {activeSection === 'friends' && (
+            <div className="friends-section">
+              <h2>Friends</h2>
+            </div>
+          )}
+
+          {activeSection === 'reflections' && (
+            <div className="reflections-section">
+              <h2>Reflections</h2>
             </div>
           )}
 
