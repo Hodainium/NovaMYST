@@ -11,6 +11,7 @@ import Achievements from "./Achievements";
 import Settings from "./Settings";
 import Leaderboard from './Leaderboard';
 import Character from './Character';
+import Friends from './Friends';
 
 function Dashboard() {
   const [quests, setQuests] = useState([]);
@@ -493,21 +494,19 @@ function Dashboard() {
 
           {activeSection === 'achievements' && (
             <div className="achievements-section">
-              <h2>Achievements</h2>
               <Achievements/>
             </div>
           )}
 
           {activeSection === 'leaderboard' && (
             <div className="leaderboard-section">
-              <h2>Leaderboard</h2>
               <Leaderboard/>
             </div>
           )}
 
           {activeSection === 'friends' && (
             <div className="friends-section">
-              <h2>Friends</h2>
+              <Friends/>
             </div>
           )}
 
