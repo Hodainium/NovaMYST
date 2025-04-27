@@ -59,7 +59,7 @@ const Leaderboard = () => {
   };
 
   return (
-    <div className="leaderboard-layout"> {/* You can add a CSS class for styling */}
+    <>
       {loading ? (
         <div className="loading-leaderboard">
           <p>Loading leaderboard...</p>
@@ -68,11 +68,35 @@ const Leaderboard = () => {
         <p>Error: {error}</p>
       ) : (
         <>
-          <h2>Leaderboard</h2>
-          <div className="leaderboard-grid">
-            <div className="leaderboard-left">
+          <div className="leaderboard-flex">
+            <div className="leaderboard-top">
+              <h2>Leaderboard</h2>
+              <div className="leaderboard-buttons">
+                <button className="jump-button">
+                  <ArrowDown size={20} /> 
+                  <span>Jump to Me</span>
+                </button>
+
+                <div className="filter-alignment">
+                  <button className="filter-button" onClick={toggleDropdown}>
+                    <AlignJustify size={20} />
+                    <span>Sort By</span>
+                  </button>
+                  
+                  {/*Change the leaderboard depending on what you pressed*/}
+                  {showDropdown && (
+                    <div className="dropdown-filter">
+                      <button className="dropdown-item">Global</button>
+                      <button className="dropdown-item">Similar Rankings</button>
+                      <button className="dropdown-item">Friends</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="leaderboard-bottom">
               <h1>Global Leaderboard</h1>
-              <div className="leaderboard-table"> {/* You can add a CSS class for styling */}
+              <div className="leaderboard-table">
                 <div className="leaderboard-heading">  
                   <h3>Rank</h3>
                   <h3>User Name</h3>
@@ -80,6 +104,7 @@ const Leaderboard = () => {
                 </div>
 
                 {leaderboard.map((user, index) => {
+                  {/* Gold, silver, bronze visual for leaderboard */}
                   let rankMedal = ''; 
 
                   if (index === 0) {
@@ -100,29 +125,10 @@ const Leaderboard = () => {
                 })}
               </div>
             </div>
-            <div className="leaderboard-right">
-              <button className="filter-button" onClick={toggleDropdown}>
-                <AlignJustify size={20} />
-                <span>Sort By</span>
-              </button>
-              
-              {showDropdown && (
-                <div className="dropdown-filter">
-                  <button className="dropdown-item">Global</button>
-                  <button className="dropdown-item">Similar Rankings</button>
-                  <button className="dropdown-item">Friends</button>
-                </div>
-              )}
-
-              <button className="jump-button">
-                <ArrowDown size={20} /> 
-                <span>Jump to Me</span>
-              </button>
-            </div>
           </div>
         </>
       )}
-    </div>
+    </>
   );
 };
 
