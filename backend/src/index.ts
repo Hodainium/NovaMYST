@@ -63,6 +63,9 @@ app.use('/shop', shopRoutes);
 import leaderboardRoutes from './routes/leaderboardRoutes';
 app.use('/leaderboard', leaderboardRoutes);
 
+import friendRoutes from './routes/friendRoutes';
+app.use('/friends', friendRoutes)
+
 // Test route
 app.get('/', (req: Request, res: Response) => {
   res.send('Backend is running with Firebase!');

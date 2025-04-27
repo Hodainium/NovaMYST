@@ -27,9 +27,6 @@ export interface User {
     inventory: InventoryItem[];
     equipped: EquippedSlots;
     coins: number;
-    pendingFriends: string[];
-    sentFriendRequests: string[];
-    friendsList: string[];
     // add in profile pictures; store them as strings here to the URL of their picture?
     // add in character fields when that is implemented
 }
@@ -55,9 +52,6 @@ module.exports = {
         shirt: null,
         pants: null
       },
-      coins: 0,
-      pendingFriends: [],
-      sentFriendRequests: [],
-      friendsList: []
+      coins: 0
     }
   };
