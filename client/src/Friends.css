@@ -215,3 +215,39 @@
 .accept-button:hover {
     background-color: #4785be;
 }
+
+/* body.dark-mode .friends-layout {
+    background-color: #1e1e1e;
+    color: #ffffff;
+} */
+
+body.dark-mode .friend-request-box,
+body.dark-mode .request-modal,
+body.dark-mode .mail-modal {
+    background-color: #333333;
+    color: #ffffff;
+    border-color: #555555;
+}
+
+body.dark-mode .friends-input {
+    background-color: #333333;
+    color: #ffffff;
+    border-color: #555555;
+}
+
+body.dark-mode .add-friends-button,
+body.dark-mode .mail-button,
+body.dark-mode .request-button {
+    background-color: #6c5dd3;
+    color: white;
+}
+
+body.dark-mode .accept-button {
+    background-color: #4b8ece;
+    color: white;
+}
+
+body.dark-mode .cancel-button {
+    background-color: #c82333;
+    color: white;
+}
