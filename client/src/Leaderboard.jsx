@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { auth } from './firebase'; // Import your Firebase auth instance
+import { auth } from './firebase';
 import { AlignJustify, ArrowDown } from 'lucide-react';
 import "./Leaderboard.css";
 
@@ -8,125 +8,102 @@ const Leaderboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showDropdown, setDropdown] = useState(false);
+  const [mode, setMode] = useState('global');
+
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  const fetchLeaderboard = async (sortMode = 'global') => {
+    try {
+      setLoading(true);
+      setError('');
+      const user = auth.currentUser;
+      if (!user) throw new Error('User not authenticated.');
+
+      const token = await user.getIdToken();
+      const response = await fetch(`${API_URL}/leaderboard/${sortMode}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to fetch leaderboard');
+
+      setLeaderboard(data);
+    } catch (err) {
+      console.error('Error fetching leaderboard:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        setLoading(true);
-        setError('');
+    fetchLeaderboard(mode);
+  }, [mode]);
 
-        const user = auth.currentUser;
-        if (!user) {
-          setError('User not authenticated.');
-          setLoading(false);
-          return;
-        }
+  const toggleDropdown = () => setDropdown(open => !open);
 
-        const token = await user.getIdToken();
-        if (!token) {
-          setError('Could not retrieve authentication token.');
-          setLoading(false);
-          return;
-        }
-
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/leaderboard`, { // Changed line
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData?.error || `Failed to fetch leaderboard (status: ${response.status})`);
-        }
-
-        const data = await response.json();
-        setLeaderboard(data);
-        setLoading(false);
-
-      } catch (err) {
-        setError(err.message);
-        console.error('Error fetching leaderboard:', err);
-        setLoading(false);
-      }
-    };
-
-    fetchLeaderboard();
-  }, []);
-
-  const toggleDropdown = () => {
-    setDropdown(open => !open);
+  const handleSortChange = (newMode) => {
+    setMode(newMode);
+    setDropdown(false);
   };
 
   return (
     <>
       {loading ? (
-        <div className="loading-leaderboard">
-          <p>Loading leaderboard...</p>
-        </div>
+        <div className="loading-leaderboard"><p>Loading leaderboard...</p></div>
       ) : error ? (
         <p>Error: {error}</p>
       ) : (
-        <>
-          <div className="leaderboard-flex">
-            <div className="leaderboard-top">
-              <h2>Leaderboard</h2>
-              <div className="leaderboard-buttons">
-                <button className="jump-button">
-                  <ArrowDown size={20} /> 
-                  <span>Jump to Me</span>
+        <div className="leaderboard-flex">
+          <div className="leaderboard-top">
+            <h2>Leaderboard</h2>
+            <div className="leaderboard-buttons">
+              <button className="jump-button"><ArrowDown size={20} /> <span>Jump to Me</span></button>
+
+              <div className="filter-alignment">
+                <button className="filter-button" onClick={toggleDropdown}>
+                  <AlignJustify size={20} />
+                  <span>Sort By</span>
                 </button>
-
-                <div className="filter-alignment">
-                  <button className="filter-button" onClick={toggleDropdown}>
-                    <AlignJustify size={20} />
-                    <span>Sort By</span>
-                  </button>
-                  
-                  {/*Change the leaderboard depending on what you pressed*/}
-                  {showDropdown && (
-                    <div className="dropdown-filter">
-                      <button className="dropdown-item">Global</button>
-                      <button className="dropdown-item">Similar Rankings</button>
-                      <button className="dropdown-item">Friends</button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="leaderboard-bottom">
-              <h1>Global Leaderboard</h1>
-              <div className="leaderboard-table">
-                <div className="leaderboard-heading">  
-                  <h3>Rank</h3>
-                  <h3>User Name</h3>
-                  <h3>XP</h3>
-                </div>
-
-                {leaderboard.map((user, index) => {
-                  {/* Gold, silver, bronze visual for leaderboard */}
-                  let rankMedal = ''; 
-
-                  if (index === 0) {
-                    rankMedal = 'gold';
-                  } else if (index === 1) {
-                    rankMedal = 'silver';
-                  } else if (index === 2) {
-                    rankMedal = 'bronze';
-                  }
-
-                  return (
-                    <div key={user.userID} className={`leaderboard-row ${rankMedal}`}>
-                      <span>{index + 1}</span>
-                      <span>{user.userName}</span>
-                      <span>{user.score}</span>
-                    </div>
-                  );
-                })}
+                {showDropdown && (
+                  <div className="dropdown-filter">
+                    <button className="dropdown-item" onClick={() => handleSortChange('global')}>Global</button>
+                    <button className="dropdown-item" onClick={() => handleSortChange('similar')}>Similar Rankings</button>
+                    {/* Friends will be added later */}
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        </>
+
+          <div className="leaderboard-bottom">
+            <h1>{mode === 'global' ? "Global Leaderboard" : "Similar XP Leaderboard"}</h1>
+            <div className="leaderboard-table">
+              <div className="leaderboard-heading">
+                <h3>Rank</h3>
+                <h3>User Name</h3>
+                <h3>XP</h3>
+              </div>
+
+              {leaderboard.map((user, index) => {
+                let rankMedal = '';
+                if (index === 0) rankMedal = 'gold';
+                else if (index === 1) rankMedal = 'silver';
+                else if (index === 2) rankMedal = 'bronze';
+
+                return (
+                  <div key={user.userID || user.id} className={`leaderboard-row ${rankMedal}`}>
+                    <span>{index + 1}</span>
+                    <span>{user.userName}</span>
+                    <span>{user.score}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

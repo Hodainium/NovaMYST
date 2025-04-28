@@ -6,7 +6,6 @@ const admin = require('firebase-admin');
 import cors from 'cors';
 import type { CorsOptionsDelegate, CorsRequest } from 'cors';
 
-
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -64,6 +63,7 @@ import leaderboardRoutes from './routes/leaderboardRoutes';
 app.use('/leaderboard', leaderboardRoutes);
 
 import friendRoutes from './routes/friendRoutes';
+
 app.use('/friends', friendRoutes)
 
 // Test route
@@ -77,9 +77,18 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
+// // Start server
+// app.listen(port, () => {
+//   console.log(`Server running at http://localhost:${port}`);
+// });
+
 // Start server
-app.listen(port, () => {
+app.listen(port, async () => {
   console.log(`Server running at http://localhost:${port}`);
+
+  // Only NOW import cron and start it
+  const { startMonthlyXPResetCron } = await import('./cron/cron');
+  startMonthlyXPResetCron();
 });
 
 export { admin, db };

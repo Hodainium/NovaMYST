@@ -1,50 +1,37 @@
 import type { Request, Response } from 'express';
-import admin from 'firebase-admin';
-const db = admin.firestore();
-import { getUserData, fetchUserData } from './userController'; 
-const { User } = require('../models/user') // import user models
+// import admin from 'firebase-admin';
+// const db = admin.firestore();
+import { admin, db } from '../index'; 
 import * as userController from './userController';
 const LEADERBOARD_COLLECTION = 'leaderboard';
 
-/**
- * Updates the leaderboard for a given user.
- * Fetches the user's name and XP using the users controller.
- * If the user exists on the leaderboard, updates their score and last updated time.
- * If the user doesn't exist, adds a new entry.
- *
- * @param {string} userID - The unique ID of the user.
- * @returns {Promise<void>}
- */
+// --- Update leaderboard for a user ---
 export const updateLeaderboard = async (userID: string): Promise<void> => {
-  console.log(`[LEADERBOARD UPDATE TRIGGERED] for user: ${userID}`);
+  console.log(`[LEADERBOARD UPDATE] for user: ${userID}`);
   try {
     const userData = await userController.fetchUserData(userID);
-
     if (!userData) {
-      console.error(`User data not found for ID: ${userID}. Cannot update leaderboard.`);
+      console.error(`User not found: ${userID}`);
       return;
     }
 
-    const { userName, xp } = userData as typeof User; // Type assertion using the User interface
+    const now = new Date();
+    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const monthlyXP = userData.monthlyXP?.[monthKey] || 0;
 
-    const leaderboardRef = db.collection('leaderboard').doc(userID);
+    const leaderboardRef = db.collection(LEADERBOARD_COLLECTION).doc(userID);
     const doc = await leaderboardRef.get();
 
     const updateData = {
-      userName: userName,
-      score: xp,
+      userName: userData.userName ?? 'Unknown User',
+      score: monthlyXP, // Always use monthlyXP
       lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
     };
 
     if (doc.exists) {
       await leaderboardRef.update(updateData);
-      console.log(`Leaderboard updated for user: ${userID}`);
     } else {
-      await leaderboardRef.set({
-        userID: userID,
-        ...updateData,
-      });
-      console.log(`Leaderboard entry created for user: ${userID}`);
+      await leaderboardRef.set({ userID, ...updateData });
     }
   } catch (error: any) {
     console.error('Error updating leaderboard:', error);
@@ -52,28 +39,51 @@ export const updateLeaderboard = async (userID: string): Promise<void> => {
   }
 };
 
-/**
- * Retrieves the leaderboard data, ordered by score (XP) in descending order.
- * Optionally limits the number of results based on the provided argument.
- *
- * @param {number | undefined} limit - The maximum number of leaderboard entries to retrieve.
- * @returns {Promise<Array<object>>} - An array of leaderboard entries.
- */
-export const getLeaderboard = async (limit?: number): Promise<Array<object>> => {
+// --- Get Global Leaderboard (Top 20 Monthly XP) ---
+export const getGlobalLeaderboard = async (): Promise<object[]> => {
   try {
-      let query = db.collection('leaderboard').orderBy('score', 'desc');
-      if (limit) {
-          query = query.limit(limit);
-      }
-      const snapshot = await query.get();
+    const snapshot = await db
+      .collection(LEADERBOARD_COLLECTION)
+      .orderBy('score', 'desc')
+      .limit(20)
+      .get();
 
-      const leaderboardData = snapshot.docs.map(doc => ({
-          id: doc.id, // Optionally include the Firestore document ID
-          ...doc.data(),
-      }));
-      return leaderboardData;
-  } catch (error: any) {
-      console.error('Error fetching leaderboard:', error);
-      throw error;
+    return snapshot.docs.map((doc: FirebaseFirestore.QueryDocumentSnapshot) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (error) {
+    console.error('Error fetching global leaderboard:', error);
+    throw error;
+  }
+};
+
+// --- Get Similar XP Leaderboard ---
+export const getSimilarXPLeaderboard = async (userID: string): Promise<object[]> => {
+  try {
+    const userData = await userController.fetchUserData(userID);
+    if (!userData) throw new Error('User data not found.');
+
+    const now = new Date();
+    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const myXP = userData.monthlyXP?.[monthKey] || 0;
+
+    const lowerBound = Math.max(myXP * 0.9, myXP - 50); // query for the XP range decided to go
+    const upperBound = myXP * 1.1 + 50;
+
+    const snapshot = await db.collection(LEADERBOARD_COLLECTION)
+      .where('score', '>=', lowerBound)
+      .where('score', '<=', upperBound)
+      .orderBy('score', 'desc')
+      .limit(20)
+      .get();
+
+    return snapshot.docs.map((doc: FirebaseFirestore.QueryDocumentSnapshot)  => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (error) {
+    console.error('Error fetching similar XP leaderboard:', error);
+    throw error;
   }
 };
