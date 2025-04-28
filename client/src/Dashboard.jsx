@@ -349,19 +349,26 @@ function Dashboard() {
         </div>
 
         <div className="dashboard-content">
-        {(activeSection === 'dashboard' || activeSection === 'tasks') && (
+        {!['character', 'leaderboard', 'settings'].includes(activeSection) && (
           <div className="minimal-header">
-            <div className="header-left">
-              <div className="profile-pic-placeholder">test</div>
-                <div className="user-info">
-                  <h2>Username</h2>
-                    <p>XP: {userXP} | Coins: {userCoins}</p>
-                </div>
-              </div>
-              <div className="header-right">
-              <h3>Rank: #123</h3>
+          <div className="header-left">
+            <div className="profile-pic-placeholder">test</div>
+            <div className="user-info">
+              <h2>Username</h2>
+              <p>XP: {userXP} | Coins: {userCoins}</p>
+              <h3>Rank: #123</h3> 
             </div>
           </div>
+      
+          <div className="header-right">
+            <div className="stamina-container">
+              <p className="stamina-text">Stamina: 20/20</p>
+              <div className="stamina-bar">
+                <div className="stamina-fill" style={{ width: '100%' }}></div>
+              </div>
+            </div>
+          </div>
+        </div>
         )}
           {activeSection === 'dashboard' && (
             <>
@@ -388,7 +395,7 @@ function Dashboard() {
                 </div>
               </div>
               <div className="finished-tasks-section">
-                <h3>Recent Tasks</h3>
+                <h3>Previous Tasks</h3>
                 <hr className="task-divider" />
                 <div className="finished-tasks-grid">
                   {quests.filter((q) => q.completed).map((quest) => (
@@ -398,9 +405,7 @@ function Dashboard() {
                           {quest.title}
                           {quest.late && <span className="late-indicator-inline"> (Late)</span>}
                         </h4>
-                        <button className="delete-btn" onClick={() => handleDeleteQuest(quest.id)}>
-                          Delete
-                        </button>
+                        
                       </div>
                       {/*<div className="task-meta">*/}
                         {/*
