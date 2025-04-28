@@ -195,7 +195,7 @@ html, body {
 }
 
 
-.quest-item, .finished-task-item {
+.quest-item {
     background: #ffffff;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
@@ -205,6 +205,18 @@ html, body {
     flex-direction: column;
     gap: 0.5rem;
 }
+
+.finished-task-item {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 0.56rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 50%;
+  }
 
 
 .quest-header {
@@ -461,7 +473,7 @@ html, body {
 
 .finished-tasks-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1rem;
 }
 
@@ -516,42 +528,69 @@ html, body {
 .user-info h2 {
     margin: 0;
     font-size: 1.1rem;
-}
-
-
-.user-info p {
+  }
+  
+  .user-info p {
     margin: 0;
     font-size: 0.85rem;
-    color: #666;
-}
+    color: #666666; 
+  }
 
-
-.header-right h3 {
+  .user-info h3 {
     margin: 0;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    color: #666666; 
     font-weight: 500;
-    color: #666;
-}
+  }
 
-
-
-
+.stamina-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-right: 2rem;
+  }
+  
+  .stamina-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0;
+    color: #000000; /* Black text for light mode */
+  }
+  
+  .stamina-bar {
+    width: 100px;
+    height: 10px;
+    border: 1px solid #6c5dd3; /* Purple border */
+    border-radius: 8px;
+    background: #f0f0f0;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  
+  .stamina-fill {
+    height: 100%;
+    background: #6c5dd3; /* Always purple fill */
+  }
+  
+  /* Dark mode adjustments */
+  body.dark-mode .stamina-text {
+    color: #ffffff; /* White text in dark mode */
+  }
+  
+  body.dark-mode .stamina-bar {
+    background: #333333; /* Dark background behind purple bar if needed */
+  }
+  
 body.dark-mode .dashboard-header {
     background-color: #2c2c2c;
     color: white;
     border-color: #444;
 }
 
-
-body.dark-mode .user-info p {
-    color: #aaa;
+body.dark-mode .user-info p,
+body.dark-mode .user-info h3 {
+  color: #cccccc; 
 }
-
-
-body.dark-mode .header-right h3 {
-    color: #ccc;
-}
-
 
 body.dark-mode {
     background-color: #1e1e1e;
@@ -625,6 +664,3 @@ body.dark-mode .task-divider {
 body.dark-mode .modal h2 {
     color: #ffffff;
 }
-
-
-
