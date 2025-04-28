@@ -130,9 +130,25 @@ exports.updateTask = async (req: Request, res: Response) => {
         console.log(`Granting ${taskXP} XP to user ${user.uid} for completing task ${id}`);
 
         const userRef = db.collection(USERS_COLLECTION).doc(user.uid);
+
+        const now = new Date();
+        const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+        // Fetch current user data to update monthlyXP
+        const userSnap = await userRef.get();
+        const userData = userSnap.data();
+
+        if (!userData) {
+          throw new Error('User data not found while updating task XP');
+        }
+
+
+        const monthlyXP = userData.monthlyXP || {}; // default to empty map if doesn't exist
+        monthlyXP[monthKey] = (monthlyXP[monthKey] || 0) + taskXP;
         await userRef.update({
             xp: admin.firestore.FieldValue.increment(taskXP),
-            completedTasks: admin.firestore.FieldValue.arrayUnion(id)
+            completedTasks: admin.firestore.FieldValue.arrayUnion(id),
+            monthlyXP: monthlyXP,
         });
         await syncUserAchievements(user.uid);
         // --- CALL UPDATE LEADERBOARD HERE ---
@@ -352,7 +368,8 @@ exports.registerUser = async (req: Request, res: Response) => {
           completedTasks: [],
           unfinishedTasks: [],
           achievements: [],
-          createdAt: admin.firestore.FieldValue.serverTimestamp()
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          monthlyXP: {}
         };
   
         await userRef.set(newUser);
