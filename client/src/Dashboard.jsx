@@ -26,6 +26,8 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [userXP, setUserXP] = useState(0);
   const [userCoins, setUserCoins] = useState(0);
+  const [username, setUsername] = useState("Loading...");
+
   
   const navigate = useNavigate();
 
@@ -70,6 +72,7 @@ function Dashboard() {
 
 
         const userData = await userRes.json();
+        setUsername(userData.username || user.displayName || "Player");
         setUserXP(userData.xp || 0);
         setUserCoins(userData.coins || 0);
  
@@ -354,7 +357,7 @@ function Dashboard() {
           <div className="header-left">
             <div className="profile-pic-placeholder">test</div>
             <div className="user-info">
-              <h2>Username</h2>
+              <h2>{username}</h2>
               <p>XP: {userXP} | Coins: {userCoins}</p>
               <h3>Rank: #123</h3> 
             </div>
