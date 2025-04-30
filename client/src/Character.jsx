@@ -1,7 +1,10 @@
 import "./Character.css";
 import {useState} from 'react';
+import { useContext } from 'react';
+import { DarkModeContext } from './DarkMode';
 
 function Character() {
+const { darkMode } = useContext(DarkModeContext);
 const [hat, setHat] = useState('default');
 const [top, setTop] = useState('default');
 const [bottom, setBottom] = useState('default');
@@ -26,7 +29,7 @@ const [shoes, setShoes] = useState('default');
 
 
     return (
-        <div className="background"> 
+        <div className={`background ${darkMode ? 'dark' : ''}`}>
             <div className="characterScreen">
                 <h1 className="characterTitle">Character Screen</h1>
 
