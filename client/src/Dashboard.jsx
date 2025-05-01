@@ -29,6 +29,7 @@ function Dashboard() {
   const [stamina, setStamina] = useState(0);
   const [prevStamina, setPrevStamina] = useState(0);
   const [pulse, setPulse] = useState(false);
+  const [username, setUsername] = useState("Loading...");
   
   const navigate = useNavigate();
 
@@ -90,6 +91,7 @@ const staminaColors = [
 
 
         const userData = await userRes.json();
+        setUsername(userData.username || user.displayName || "Player");
         setUserXP(userData.xp || 0);
         setUserCoins(userData.coins || 0);
 
@@ -416,7 +418,7 @@ const staminaColors = [
           <div className="header-left">
             <div className="profile-pic-placeholder">test</div>
             <div className="user-info">
-              <h2>Username</h2>
+              <h2>{username}</h2>
               <p>XP: {userXP} | Coins: {userCoins}</p>
               <h3>Rank: #123</h3> 
             </div>
