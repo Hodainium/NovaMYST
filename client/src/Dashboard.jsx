@@ -32,7 +32,18 @@ function Dashboard() {
   
   const navigate = useNavigate();
 
-  const staminaColors = ['green', 'blue', 'red', 'yellow', 'purple', 'cyan'];
+// RGB wheel-based stamina loop (green start → clockwise):
+const staminaColors = [
+    '#4ade80', // Green
+    '#34d399', // Spring Green
+    '#22d3ee', // Cyan
+    '#3b82f6', // Blue
+    '#8b5cf6', // Violet
+    '#ec4899', // Magenta
+    '#ef4444', // Red
+    '#f97316', // Orange
+    '#eab308'  // Yellow
+  ];
 
   const currentStamina = stamina % 100;
   const loopCount = Math.floor(stamina / 100);
@@ -414,19 +425,42 @@ function Dashboard() {
           <div className="header-right">
             <div className="stamina-container">
               <p className="stamina-text">Stamina: {stamina}</p>
-              <div className="stamina-bar">
-                <div 
-                    className={`stamina-fill ${pulse ? 'pulse' : ''}`} 
-                    style={{ 
+              <div className="stamina-bar" style={{ position: 'relative' }}>
+                {stamina >= 100 && (
+                    <div
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: staminaColors[(loopCount - 1) % staminaColors.length],
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        borderRadius: '8px',
+                        zIndex: 0
+                    }}
+                    />
+                )}
+                <div
+                    className={`stamina-fill ${pulse ? 'pulse' : ''}`}
+                    style={{
                         width: `${currentStamina}%`,
-                        background: fillColor,
+                        backgroundColor: fillColor,
+                        height: '100%',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        borderTopLeftRadius: currentStamina > 0 ? '8px' : '0',
+                        borderBottomLeftRadius: currentStamina > 0 ? '8px' : '0',
+                        borderTopRightRadius: '0',
+                        borderBottomRightRadius: '0',
+                        zIndex: 1,
                         transition: 'width 0.5s ease-in-out, background-color 0.5s ease-in-out'
-                    }}>
+                    }}
+                />
                 </div>
               </div>
             </div>
           </div>
-        </div>
         )}
           {activeSection === 'dashboard' && (
             <>
