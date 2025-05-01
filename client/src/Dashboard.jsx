@@ -26,14 +26,33 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [userXP, setUserXP] = useState(0);
   const [userCoins, setUserCoins] = useState(0);
+  const [stamina, setStamina] = useState(0);
+  const [prevStamina, setPrevStamina] = useState(0);
+  const [pulse, setPulse] = useState(false);
   const [username, setUsername] = useState("Loading...");
-
   
   const navigate = useNavigate();
 
+// RGB wheel-based stamina loop (green start → clockwise):
+const staminaColors = [
+    '#4ade80', // Green
+    '#34d399', // Spring Green
+    '#22d3ee', // Cyan
+    '#3b82f6', // Blue
+    '#8b5cf6', // Violet
+    '#ec4899', // Magenta
+    '#ef4444', // Red
+    '#f97316', // Orange
+    '#eab308'  // Yellow
+  ];
+
+  const currentStamina = stamina % 100;
+  const loopCount = Math.floor(stamina / 100);
+  const fillColor = staminaColors[loopCount % staminaColors.length];
+
   const refreshUserData = async () => {
     try {
-      console.log("🔄 refreshUserData called");
+      console.log("refreshUserData called");
       const user = auth.currentUser;
       if (!user) return;
       const token = await user.getIdToken();
@@ -75,6 +94,26 @@ function Dashboard() {
         setUsername(userData.username || user.displayName || "Player");
         setUserXP(userData.xp || 0);
         setUserCoins(userData.coins || 0);
+
+        const fetchStamina = async () => {
+            try {
+              const staminaRes = await fetch(`${import.meta.env.VITE_API_URL}/user/stamina`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                }
+              });
+              const data = await staminaRes.json();
+              setStamina(data.stamina || 0);
+              if (data.stamina > prevStamina) {
+                setPulse(true);
+                setTimeout(() => setPulse(false), 600); // match the CSS animation duration
+              }
+              setPrevStamina(data.stamina);
+            } catch (err) {
+              console.error("Failed to fetch stamina:", err);
+            }
+          };
+        await fetchStamina();
  
         const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks/list`, {
           headers: {
@@ -103,6 +142,28 @@ function Dashboard() {
     });
  
     return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+      const token = await user.getIdToken();
+  
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/user/stamina`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        });
+        const data = await res.json();
+        setStamina(data.stamina || 0);
+      } catch (err) {
+        console.error("Failed to poll stamina:", err);
+      }
+    }, 20 * 1000); // every 1 minute staminatimer 1 * 60 * 1000
+  
+    return () => clearInterval(interval);
   }, []);
 
 
@@ -365,13 +426,43 @@ function Dashboard() {
       
           <div className="header-right">
             <div className="stamina-container">
-              <p className="stamina-text">Stamina: 20/20</p>
-              <div className="stamina-bar">
-                <div className="stamina-fill" style={{ width: '100%' }}></div>
+              <p className="stamina-text">Stamina: {stamina}</p>
+              <div className="stamina-bar" style={{ position: 'relative' }}>
+                {stamina >= 100 && (
+                    <div
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: staminaColors[(loopCount - 1) % staminaColors.length],
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        borderRadius: '8px',
+                        zIndex: 0
+                    }}
+                    />
+                )}
+                <div
+                    className={`stamina-fill ${pulse ? 'pulse' : ''}`}
+                    style={{
+                        width: `${currentStamina}%`,
+                        backgroundColor: fillColor,
+                        height: '100%',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        borderTopLeftRadius: currentStamina > 0 ? '8px' : '0',
+                        borderBottomLeftRadius: currentStamina > 0 ? '8px' : '0',
+                        borderTopRightRadius: '0',
+                        borderBottomRightRadius: '0',
+                        zIndex: 1,
+                        transition: 'width 0.5s ease-in-out, background-color 0.5s ease-in-out'
+                    }}
+                />
+                </div>
               </div>
             </div>
           </div>
-        </div>
         )}
           {activeSection === 'dashboard' && (
             <>
