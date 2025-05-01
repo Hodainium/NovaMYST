@@ -30,6 +30,7 @@ export interface User {
     monthlyXP: {
       [month: string]: number;
     }
+    lastSignInDate: FirebaseFirestore.Timestamp;
     // add in profile pictures; store them as strings here to the URL of their picture?
     // add in character fields when that is implemented
 }
@@ -57,5 +58,6 @@ module.exports = {
       },
       coins: 0,
       monthlyXP: {},
+      lastSignInDate: null,
     }
   };

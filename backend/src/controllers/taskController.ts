@@ -8,6 +8,7 @@ import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import fetch from 'node-fetch';
 import { syncUserAchievements } from './achievementController';
 import { updateLeaderboard } from './leaderboardController';
+import { calculateStamina } from './userController';
 
 const API_URL = process.env.API_URL || "http://localhost:3000";
 
@@ -353,6 +354,8 @@ exports.registerUser = async (req: Request, res: Response) => {
   
       const userRef = db.collection("users").doc(user.uid);
       const userSnap = await userRef.get();
+
+      const currentTime = admin.firestore.FieldValue.serverTimestamp();
   
       if (!userSnap.exists) {
         const newUser = {
@@ -368,15 +371,31 @@ exports.registerUser = async (req: Request, res: Response) => {
           completedTasks: [],
           unfinishedTasks: [],
           achievements: [],
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-          monthlyXP: {}
+          createdAt: currentTime,
+          monthlyXP: {},
+          lastSignInDate: currentTime
         };
   
         await userRef.set(newUser);
         await syncUserAchievements(user.uid);
         return res.status(201).json({ message: 'User document created!' });
       }
-  
+
+      const userData = userSnap.data();
+      const currentStamina = userData?.stamina || -1;
+      const lastSignInDate = userData?.lastSignInDate;
+      
+      if (lastSignInDate && currentStamina != -1) {
+        const { newStamina, newTimestamp } = calculateStamina(lastSignInDate, currentStamina);
+      
+        await userRef.update({
+          stamina: newStamina,
+          lastSignInDate: newTimestamp
+        });
+      
+        console.log("Stamina updated:", newStamina);
+      }
+
       res.status(200).json({ message: 'User already exists. No update needed.' });
     } catch (err: any) {
       res.status(500).json({ error: 'Failed to create user', details: err.message });

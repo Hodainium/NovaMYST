@@ -26,12 +26,21 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [userXP, setUserXP] = useState(0);
   const [userCoins, setUserCoins] = useState(0);
+  const [stamina, setStamina] = useState(0);
+  const [prevStamina, setPrevStamina] = useState(0);
+  const [pulse, setPulse] = useState(false);
   
   const navigate = useNavigate();
 
+  const staminaColors = ['green', 'blue', 'red', 'yellow', 'purple', 'cyan'];
+
+  const currentStamina = stamina % 100;
+  const loopCount = Math.floor(stamina / 100);
+  const fillColor = staminaColors[loopCount % staminaColors.length];
+
   const refreshUserData = async () => {
     try {
-      console.log("🔄 refreshUserData called");
+      console.log("refreshUserData called");
       const user = auth.currentUser;
       if (!user) return;
       const token = await user.getIdToken();
@@ -72,6 +81,26 @@ function Dashboard() {
         const userData = await userRes.json();
         setUserXP(userData.xp || 0);
         setUserCoins(userData.coins || 0);
+
+        const fetchStamina = async () => {
+            try {
+              const staminaRes = await fetch(`${import.meta.env.VITE_API_URL}/user/stamina`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                }
+              });
+              const data = await staminaRes.json();
+              setStamina(data.stamina || 0);
+              if (data.stamina > prevStamina) {
+                setPulse(true);
+                setTimeout(() => setPulse(false), 600); // match the CSS animation duration
+              }
+              setPrevStamina(data.stamina);
+            } catch (err) {
+              console.error("Failed to fetch stamina:", err);
+            }
+          };
+        await fetchStamina();
  
         const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks/list`, {
           headers: {
@@ -100,6 +129,28 @@ function Dashboard() {
     });
  
     return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+      const token = await user.getIdToken();
+  
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/user/stamina`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        });
+        const data = await res.json();
+        setStamina(data.stamina || 0);
+      } catch (err) {
+        console.error("Failed to poll stamina:", err);
+      }
+    }, 20 * 1000); // every 1 minute staminatimer 1 * 60 * 1000
+  
+    return () => clearInterval(interval);
   }, []);
 
 
@@ -362,9 +413,16 @@ function Dashboard() {
       
           <div className="header-right">
             <div className="stamina-container">
-              <p className="stamina-text">Stamina: 20/20</p>
+              <p className="stamina-text">Stamina: {stamina}</p>
               <div className="stamina-bar">
-                <div className="stamina-fill" style={{ width: '100%' }}></div>
+                <div 
+                    className={`stamina-fill ${pulse ? 'pulse' : ''}`} 
+                    style={{ 
+                        width: `${currentStamina}%`,
+                        background: fillColor,
+                        transition: 'width 0.5s ease-in-out, background-color 0.5s ease-in-out'
+                    }}>
+                </div>
               </div>
             </div>
           </div>
