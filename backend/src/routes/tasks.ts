@@ -23,7 +23,4 @@ router.delete('/delete/:id', authenticateFirebaseToken, deleteTask);
 router.post('/register', authenticateFirebaseToken, registerUser);
 router.get('/test-firestore', testdb);
 
-// Reward calculation route
-router.post('/calculateReward', calculateReward);
-
 module.exports = router;
