@@ -680,3 +680,35 @@ body.dark-mode .modal h2 {
 .stamina-bar.pulse {
   animation: pulse 0.6s ease-out;
 }
+
+.stamina-bar {
+  position: relative;
+  width: 100px;
+  height: 10px;
+  border: 1px solid #6c5dd3;
+  border-radius: 8px;
+  background: #f0f0f0;
+  overflow: hidden;
+  padding: 0;          
+  margin: 0;           
+}
+
+@keyframes staminaDrain {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.stamina-fill.drain {
+  animation: staminaDrain 0.6s ease-in-out;
+}
+

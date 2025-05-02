@@ -29,7 +29,9 @@ function Dashboard() {
   const [stamina, setStamina] = useState(0);
   const [prevStamina, setPrevStamina] = useState(0);
   const [pulse, setPulse] = useState(false);
+  const [staminaAnimation, setStaminaAnimation] = useState(null); // 'pulse' | 'drain' | null
   const [username, setUsername] = useState("Loading...");
+
   
   const navigate = useNavigate();
 
@@ -50,6 +52,32 @@ const staminaColors = [
   const loopCount = Math.floor(stamina / 100);
   const fillColor = staminaColors[loopCount % staminaColors.length];
 
+  const fetchStamina = async (user) => {
+    if (!user) return;
+    const token = await user.getIdToken();
+  
+    try {
+      const staminaRes = await fetch(`${import.meta.env.VITE_API_URL}/user/stamina`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await staminaRes.json();
+      const newStamina = data.stamina || 0;
+  
+      setStamina(newStamina);
+  
+      if (newStamina > prevStamina) {
+        setStaminaAnimation('pulse');
+      } else if (newStamina < prevStamina) {
+        setStaminaAnimation('drain');
+      }
+  
+      setTimeout(() => setStaminaAnimation(null), 600); // reset animation state
+      setPrevStamina(newStamina);
+    } catch (err) {
+      console.error("Failed to fetch stamina:", err);
+    }
+  };
+
   const refreshUserData = async () => {
     try {
       console.log("refreshUserData called");
@@ -69,6 +97,35 @@ const staminaColors = [
     } catch (err) {
       console.error("Failed to refresh user data:", err);
     }
+  };
+
+  const fetchTasks = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const token = await user.getIdToken();
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks/list`, {
+        headers: {
+        Authorization: `Bearer ${token}`
+        }
+    });
+
+    const tasks = await res.json();
+
+    const activeTasks = tasks
+        .filter(task => !task.isComplete)
+        .map(task => ({
+        id: task.id,
+        title: task.title,
+        difficulty: task.difficulty,
+        estimatedTime: task.estimatedTime || { hours: 0, minutes: 0 },
+        dueDate: task.dueDate,
+        completed: false,
+        late: new Date(task.dueDate) < new Date(),
+        xp: task.xp
+        }));
+
+    setQuests(activeTasks);
   };
 
   useEffect(() => {
@@ -95,25 +152,27 @@ const staminaColors = [
         setUserXP(userData.xp || 0);
         setUserCoins(userData.coins || 0);
 
-        const fetchStamina = async () => {
-            try {
-              const staminaRes = await fetch(`${import.meta.env.VITE_API_URL}/user/stamina`, {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                }
-              });
-              const data = await staminaRes.json();
-              setStamina(data.stamina || 0);
-              if (data.stamina > prevStamina) {
-                setPulse(true);
-                setTimeout(() => setPulse(false), 600); // match the CSS animation duration
-              }
-              setPrevStamina(data.stamina);
-            } catch (err) {
-              console.error("Failed to fetch stamina:", err);
-            }
-          };
-        await fetchStamina();
+        // const fetchStamina = async () => {
+        //     try {
+        //       const staminaRes = await fetch(`${import.meta.env.VITE_API_URL}/user/stamina`, {
+        //         headers: {
+        //           Authorization: `Bearer ${token}`,
+        //         }
+        //       });
+        //       const data = await staminaRes.json();
+        //       setStamina(data.stamina || 0);
+        //       if (data.stamina > prevStamina) {
+        //         setPulse(true);
+        //         setTimeout(() => setPulse(false), 600); // match the CSS animation duration
+        //       }
+        //       setPrevStamina(data.stamina);
+        //     } catch (err) {
+        //       console.error("Failed to fetch stamina:", err);
+        //     }
+        //   };
+        //await fetchStamina();
+
+        await fetchStamina(user);
  
         const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks/list`, {
           headers: {
@@ -188,7 +247,6 @@ const staminaColors = [
  
       const taskData = {
         title: newQuest,
-        difficulty: selectedDifficulty,
         time: estimatedTime,
         dueDate: new Date(dueDate).toISOString()
       };
@@ -221,19 +279,20 @@ const staminaColors = [
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Failed to create task");
  
-        setQuests([...quests, {
-          id: data.id,
-          ...taskData,
-          completed: false,
-          late: false,
-          reward: taskTypes.find(t => t.value === selectedDifficulty)?.reward || { coins: 0, xp: 0 },
-          timestamp: Date.now()
-        }]);
+        // setQuests([...quests, {
+        //   id: data.id,
+        //   ...taskData,
+        //   completed: false,
+        //   late: false,
+        //   reward: taskTypes.find(t => t.value === selectedDifficulty)?.reward || { coins: 0, xp: 0 },
+        //   timestamp: Date.now()
+        // }]);
+        
+        await fetchTasks();
       }
  
       setIsModalOpen(false);
       setNewQuest('');
-      setSelectedDifficulty('easy');
       setEstimatedTime({ hours: 0, minutes: 0 });
       setDueDate('');
       setEditingTaskId(null);
@@ -259,11 +318,15 @@ const staminaColors = [
         body: JSON.stringify({ isComplete: true })
       });
 
-      setQuests((prev) =>
-        prev.map((q) =>
-          q.id === id ? { ...q, completed: true, timestamp: Date.now() } : q
-        )
-      );
+      await fetchStamina(user);
+      await refreshUserData();
+      await fetchTasks();
+
+    //   setQuests((prev) =>
+    //     prev.map((q) =>
+    //       q.id === id ? { ...q, completed: true, timestamp: Date.now() } : q
+    //     )
+    //   );
     } catch (err) {
       console.error("Error completing task:", err);
     }
