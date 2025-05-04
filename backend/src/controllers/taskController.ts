@@ -284,7 +284,7 @@ exports.testdb = async (req: Request, res: Response) => {
 export const getDifficultyFromGemini = async (
     taskTitle: string,
     estimatedMinutes: number
-  ): Promise<'easy' | 'medium' | 'medium-hard' | 'hard' | 'very hard' | 'unclear'> => {
+  ): Promise<'easy' | 'medium' | 'medium-hard' | 'hard' | 'very-hard' | 'unclear'> => {
     const prompt = `You are an assistant that classifies user-submitted tasks into difficulty levels for a motivational task tracking app.
   
   Given:
@@ -296,7 +296,7 @@ export const getDifficultyFromGemini = async (
   For valid tasks:
   {
     "status": "ok",
-    "difficulty": "easy" | "medium" | "medium-hard" | "hard" | "very hard"
+    "difficulty": "easy" | "medium" | "medium-hard" | "hard" | "very-hard"
   }
   
   For vague or garbage tasks (e.g. "asdf", "123", "hi", "a"):
@@ -308,20 +308,195 @@ export const getDifficultyFromGemini = async (
   Always respond with only the JSON object. Do not include any additional text or explanation.
   
   Examples:
-  
-  1.
-  Task: Do my taxes — 180 minutes  
-  → {
-    "status": "ok",
-    "difficulty": "very hard"
-  }
-  
-  2.
-  Task: lol — 5 minutes  
-  → {
-    "status": "error",
-    "message": "Task unclear. Please rewrite."
-  }
+
+    // Easy
+    Task: Take out the trash — 10 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Water houseplants — 5 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Send a thank you email — 10 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Wash a single dish — 3 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Make your bed — 4 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Sort 5 emails into folders — 6 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Refill water bottle — 2 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Walk around the block — 10 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Feed the cat — 5 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Stretch for a few minutes — 7 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Take a shower — 30 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    // Medium
+    Task: Clean your desk — 25 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Fold and put away laundry — 30 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Review lecture notes — 40 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Schedule a doctor’s appointment — 20 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Update resume — 45 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Cook a simple meal — 30 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Backup your phone — 25 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Study flashcards — 30 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Call the bank for an account inquiry — 35 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Watch a tutorial video and take notes — 45 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    // Medium-Hard
+    Task: Deep clean the kitchen — 90 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Draft a 2-page essay — 75 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Apply to 3 job postings — 90 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Pack for a weekend trip — 60 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Compare renters insurance plans — 90 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Reorganize your workspace — 80 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Set up budget in a spreadsheet — 70 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Edit a 5-minute video — 90 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Install and configure a new router — 75 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Practice a speech — 90 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    // Hard
+    Task: File taxes with deductions — 120 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Study 3 textbook chapters — 150 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Fix a bike chain — 100 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Write a research outline — 130 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Troubleshoot WiFi for your house — 120 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Clean and detail a car interior — 140 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Complete a long online form (e.g. FAFSA) — 150 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Build IKEA furniture — 120 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Prepare presentation slides — 100 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Research for a term paper — 150 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    // Very-Hard
+    Task: Create a portfolio website from scratch — 240 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Write and edit a 10-page essay — 300 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Migrate files from one PC to another and set up everything — 360 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Create a business plan — 300 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Study for final exams — 300 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Organize a community event — 400 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Rewire a home network — 360 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Write a short story — 300 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Apply to multiple graduate programs — 400 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Do a complete apartment move — 480 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    // Error / Garbage
+    Task: lol — 5 minutes
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: a — 1 minute
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: 123456 — 3 minutes
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: . — 1 minute
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: [empty string] — 0 minutes
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: hi — 1 minute
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: ? — 2 minutes
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: asdfgh — 1 minute
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: thing — 1 minute
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: random — 1 minute
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
   
   Now evaluate:
   Task: ${taskTitle}  
