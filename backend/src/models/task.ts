@@ -9,6 +9,7 @@ interface Task {
     isComplete: boolean; 
     dueDate: Date;
     xp: number;
+    completedAt?: FirebaseFirestore.Timestamp; // <-- Add this line
 }
 
 const difficultyConfig: {
@@ -30,7 +31,8 @@ module.exports = {
         createdAt: null, // change this to date if needed
         isComplete: false,
         dueDate: null,
-        xp: 1
+        xp: 1,
+        completedAt: null
     },
     difficultyConfig
   };

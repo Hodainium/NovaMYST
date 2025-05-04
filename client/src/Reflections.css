@@ -132,3 +132,10 @@
 .filter-button:hover, .save-button:hover {
     background-color: #8677e9;
 }
+
+.selected-task {
+    background-color: #8677e9;
+    color: white;
+    font-weight: bold;
+  }
+  
