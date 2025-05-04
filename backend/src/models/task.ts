@@ -1,4 +1,4 @@
-type TaskDifficulty = "easy" | "medium" | "hard" // depending on difficulty XP and time taken will change
+type TaskDifficulty = "easy" | "medium" | "medium-hard" | "hard" | "very-hard"; // depending on difficulty XP and time taken will change
 
 interface Task {
     taskID: string;
@@ -9,15 +9,18 @@ interface Task {
     isComplete: boolean; 
     dueDate: Date;
     xp: number;
+    completedAt?: FirebaseFirestore.Timestamp; // <-- Add this line
 }
 
-const difficultyConfig: { // make a map that takes in a key (difficulty) to give you the XP and time needed for the difficulty
+const difficultyConfig: {
     [key in TaskDifficulty]: { xp: number; time: number };
-} = {  
-    easy: { xp: 50, time: 30},  // time in minutes
-    medium: { xp: 150, time: 60},
-    hard: { xp: 300, time : 120},
-}
+  } = {
+    easy: { xp: 50, time: 30 },
+    medium: { xp: 150, time: 60 },
+    "medium-hard": { xp: 250, time: 90 },
+    hard: { xp: 400, time: 120 },
+    "very-hard": { xp: 600, time: 180 }
+  };
 
 module.exports = {
     Task: {
@@ -28,7 +31,8 @@ module.exports = {
         createdAt: null, // change this to date if needed
         isComplete: false,
         dueDate: null,
-        xp: 1
+        xp: 1,
+        completedAt: null
     },
     difficultyConfig
   };

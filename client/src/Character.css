@@ -2,16 +2,17 @@
     width: 100vw;
     height: 100vh;
     background-image: url('./assets/Character_screen_background.png');
-    background-size: contain;
+    background-size: cover;
     background-repeat: no-repeat;
     display: flex;
     flex-direction: row;
-    flex-wrap: nowrap;
     justify-content: center;
-    align-items: center;
-    position: relative;
-    padding: 0;
-    margin: 0;
+    align-items: flex-start;
+    padding-top: 2rem;
+}
+
+.background.dark {
+    background-image: url('./assets/tavern.png');
 }
 
 .characterScreen {

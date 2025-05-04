@@ -8,6 +8,7 @@ import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import fetch from 'node-fetch';
 import { syncUserAchievements } from './achievementController';
 import { updateLeaderboard } from './leaderboardController';
+import { calculateStamina } from './userController';
 
 const API_URL = process.env.API_URL || "http://localhost:3000";
 
@@ -20,37 +21,32 @@ const USERS_COLLECTION = 'users'; //users
 
 exports.createTask = async (req: Request, res: Response) => {
     try {
-      const user = (req as any).user; // Verified Firebase user
-  
-      const { difficulty, title, time, dueDate } = req.body;
+      const user = (req as any).user;
+      const { title, time, dueDate } = req.body;
   
       const taskRef = db.collection("tasks").doc();
       const taskID = taskRef.id;
+  
       const estimatedMinutes = (time?.hours || 0) * 60 + (time?.minutes || 0);
-      const difficultyLevel = difficulty === 'easy' ? 1 : difficulty === 'medium' ? 3 : 5;
-
-      const xp = await getXPFromGemini(title, estimatedMinutes, difficultyLevel);
-
-    //   const rewardRes = await fetch(`${API_URL}/tasks/calculateReward`, {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify({
-    //       taskTitle: title,
-    //       estimatedMinutes, // You can later replace this with real input from frontend
-    //       difficulty: difficulty === 'easy' ? 1 : difficulty === 'medium' ? 3 : 5
-    //     })
-    //   });
-      
-    //   const rewardData = await rewardRes.json();
-    //   const xp = (rewardData as any).xp || 1;
+      const rawDifficulty = await getDifficultyFromGemini(title, estimatedMinutes);
+  
+      if (rawDifficulty === 'unclear') {
+        return res.status(400).json({ error: 'Task is too vague. Please rewrite.' });
+      }
+  
+      const { difficultyConfig } = require('../models/task');
+  
+      if (!difficultyConfig[rawDifficulty]) {
+        return res.status(400).json({ error: 'Unsupported difficulty level assigned by Gemini.' });
+      }
+  
+      const xp = difficultyConfig[rawDifficulty].xp;
   
       const newTask: Task = {
         taskID,
         title,
-        assignedTo: user.uid, // secure — ignore client-provided assignedTo
-        difficulty,
+        assignedTo: user.uid,
+        difficulty: rawDifficulty,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         isComplete: false,
         dueDate,
@@ -58,20 +54,18 @@ exports.createTask = async (req: Request, res: Response) => {
       };
   
       await taskRef.set(newTask);
-
       await syncUserAchievements(user.uid);
   
-      res.status(201).json({ 
+      res.status(201).json({
         id: taskID,
         title,
         assignedTo: user.uid,
-        difficulty,
+        difficulty: rawDifficulty,
         dueDate,
         isComplete: false,
         createdAt: new Date().toISOString(),
         message: 'Task created!'
       });
-  
     } catch (err: unknown) {
       if (err instanceof Error) {
         res.status(500).json({ error: 'Failed to create task', details: err.message });
@@ -80,6 +74,8 @@ exports.createTask = async (req: Request, res: Response) => {
       }
     }
 };
+  
+  
 
 // List all tasks
 exports.getTasks = async (req: Request, res: Response) => {
@@ -124,21 +120,54 @@ exports.updateTask = async (req: Request, res: Response) => {
       await taskRef.update(updatedData);
   
       if (!wasPreviouslyComplete && isNowComplete) {
-        const updatedDoc = await taskRef.get();
-        const taskXP = updatedDoc.data()?.xp || 0;
+        const now = admin.firestore.FieldValue.serverTimestamp();
 
-        console.log(`Granting ${taskXP} XP to user ${user.uid} for completing task ${id}`);
-
-        const userRef = db.collection(USERS_COLLECTION).doc(user.uid);
-        await userRef.update({
-            xp: admin.firestore.FieldValue.increment(taskXP),
-            completedTasks: admin.firestore.FieldValue.arrayUnion(id)
+        await taskRef.update({
+          ...updatedData,
+          completedAt: now
         });
-        await syncUserAchievements(user.uid);
-        // --- CALL UPDATE LEADERBOARD HERE ---
-        await updateLeaderboard(user.uid);
-        console.log(`Leaderboard update triggered for user: ${user.uid} on task completion.`);
-        // --- END LEADERBOARD INTEGRATION ---
+      
+        const updatedDoc = await taskRef.get();
+        const taskData = updatedDoc.data();
+        const taskXP = taskData?.xp || 0;
+        const difficulty = taskData?.difficulty || 'easy';
+  
+        const userRef = db.collection(USERS_COLLECTION).doc(user.uid);
+        const userSnap = await userRef.get();
+        const userData = userSnap.data();
+  
+        if (!userData) {
+          throw new Error('User data not found while updating task XP');
+        }
+  
+        const stamina = userData.stamina ?? 0;
+        const staminaCost =
+          difficulty === 'easy' ? 30 :
+          difficulty === 'medium' ? 60 :
+          90;
+  
+        const updates: any = {
+          completedTasks: admin.firestore.FieldValue.arrayUnion(id)
+        };
+  
+        if (stamina >= staminaCost) {
+          const now = new Date();
+          const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+          const monthlyXP = userData.monthlyXP || {};
+          monthlyXP[monthKey] = (monthlyXP[monthKey] || 0) + taskXP;
+  
+          updates.xp = admin.firestore.FieldValue.increment(taskXP);
+          updates.stamina = stamina - staminaCost;
+          updates.monthlyXP = monthlyXP;
+  
+          await userRef.update(updates);
+          await syncUserAchievements(user.uid);
+          await updateLeaderboard(user.uid);
+          console.log(`✅ Task ${id} complete — granted ${taskXP} XP, -${staminaCost} stamina to ${user.uid}`);
+        } else {
+          await userRef.update(updates);
+          console.log(`⚠️ Task ${id} completed with no XP (insufficient stamina: ${stamina}/${staminaCost})`);
+        }
       }
   
       res.json({ message: 'Task updated successfully' });
@@ -149,7 +178,8 @@ exports.updateTask = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Failed to update task', details: 'Unknown error occurred' });
       }
     }
-  };
+};
+  
 
 exports.deleteTask = async (req: Request, res: Response) => {
     try {
@@ -174,162 +204,6 @@ exports.deleteTask = async (req: Request, res: Response) => {
     }
 };
 
-export const getXPFromGemini = async (taskTitle: string, estimatedMinutes: number, difficulty: number): Promise<number> => {
-    const prompt = `Given a task with the following details:
-  - Description: ${taskTitle}
-  - Estimated time: ${estimatedMinutes} minutes
-  - Self-assigned difficulty: ${difficulty} (1-5)
-  
-  Assign an appropriate XP value between 1 and 100,000, considering task complexity, time, and difficulty. Please provide the XP value as a number.
-  
-  The XP value should be consistent across different runs for the same input. If you generate multiple responses, ensure that the XP value is consistent each time.
-  
-  Example tasks:
-  1. Task: Doing the dishes
-     Estimated time: 15 minutes
-     Difficulty: 1
-     XP: 100
-  
-  2. Task: Studying for an exam
-     Estimated time: 120 minutes
-     Difficulty: 3
-     XP: 2500
-  
-  3. Task: Writing a report
-     Estimated time: 60 minutes
-     Difficulty: 2
-     XP: 500
-  
-  4. Task: Buying a house
-     Estimated time: 50000 minutes
-     Difficulty: 5
-     XP: 100000
-  
-  5. Task: Having a baby
-     Estimated time: 525600 minutes (1 year)
-     Difficulty: 5
-     XP: 100000
-  
-  Now, process the following task:
-  Task: ${taskTitle}
-  Estimated time: ${estimatedMinutes} minutes
-  Difficulty: ${difficulty}
-  `;
-  
-    console.log("🚀 Calling Gemini with:", { taskTitle, estimatedMinutes, difficulty });
-  
-    try {
-      const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          generationConfig: { temperature: 0 },
-          contents: [{ parts: [{ text: prompt }] }],
-        }),
-      });
-  
-      const data = await geminiRes.json();
-      const outputText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      const xpMatch = outputText?.match(/(\d{1,6})/); // match first 1-6 digit number
-      const xp = xpMatch ? parseInt(xpMatch[1], 10) : null;
-  
-      console.log("🔎 Gemini raw output:", outputText);
-      console.log(`✅ Assigned XP: ${xp} for task "${taskTitle}"`);
-  
-      return xp || 1; // Fallback to 1 if parsing fails
-    } catch (err: any) {
-      console.error("❌ Gemini API call failed:", err);
-      return 1; // Fallback XP in case of error
-    }
-};
-
-exports.calculateReward = async (req: Request, res: Response) => {
-    const { taskTitle, estimatedMinutes, difficulty } = req.body;
-  
-    const prompt = `Given a task with the following details:
-  - Description: ${taskTitle}
-  - Estimated time: ${estimatedMinutes} minutes
-  - Self-assigned difficulty: ${difficulty} (1-5)
-  
-  Assign an appropriate XP value between 1 and 100,000, considering task complexity, time, and difficulty. Please provide the XP value as a number.
-  
-  The XP value should be consistent across different runs for the same input. If you generate multiple responses, ensure that the XP value is consistent each time.
-  
-  Example tasks:
-  1. Task: Doing the dishes
-     Estimated time: 15 minutes
-     Difficulty: 1
-     XP: 100
-  
-  2. Task: Studying for an exam
-     Estimated time: 120 minutes
-     Difficulty: 3
-     XP: 2500
-  
-  3. Task: Writing a report
-     Estimated time: 60 minutes
-     Difficulty: 2
-     XP: 500
-  
-  4. Task: Buying a house
-     Estimated time: 50000 minutes
-     Difficulty: 5
-     XP: 100000
-  
-  5. Task: Having a baby
-     Estimated time: 525600 minutes (1 year)
-     Difficulty: 5
-     XP: 100000
-  
-  Now, process the following task:
-  Task: ${taskTitle}
-  Estimated time: ${estimatedMinutes} minutes
-  Difficulty: ${difficulty}
-  `;
-
-  console.log("🚀 Calling Gemini with:", { taskTitle, estimatedMinutes, difficulty });
-
-    try {
-      const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          generationConfig: {
-            temperature: 0
-          },
-          contents: [
-            {
-              parts: [
-                {
-                  text: prompt
-                }
-              ]
-            }
-          ]
-        })
-      });
-  
-      const data = await geminiRes.json() as any;
-      const outputText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  
-      const xpMatch = outputText?.match(/(\d{1,6})/); // match 1-6 digit number
-      const xp = xpMatch ? parseInt(xpMatch[1], 10) : null;
-  
-      if (!xp) {
-        return res.status(400).json({ error: 'Could not extract XP value from Gemini response.', raw: outputText });
-      }
-
-      res.json({ xp, raw: outputText });
-      console.log("Gemini raw output:", outputText);
-      console.log(`Assigned XP: ${xp} for task "${taskTitle}"`);
-    } catch (err: any) {
-      console.error("Gemini API call failed:", err);
-      res.status(500).json({ error: 'Gemini API call failed', details: err.message });
-    }
-};
-
 exports.registerUser = async (req: Request, res: Response) => {
     try {
       const user = (req as any).user;
@@ -337,6 +211,12 @@ exports.registerUser = async (req: Request, res: Response) => {
   
       const userRef = db.collection("users").doc(user.uid);
       const userSnap = await userRef.get();
+
+      const currentTime = admin.firestore.FieldValue.serverTimestamp();
+      const getCurrentMonthKey = () => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+      };
   
       if (!userSnap.exists) {
         const newUser = {
@@ -352,14 +232,35 @@ exports.registerUser = async (req: Request, res: Response) => {
           completedTasks: [],
           unfinishedTasks: [],
           achievements: [],
-          createdAt: admin.firestore.FieldValue.serverTimestamp()
+          createdAt: currentTime,
+          monthlyXP: {
+            [getCurrentMonthKey()]: 0
+          },
+          lastSignInDate: currentTime
         };
   
         await userRef.set(newUser);
         await syncUserAchievements(user.uid);
+        // Update leaderboard after user is created
+        await updateLeaderboard(user.uid);
         return res.status(201).json({ message: 'User document created!' });
       }
-  
+
+      const userData = userSnap.data();
+      const currentStamina = userData?.stamina || -1;
+      const lastSignInDate = userData?.lastSignInDate;
+      
+      if (lastSignInDate && currentStamina != -1) {
+        const { newStamina, newTimestamp } = calculateStamina(lastSignInDate, currentStamina);
+      
+        await userRef.update({
+          stamina: newStamina,
+          lastSignInDate: newTimestamp
+        });
+      
+        console.log("Stamina updated:", newStamina);
+      }
+
       res.status(200).json({ message: 'User already exists. No update needed.' });
     } catch (err: any) {
       res.status(500).json({ error: 'Failed to create user', details: err.message });
@@ -377,5 +278,349 @@ exports.testdb = async (req: Request, res: Response) => {
       } else {
         res.status(500).json({ error: 'Firestore connection failed', details: 'Unknown error occurred' });
     }
+  }
+};
+
+export const getDifficultyFromGemini = async (
+    taskTitle: string,
+    estimatedMinutes: number
+  ): Promise<'easy' | 'medium' | 'medium-hard' | 'hard' | 'very-hard' | 'unclear'> => {
+    const prompt = `You are an assistant that classifies user-submitted tasks into difficulty levels for a motivational task tracking app.
+  
+  Given:
+  - Task description: ${taskTitle}
+  - Estimated time: ${estimatedMinutes} minutes
+  
+  Return a JSON object like one of the following:
+  
+  For valid tasks:
+  {
+    "status": "ok",
+    "difficulty": "easy" | "medium" | "medium-hard" | "hard" | "very-hard"
+  }
+  
+  For vague or garbage tasks (e.g. "asdf", "123", "hi", "a"):
+  {
+    "status": "error",
+    "message": "Task unclear. Please rewrite."
+  }
+  
+  Always respond with only the JSON object. Do not include any additional text or explanation.
+  
+  Examples:
+
+    // Easy
+    Task: Take out the trash — 10 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Water houseplants — 5 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Send a thank you email — 10 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Wash a single dish — 3 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Make your bed — 4 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Sort 5 emails into folders — 6 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Refill water bottle — 2 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Walk around the block — 10 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Feed the cat — 5 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Stretch for a few minutes — 7 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    Task: Take a shower — 30 minutes
+    → { "status": "ok", "difficulty": "easy" }
+
+    // Medium
+    Task: Clean your desk — 25 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Fold and put away laundry — 30 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Review lecture notes — 40 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Schedule a doctor’s appointment — 20 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Update resume — 45 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Cook a simple meal — 30 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Backup your phone — 25 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Study flashcards — 30 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Call the bank for an account inquiry — 35 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    Task: Watch a tutorial video and take notes — 45 minutes
+    → { "status": "ok", "difficulty": "medium" }
+
+    // Medium-Hard
+    Task: Deep clean the kitchen — 90 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Draft a 2-page essay — 75 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Apply to 3 job postings — 90 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Pack for a weekend trip — 60 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Compare renters insurance plans — 90 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Reorganize your workspace — 80 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Set up budget in a spreadsheet — 70 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Edit a 5-minute video — 90 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Install and configure a new router — 75 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    Task: Practice a speech — 90 minutes
+    → { "status": "ok", "difficulty": "medium-hard" }
+
+    // Hard
+    Task: File taxes with deductions — 120 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Study 3 textbook chapters — 150 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Fix a bike chain — 100 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Write a research outline — 130 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Troubleshoot WiFi for your house — 120 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Clean and detail a car interior — 140 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Complete a long online form (e.g. FAFSA) — 150 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Build IKEA furniture — 120 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Prepare presentation slides — 100 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    Task: Research for a term paper — 150 minutes
+    → { "status": "ok", "difficulty": "hard" }
+
+    // Very-Hard
+    Task: Create a portfolio website from scratch — 240 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Write and edit a 10-page essay — 300 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Migrate files from one PC to another and set up everything — 360 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Create a business plan — 300 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Study for final exams — 300 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Organize a community event — 400 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Rewire a home network — 360 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Write a short story — 300 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Apply to multiple graduate programs — 400 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    Task: Do a complete apartment move — 480 minutes
+    → { "status": "ok", "difficulty": "very-hard" }
+
+    // Error / Garbage
+    Task: lol — 5 minutes
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: a — 1 minute
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: 123456 — 3 minutes
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: . — 1 minute
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: [empty string] — 0 minutes
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: hi — 1 minute
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: ? — 2 minutes
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: asdfgh — 1 minute
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: thing — 1 minute
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+
+    Task: random — 1 minute
+    → { "status": "error", "message": "Task unclear. Please rewrite." }
+  
+  Now evaluate:
+  Task: ${taskTitle}  
+  Estimated time: ${estimatedMinutes} minutes`;
+  
+    console.log("🚀 Calling Gemini with:", { taskTitle, estimatedMinutes });
+  
+    try {
+      const geminiRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            generationConfig: { temperature: 0 },
+            contents: [{ parts: [{ text: prompt }] }],
+          }),
+        }
+      );
+  
+      const data = await geminiRes.json();
+      const outputText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  
+      console.log("🔎 Gemini raw output:", outputText);
+  
+      const cleanedText = outputText
+        ?.replace(/```json|```/g, '')
+        .trim();
+
+      const parsed = JSON.parse(cleanedText || '');
+  
+      if (parsed.status === 'ok' && typeof parsed.difficulty === 'string') {
+        console.log(`✅ Assigned difficulty: ${parsed.difficulty}`);
+        return parsed.difficulty;
+      }
+  
+      if (parsed.status === 'error' && parsed.message) {
+        console.warn(`⚠️ Gemini rejected task: ${parsed.message}`);
+        return 'unclear';
+      }
+  
+      throw new Error("Unexpected response structure");
+    } catch (err: any) {
+      console.error("❌ Gemini API call or parsing failed:", err);
+      return 'medium'; // fallback difficulty
+    }
+};
+
+export const getLastCompletedTask = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const userRef = db.collection(USERS_COLLECTION).doc(user.uid);
+    const userSnap = await userRef.get();
+    const userData = userSnap.data();
+
+    const completedTaskIds = userData?.completedTasks || [];
+
+        // ✅ Log completed task IDs
+        console.log("Fetched completed tasks:", completedTaskIds);
+
+    if (completedTaskIds.length === 0) {
+      return res.status(404).json({ error: "No completed tasks found." });
+    }
+
+    // Fetch all completed tasks
+    const taskDocs = await Promise.all(
+      completedTaskIds.map((id: string) =>
+        db.collection(TASKS_COLLECTION).doc(id).get()
+      )
+    );
+
+    // Extract task data with completedAt
+    const completedTasks = taskDocs
+    .map(doc => {
+      const task = { id: doc.id, ...doc.data() };
+
+      // ✅ Log each task and its completedAt field
+      console.log("Task:", task.id, "completedAt:", task.completedAt);
+
+      return task;
+    })
+    .filter(task => task.completedAt)
+    .sort((a, b) => b.completedAt.toMillis() - a.completedAt.toMillis());
+
+
+    if (completedTasks.length === 0) {
+      return res.status(404).json({ error: "No valid completed tasks with timestamps." });
+    }
+
+    res.status(200).json({ task: completedTasks[0] });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      res.status(500).json({ error: "Failed to fetch last completed task", details: err.message });
+    } else {
+      res.status(500).json({ error: "Failed to fetch last completed task", details: "Unknown error occurred" });
+    }
+  }
+};
+
+export const getCompletedTasks = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const userRef = db.collection("users").doc(user.uid);
+    const userSnap = await userRef.get();
+    const userData = userSnap.data();
+
+    const completedTaskIds = userData?.completedTasks || [];
+
+    if (completedTaskIds.length === 0) {
+      return res.status(200).json({ tasks: [] });
+    }
+
+    const taskDocs = await Promise.all(
+      completedTaskIds.map((id: string) =>
+        db.collection("tasks").doc(id).get()
+      )
+    );
+
+    const tasks = taskDocs
+      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .filter(task => task.title && task.completedAt) // filter junk
+
+    res.status(200).json({ tasks });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch completed tasks" });
   }
 };

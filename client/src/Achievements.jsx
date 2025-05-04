@@ -3,19 +3,7 @@ import { Award, CheckCircle2 } from 'lucide-react';
 import { auth } from './firebase';
 import "./Achievements.css";
 
-function AchievementDashboard() {
-    /*
-        This function just combines the other two components and also creates the page layout, also contains
-        the variables and functions if we ever need to pass those.
-        prop = parameters in React if you did not already know
-
-        achievementCurrent: get from database
-        achievementTotal: can be left here if you dont want total to be dynamic
-        achievementList: get from the database and set all the claimed to false, the claimed that are true are just to test
-        achievementProgress: leave here but replace variables, this makes achievementCurrent/achievementTotal into a percent
-        Can also replace it with some other stat if you want.
-    */
-
+function Achievements() {
     const [achievements, setAchievements] = useState([]);
     const [loading, setLoading] = useState(true)
 
@@ -88,79 +76,47 @@ function AchievementDashboard() {
     const achievementProgress = (achievementCurrent / achievementTotal) * 100;
 
     return (
-        <div className="achievement-layout">
-            <AchievementStat // replace variables
-                achievementCurrent={achievementCurrent}
-                achievementProgress={achievementProgress}
-                achievementTotal={achievementTotal}
-            />
-            <div className="achievement-list">
-                {achievements.map((a) => (
-                    <AchievementBox
-                        key={a.achievementID}
-                        icon={a.icon}
-                        title={a.name}
-                        description={a.description}
-                        type={a.goalType}
-                        amount={a.goalNum}
-                        reward={`${a.rewardValue} ${a.rewardType === 'xp' ? 'XP' : a.rewardType === 'coins' ? '💰' : '🎁'}`}
-                        current={a.current}
-                        claimed={a.claimed}
-                        onClaim={() => handleClaim(a.achievementID)} // We'll wire this in soon
-                    />
-                    ))}
+        <>
+            <h2>Achievements</h2>
+            <div className="achievement-layout">
+                <AchievementStat 
+                    achievementCurrent={achievementCurrent}
+                    achievementProgress={achievementProgress}
+                    achievementTotal={achievementTotal}
+                />
+                <div className="achievement-list">
+                    {achievements.map((a) => (
+                        <AchievementBox
+                            key={a.achievementID}
+                            icon={a.icon}
+                            title={a.name}
+                            description={a.description}
+                            type={a.goalType}
+                            amount={a.goalNum}
+                            reward={`${a.rewardValue} ${a.rewardType === 'xp' ? 'XP' : a.rewardType === 'coins' ? '💰' : '🎁'}`}
+                            current={a.current}
+                            claimed={a.claimed}
+                            onClaim={() => handleClaim(a.achievementID)} // We'll wire this in soon
+                        />
+                        ))}
+                </div>
             </div>
-        </div>
+        </>
     );
 }
 
-/*
-    represents each box in the achievementList
-
-    parameters: all parameters self explanatory except onClaim
-                onClaim holds a function that links us to the achievementStats
-
-    Reference achievementBox for the stuff below:
-    Add database functionality
-    Add a prop to this like AchievementBox ({ icon, title, type, amount, reward, claimed, currentNumber, onClaim })
-    Replace the mockCounts with that prop.
-    mockCount tells us the current number of whatever activity we are doing. We need it for our progressBar and state of button.
-*/
-function AchievementBox ({ icon, title, description, type, amount, reward, claimed, current, onClaim }) {
-    const [isClaimed, setClaimed] = useState(claimed); // claimed variable from our achievements
+function AchievementBox ({ icon, title, description, amount, reward, claimed, current, onClaim }) {
+    const [isClaimed, setClaimed] = useState(claimed); 
     const progressCount = current ?? 0;
-    /*
-        Can move the description into the database but not sure how that interacts with styling (colored numbers in the view)
-        If you do decide to move it into the database and turn it into a full on string including the numbers, 
-        you must also keep the {amount}/number variable a separate thing because our progressBar and functionality is based on it.
 
-        You can probably just leave it here.
-    */
-    /*
-        Decides what happens when we click our claim button
-
-        To do:
-        Should add coins to the user
-        Database functionality
-    */
     const handleClaimButton = () => { 
         if (!isClaimed && progressCount >= amount) {
-            setClaimed(true); // sets the achievement to completed so our claimed variable will now be true
-            onClaim(); // calls the function that updates our stats since onClaim={handleClaimStats}
+            setClaimed(true); 
+            onClaim(); 
         }
     };
 
-    /*
-        handles the button functionality and the state it currently is in, it just reads from the conditions
-        and decides what happens
 
-        (locked, enabled, claimed) are what we put into the css variable and it reads from the css file 
-        and changes functionality based on that (like not being able to click, greyed out). You can leave
-        buttonClass alone most likely.
-
-        To do:
-        Change to database variables (mockCount, isClaimed)
-    */
     let buttonClass = 'locked'; 
     if (progressCount >= amount && !isClaimed) {
         buttonClass = 'enabled'; 
@@ -168,15 +124,6 @@ function AchievementBox ({ icon, title, description, type, amount, reward, claim
         buttonClass = 'claimed'; 
     }
 
-    /*
-        {isClaimed ? 'Claimed' : (mockCount >= amount ? 'Claim' : 'Locked')}
-        means isClaimed=True set the text to Claimed 
-        otherwise if requirements are meant set text to Claim
-        otherwise make text say Locked
-
-        To do:
-        ignore buttonClass and replace variables and add database functionality
-    */
     return (
         <div className="achievement-box">
             <div className="achievement-title-icon">
@@ -247,4 +194,4 @@ function ProgressBar({ className, current, total }) {
     );
 }
 
-export default AchievementDashboard;
+export default Achievements;
