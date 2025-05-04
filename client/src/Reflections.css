@@ -1,0 +1,134 @@
+.reflections-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.reflections-top {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.filter-button {
+    height: 2rem;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-weight: 600;
+    background-color: #6c5dd3;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 1.3rem;
+    gap: 0.8rem;
+    transition: background-color 0.3s;
+    position: relative;
+}
+
+.dropdown-filter {
+    position: absolute;
+    top: 15rem;
+    display: flex;
+    flex-direction: column;
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0; 
+    border-radius: 8px;
+    gap: 0.2rem;
+}
+
+.dropdown-item {
+    text-align: center;
+    background-color: transparent;
+    cursor: pointer;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    padding: 0.3rem;
+    transition: background-color 0.3s;
+}
+
+.dropdown-item:hover {
+    background-color: #e0e0e0;
+}
+
+.reflections-bottom {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+    border: none;
+    border-radius: 8px;
+}
+
+.reflections-bottom-layout {
+    display: grid;
+    grid-template-columns: 3fr 7fr;
+    gap: 3rem;
+}
+
+.task-list {
+    background: #d4d4d4;
+    border: 1px solid #e0e0e0; 
+    border-radius: 12px;
+    padding: 1rem;
+    gap: 1rem;
+    max-height: 60vh;
+    display: flex;
+    flex-flow: column;
+    overflow-y: auto;
+}
+
+.task-box {
+    display: flex;
+    font-size: 1.2rem;
+    background: #ffffff; 
+    border: 1px solid #e0e0e0; 
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.reflections-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.reflections-input {
+    width: 100%;
+    padding: 12px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    color: #333333;
+    font-size: 16px;
+    box-sizing: border-box;
+    resize: none;
+    height: 50vh;
+}
+
+.save-button {
+    height: 2rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #6c5dd3;
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.3rem;
+    gap: 0.8rem;
+    transition: background-color 0.3s;
+}
+
+.input-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.filter-button:hover, .save-button:hover {
+    background-color: #8677e9;
+}

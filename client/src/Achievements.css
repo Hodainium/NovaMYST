@@ -14,7 +14,6 @@ html, body {
     display: flex;
     flex-flow: column;   
     gap: 2rem;
-    align-self: flex-start;
 }
 
 .achievement-stat-box {
@@ -48,7 +47,7 @@ html, body {
     gap: 1rem;
     max-height: 74vh;
     display: flex;
-    flex-flow: column;
+    flex-direction: column;
     overflow-y: auto;
 }
 
@@ -64,7 +63,7 @@ html, body {
 .achievement-title-icon, .achievement-desc-progress, .achievement-claim {
     display: flex;
     justify-content: center;
-    flex-flow: column;
+    flex-direction: column;
     padding: 1rem;
 }
 
@@ -110,7 +109,7 @@ html, body {
     border-radius: 12px;
   }
   
-  .achievement-claim-button.enabled {
+.achievement-claim-button.enabled {
     background-color: #4cc050;
     color: #ffffff;
     font-weight: bold;
@@ -118,17 +117,17 @@ html, body {
     border: none;
     border-radius: 12px;
     cursor: pointer;
-  }
-  
-  .achievement-claim-button.locked:focus, .achievement-claim-button.claimed:focus, .achievement-claim-button.enabled:focus {
-    outline: none;
-  }
+}
 
-  .achievement-claim-button.enabled:hover {
+.achievement-claim-button.locked:focus, .achievement-claim-button.claimed:focus, .achievement-claim-button.enabled:focus {
+    outline: none;
+}
+
+.achievement-claim-button.enabled:hover {
     background-color: #45a049; 
-  }
-  
-  .achievement-claim-button.claimed {
+}
+
+.achievement-claim-button.claimed {
     background-color: #4cc050; 
     opacity: 0.5;
     pointer-events: none;
@@ -137,7 +136,7 @@ html, body {
     padding: 1rem;
     border: none;
     border-radius: 12px;
-  }
+}
 
 .achievement-description {
     background: #f9f9f9;

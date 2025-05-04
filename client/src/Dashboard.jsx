@@ -12,6 +12,7 @@ import Settings from "./Settings";
 import Leaderboard from './Leaderboard';
 import Character from './Character';
 import Friends from './Friends';
+import Reflections from './Reflections';
 
 function Dashboard() {
   const [quests, setQuests] = useState([]);
@@ -705,7 +706,7 @@ const staminaColors = [
 
           {activeSection === 'reflections' && (
             <div className="reflections-section">
-              <h2>Reflections</h2>
+              <Reflections/>
             </div>
           )}
 
