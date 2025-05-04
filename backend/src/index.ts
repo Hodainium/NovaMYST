@@ -63,8 +63,11 @@ import leaderboardRoutes from './routes/leaderboardRoutes';
 app.use('/leaderboard', leaderboardRoutes);
 
 import friendRoutes from './routes/friendRoutes';
-
 app.use('/friends', friendRoutes)
+
+import reflectionRoutes from './routes/reflectionRoutes';
+app.use("/api", reflectionRoutes);
+
 
 // Test route
 app.get('/', (req: Request, res: Response) => {

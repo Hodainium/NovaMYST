@@ -120,6 +120,13 @@ exports.updateTask = async (req: Request, res: Response) => {
       await taskRef.update(updatedData);
   
       if (!wasPreviouslyComplete && isNowComplete) {
+        const now = admin.firestore.FieldValue.serverTimestamp();
+
+        await taskRef.update({
+          ...updatedData,
+          completedAt: now
+        });
+      
         const updatedDoc = await taskRef.get();
         const taskData = updatedDoc.data();
         const taskXP = taskData?.xp || 0;
@@ -362,4 +369,83 @@ export const getDifficultyFromGemini = async (
       return 'medium'; // fallback difficulty
     }
 };
-  
+
+export const getLastCompletedTask = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const userRef = db.collection(USERS_COLLECTION).doc(user.uid);
+    const userSnap = await userRef.get();
+    const userData = userSnap.data();
+
+    const completedTaskIds = userData?.completedTasks || [];
+
+        // ✅ Log completed task IDs
+        console.log("Fetched completed tasks:", completedTaskIds);
+
+    if (completedTaskIds.length === 0) {
+      return res.status(404).json({ error: "No completed tasks found." });
+    }
+
+    // Fetch all completed tasks
+    const taskDocs = await Promise.all(
+      completedTaskIds.map((id: string) =>
+        db.collection(TASKS_COLLECTION).doc(id).get()
+      )
+    );
+
+    // Extract task data with completedAt
+    const completedTasks = taskDocs
+    .map(doc => {
+      const task = { id: doc.id, ...doc.data() };
+
+      // ✅ Log each task and its completedAt field
+      console.log("Task:", task.id, "completedAt:", task.completedAt);
+
+      return task;
+    })
+    .filter(task => task.completedAt)
+    .sort((a, b) => b.completedAt.toMillis() - a.completedAt.toMillis());
+
+
+    if (completedTasks.length === 0) {
+      return res.status(404).json({ error: "No valid completed tasks with timestamps." });
+    }
+
+    res.status(200).json({ task: completedTasks[0] });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      res.status(500).json({ error: "Failed to fetch last completed task", details: err.message });
+    } else {
+      res.status(500).json({ error: "Failed to fetch last completed task", details: "Unknown error occurred" });
+    }
+  }
+};
+
+export const getCompletedTasks = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const userRef = db.collection("users").doc(user.uid);
+    const userSnap = await userRef.get();
+    const userData = userSnap.data();
+
+    const completedTaskIds = userData?.completedTasks || [];
+
+    if (completedTaskIds.length === 0) {
+      return res.status(200).json({ tasks: [] });
+    }
+
+    const taskDocs = await Promise.all(
+      completedTaskIds.map((id: string) =>
+        db.collection("tasks").doc(id).get()
+      )
+    );
+
+    const tasks = taskDocs
+      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .filter(task => task.title && task.completedAt) // filter junk
+
+    res.status(200).json({ tasks });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch completed tasks" });
+  }
+};
