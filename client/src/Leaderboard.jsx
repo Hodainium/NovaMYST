@@ -71,7 +71,7 @@ const Leaderboard = () => {
                   <div className="dropdown-filter">
                     <button className="dropdown-item" onClick={() => handleSortChange('global')}>Global</button>
                     <button className="dropdown-item" onClick={() => handleSortChange('similar')}>Similar Rankings</button>
-                    {/* Friends will be added later */}
+                    <button className="dropdown-item" onClick={() => handleSortChange('friends')}>Friends</button>
                   </div>
                 )}
               </div>
@@ -79,7 +79,11 @@ const Leaderboard = () => {
           </div>
 
           <div className="leaderboard-bottom">
-            <h1>{mode === 'global' ? "Global Leaderboard" : "Similar XP Leaderboard"}</h1>
+            <h1>
+              {mode === 'global' ? "Global Leaderboard" :
+              mode === 'similar' ? "Similar XP Leaderboard" :
+              "Friends Leaderboard"}
+            </h1>
             <div className="leaderboard-table">
               <div className="leaderboard-heading">
                 <h3>Rank</h3>

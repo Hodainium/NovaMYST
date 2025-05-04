@@ -206,6 +206,10 @@ exports.registerUser = async (req: Request, res: Response) => {
       const userSnap = await userRef.get();
 
       const currentTime = admin.firestore.FieldValue.serverTimestamp();
+      const getCurrentMonthKey = () => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+      };
   
       if (!userSnap.exists) {
         const newUser = {
@@ -222,12 +226,16 @@ exports.registerUser = async (req: Request, res: Response) => {
           unfinishedTasks: [],
           achievements: [],
           createdAt: currentTime,
-          monthlyXP: {},
+          monthlyXP: {
+            [getCurrentMonthKey()]: 0
+          },
           lastSignInDate: currentTime
         };
   
         await userRef.set(newUser);
         await syncUserAchievements(user.uid);
+        // Update leaderboard after user is created
+        await updateLeaderboard(user.uid);
         return res.status(201).json({ message: 'User document created!' });
       }
 

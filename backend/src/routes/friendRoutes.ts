@@ -7,6 +7,11 @@ import {
   declineFriendRequest,
   getFriendsList,
   removeFriend,
+  inviteToLeaderboard,
+  acceptLeaderboardInvite,
+  removeFromLeaderboard,
+  getLeaderboardInvites,
+  declineLeaderboardInvite
 } from '../controllers/friendController';
 
 const router = Router();
@@ -23,5 +28,11 @@ router.post('/accept/:requestId', wrapAsync(authenticateFirebaseToken), acceptFr
 router.post('/decline/:requestId', wrapAsync(authenticateFirebaseToken), declineFriendRequest);
 router.get('/list', wrapAsync(authenticateFirebaseToken), getFriendsList);
 router.delete('/remove/:friendId', wrapAsync(authenticateFirebaseToken), removeFriend);
+router.post('/invite-leaderboard', wrapAsync(authenticateFirebaseToken), inviteToLeaderboard);
+router.post('/accept-leaderboard', wrapAsync(authenticateFirebaseToken), acceptLeaderboardInvite);
+router.delete('/remove-leaderboard/:friendId', wrapAsync(authenticateFirebaseToken), removeFromLeaderboard);
+router.get('/leaderboard-invites', wrapAsync(authenticateFirebaseToken), getLeaderboardInvites);
+router.post('/decline-leaderboard', wrapAsync(authenticateFirebaseToken), declineLeaderboardInvite);
+
 
 export default router;

@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import admin from 'firebase-admin';
 const db = admin.firestore();
 import { fetchUserData } from './userController'; 
+import { updateLeaderboard } from './leaderboardController';
 
 const FRIENDS_COLLECTION = 'friends';
 
@@ -16,7 +17,7 @@ export const sendFriendRequest = async (req: Request, res: Response): Promise<vo
     }
   
     try {
-      // 🔥 If username is provided, find the recipientId
+      // If username is provided, find the recipientId
       if (username) {
         const userSnapshot = await db.collection('users').where('userName', '==', username).limit(1).get();
         if (userSnapshot.empty) {
@@ -198,5 +199,201 @@ export const removeFriend = async (req: Request, res: Response): Promise<void> =
   } catch (error: unknown) {
     console.error('Error removing friend:', error);
     res.status(500).json({ error: 'Failed to remove friend.' });
+  }
+};
+
+export const inviteToLeaderboard = async (req: Request, res: Response): Promise<void> => {
+  const senderId = (req as any).user.uid;
+  const { friendId } = req.body;
+
+  console.log(`[InviteToLeaderboard] ${senderId} is inviting ${friendId}`);
+
+  try {
+    const snapshot = await db.collection('friends')
+      .where('status', '==', 'accepted')
+      .where('requesterId', 'in', [senderId, friendId])
+      .where('recipientId', 'in', [senderId, friendId])
+      .get();
+
+    if (snapshot.empty) {
+      res.status(404).json({ error: 'Friendship not found.' });
+    }
+
+    const doc = snapshot.docs[0];
+    const data = doc.data();
+    const currentInvite = data.leaderboardInvite;
+    // Prevent invites if already mutual
+    if (currentInvite === 'mutual') {
+      res.status(409).json({ error: 'Already on leaderboard together.' });
+      return;
+      
+    }
+    let newInviteStatus: string;
+
+    // Check if the friend has already invited the sender
+    if (currentInvite === senderId) {
+      newInviteStatus = 'mutual';
+    } else {
+      newInviteStatus = friendId; // Sender invites friend, so we store friendId
+    }
+
+    await doc.ref.update({ leaderboardInvite: newInviteStatus });
+    console.log(`[InviteToLeaderboard] Updated invite status to ${newInviteStatus}`);
+
+    res.status(200).json({ message: 'Invite sent.' });
+  } catch (error) {
+    console.error('Error inviting to leaderboard:', error);
+    res.status(500).json({ error: 'Internal error.' });
+  }
+};
+
+
+export const acceptLeaderboardInvite = async (req: Request, res: Response): Promise<void> => {
+  const userId = (req as any).user.uid;
+  const { friendId } = req.body;
+
+  try {
+    const snapshot = await db.collection(FRIENDS_COLLECTION)
+      .where('status', '==', 'accepted')
+      .where('requesterId', 'in', [userId, friendId])
+      .where('recipientId', 'in', [userId, friendId])
+      .get();
+
+    if (snapshot.empty) {
+      console.warn(`[Accept Invite] No friendship found between ${userId} and ${friendId}`);
+      res.status(404).json({ error: 'Friendship not found.' });
+      return;
+    }
+
+    const doc = snapshot.docs[0];
+    const data = doc.data();
+    const currentInvite = data.leaderboardInvite;
+
+    let newInviteStatus: string;
+
+    if (currentInvite === userId) {
+      // They already invited us — now it's mutual
+      newInviteStatus = 'mutual';
+    } else {
+      // We are inviting them now
+      newInviteStatus = userId;
+    }
+
+    await doc.ref.update({ leaderboardInvite: newInviteStatus });
+
+    console.log(`[Accept Invite] ${userId} accepted invite. New status: ${newInviteStatus}`);
+    res.status(200).json({ message: 'Leaderboard invite processed.' });
+  } catch (error) {
+    console.error('Error accepting leaderboard invite:', error);
+    res.status(500).json({ error: 'Failed to accept leaderboard invite.' });
+  }
+};
+
+export const declineLeaderboardInvite = async (req: Request, res: Response): Promise<void> => {
+  const userId = (req as any).user.uid;
+  const { friendId } = req.body;
+
+  try {
+    const snapshot = await db.collection('friends')
+      .where('status', '==', 'accepted')
+      .where('requesterId', 'in', [userId, friendId])
+      .where('recipientId', 'in', [userId, friendId])
+      .get();
+
+    if (snapshot.empty) {
+      res.status(404).json({ error: 'Friendship not found.' });
+      return;
+    }
+
+    const doc = snapshot.docs[0];
+    const data = doc.data();
+
+    // Only decline if the invite was for the user
+    const currentInvite = data.leaderboardInvite;
+    if (currentInvite !== userId) {
+      res.status(403).json({ error: 'No pending invite from this user.' });
+    }
+
+    await doc.ref.update({
+      leaderboardInvite: admin.firestore.FieldValue.delete()
+    });
+
+    console.log(`[Decline Leaderboard] ${userId} declined invite from ${friendId}`);
+    res.status(200).json({ message: 'Leaderboard invite declined.' });
+  } catch (error) {
+    console.error('Error declining leaderboard invite:', error);
+    res.status(500).json({ error: 'Failed to decline leaderboard invite.' });
+  }
+};
+
+
+
+export const removeFromLeaderboard = async (req: Request, res: Response): Promise<void> => {
+  const userId = (req as any).user.uid;
+  const { friendId } = req.params;
+
+  try {
+    const snapshot = await db.collection(FRIENDS_COLLECTION)
+      .where('status', '==', 'accepted')
+      .where('requesterId', 'in', [userId, friendId])
+      .where('recipientId', 'in', [userId, friendId])
+      .where('leaderboardInvite', '==', 'mutual')
+      .get();
+
+    if (snapshot.empty) {
+      res.status(404).json({ error: 'Friendship not found or not on leaderboard.' });
+      return;
+    }
+
+    await snapshot.docs[0].ref.update({ leaderboardInvite: admin.firestore.FieldValue.delete() });
+    res.status(200).json({ message: 'Removed from leaderboard.' });
+  } catch (error) {
+    console.error('Error removing friend from leaderboard:', error);
+    res.status(500).json({ error: 'Failed to remove friend from leaderboard.' });
+  }
+};
+
+
+
+export const getLeaderboardInvites = async (req: Request, res: Response): Promise<void> => {
+  const userId = (req as any).user.uid;
+
+  try {
+    const snapshot = await db.collection('friends')
+      .where('status', '==', 'accepted')
+      .where('requesterId', 'in', [userId])
+      .get();
+
+    const reverseSnapshot = await db.collection('friends')
+      .where('status', '==', 'accepted')
+      .where('recipientId', '==', userId)
+      .get();
+
+    const combined = [...snapshot.docs, ...reverseSnapshot.docs];
+
+    const pendingInvites = [];
+
+    for (const doc of combined) {
+      const data = doc.data();
+      const { requesterId, recipientId, leaderboardInvite } = data;
+
+      // You're the recipient of a leaderboard invite
+      if (leaderboardInvite === userId) {
+        const inviterId = requesterId === userId ? recipientId : requesterId;
+        const inviterSnap = await db.collection('users').doc(inviterId).get();
+        const inviterData = inviterSnap.exists ? inviterSnap.data() : null;
+        if (inviterData) {
+          pendingInvites.push({
+            userID: inviterId,
+            userName: inviterData.userName,
+          });
+        }
+      }
+    }
+
+    res.status(200).json(pendingInvites);
+  } catch (error) {
+    console.error('Error fetching leaderboard invites:', error);
+    res.status(500).json({ error: 'Failed to fetch leaderboard invites.' });
   }
 };

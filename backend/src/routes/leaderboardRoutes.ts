@@ -4,6 +4,7 @@ import {
   updateLeaderboard,
   getGlobalLeaderboard,
   getSimilarXPLeaderboard,
+  getFriendLeaderboard
 } from '../controllers/leaderboardController';
 import type { Request, Response } from 'express';
 
@@ -41,6 +42,12 @@ router.get('/similar', wrapAsync(authenticateFirebaseToken), async (req: Request
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch similar XP leaderboard' });
   }
+});
+
+router.get('/friends', wrapAsync(authenticateFirebaseToken), async (req: Request, res: Response) => {
+  const userId = (req as any).user.uid;
+  const data = await getFriendLeaderboard(userId);
+  res.json(data);
 });
 
 export default router;

@@ -12,6 +12,9 @@ const Friends = () => {
   const [friendRequests, setFriendRequests] = useState([]);
   const [friendsList, setFriendsList] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
+  const [leaderboardInvites, setLeaderboardInvites] = useState([]);
+  const [showLeaderboardInvites, setShowLeaderboardInvites] = useState(false);
+
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -101,6 +104,94 @@ const Friends = () => {
     }
   };
 
+
+  const handleInviteToLeaderboard = async (friendId) => {
+    try {
+      const token = await getToken();
+      const response = await fetch(`${API_URL}/friends/invite-leaderboard`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ friendId })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to invite to leaderboard');
+      alert('Friend invited to leaderboard!');
+    } catch (error) {
+      console.error('Error inviting friend to leaderboard:', error);
+      alert('Could not invite friend to leaderboard');
+    }
+  };
+
+  const fetchLeaderboardInvites = async () => {
+    try {
+      const token = await getToken();
+      const response = await fetch(`${API_URL}/friends/leaderboard-invites`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to fetch leaderboard invites');
+      setLeaderboardInvites(data);
+      setShowLeaderboardInvites(true);
+    } catch (error) {
+      console.error('Error fetching leaderboard invites:', error);
+      alert('Failed to load leaderboard invites.');
+    }
+  };
+
+  const handleAcceptLeaderboardInvite = async (friendId) => {
+    try {
+      const token = await getToken();
+      await fetch(`${API_URL}/friends/accept-leaderboard`, {
+        method: 'POST',
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ friendId }),
+      });
+      
+      alert('Accepted leaderboard invite!');
+      setLeaderboardInvites(prev => prev.filter(inv => inv.userID !== friendId));
+    } catch (error) {
+      console.error('Error accepting leaderboard invite:', error);
+    }
+  };
+  
+  const handleDeclineLeaderboardInvite = async (friendId) => {
+    try {
+      const token = await getToken();
+      await fetch(`${API_URL}/friends/decline-leaderboard`, {
+        method: 'POST',
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ friendId }),
+      });      
+      alert('Declined leaderboard invite.');
+      setLeaderboardInvites(prev => prev.filter(inv => inv.userID !== friendId));
+    } catch (error) {
+      console.error('Error declining leaderboard invite:', error);
+    }
+  };
+  
+  const handleRemoveFromLeaderboard = async (friendId) => {
+    try {
+      const token = await getToken();
+      await fetch(`${API_URL}/friends/remove-leaderboard/${friendId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      alert('Friend removed from leaderboard.');
+    } catch (error) {
+      console.error('Error removing friend from leaderboard:', error);
+    }
+  };
+  
   const handleRemoveFriend = async (friendId) => {
     const confirmed = window.confirm('Are you sure you want to remove this friend?');
     if (!confirmed) return;
@@ -137,6 +228,10 @@ const Friends = () => {
               <Mail size={20} />
               <span>Incoming Requests</span>
             </button>
+            <button className="mail-button" onClick={fetchLeaderboardInvites}>
+              <Mail size={20} />
+            <span>Leaderboard Invites</span>
+            </button>
           </div>
         </div>
 
@@ -152,6 +247,12 @@ const Friends = () => {
                     <button className="leaderboard-button">Invite to leaderboard</button>
                     <button className="cancel-button" onClick={() => handleRemoveFriend(friend.userID)}>
                       Remove
+                    </button>
+                    <button className="invite-button" onClick={() => handleInviteToLeaderboard(friend.userID)}>
+                      Invite to Leaderboard
+                    </button>
+                    <button className="remove-leaderboard-button" onClick={() => handleRemoveFromLeaderboard(friend.userID)}>
+                      Remove from Leaderboard
                     </button>
                   </div>
                 </div>
@@ -182,6 +283,30 @@ const Friends = () => {
           </div>
         </div>
       )}
+
+      {showLeaderboardInvites && (
+        <div className={`modal-overlay ${darkMode ? 'dark' : ''}`}>
+          <div className="mail-modal">
+            <h4>Leaderboard Invites</h4>
+            <hr className="mail-divider" />
+            {leaderboardInvites.length > 0 ? (
+              leaderboardInvites.map((friend) => (
+                <div className="friend-request-box" key={friend.userID}>
+                  <p>{friend.userName}</p>
+                  <div className="friend-request-buttons">
+                    <button className="accept-button" onClick={() => handleAcceptLeaderboardInvite(friend.userID)}>Accept</button>
+                    <button className="cancel-button" onClick={() => handleDeclineLeaderboardInvite(friend.userID)}>Decline</button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p>No pending invites.</p>
+            )}
+            <button className="cancel-button" onClick={() => setShowLeaderboardInvites(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
+
 
       {showMailModal && (
         <div className={`modal-overlay ${darkMode ? 'dark' : ''}`}>
@@ -223,5 +348,6 @@ const FriendRequest = ({ user, onAccept, onCancel }) => (
     </div>
   </div>
 );
+
 
 export default Friends;

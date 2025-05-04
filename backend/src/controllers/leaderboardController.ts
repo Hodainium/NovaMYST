@@ -1,8 +1,7 @@
 import type { Request, Response } from 'express';
-// import admin from 'firebase-admin';
-// const db = admin.firestore();
 import { admin, db } from '../index'; 
 import * as userController from './userController';
+import { Query, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 const LEADERBOARD_COLLECTION = 'leaderboard';
 
 // --- Update leaderboard for a user ---
@@ -86,4 +85,66 @@ export const getSimilarXPLeaderboard = async (userID: string): Promise<object[]>
     console.error('Error fetching similar XP leaderboard:', error);
     throw error;
   }
+};
+
+export const getFriendLeaderboard = async (userID: string): Promise<object[]> => {
+  const FRIENDS_COLLECTION = 'friends';
+  console.log(`[FriendLeaderboard] Fetching leaderboard for user: ${userID}`);
+
+  const snapshot1 = await db.collection(FRIENDS_COLLECTION)
+    .where('status', '==', 'accepted')
+    .where('requesterId', '==', userID)
+    .get();
+
+  const snapshot2 = await db.collection(FRIENDS_COLLECTION)
+    .where('status', '==', 'accepted')
+    .where('recipientId', '==', userID)
+    .get();
+
+  const allDocs = [...snapshot1.docs, ...snapshot2.docs];
+  console.log(`[FriendLeaderboard] Found ${allDocs.length} total friendship records.`);
+
+  const friendIDs = new Set<string>();
+  friendIDs.add(userID); // Include self
+
+  for (const doc of allDocs) {
+    const data = doc.data();
+    const inviteStatus = data.leaderboardInvite;
+    const requester = data.requesterId;
+    const recipient = data.recipientId;
+
+    console.log(`[FriendLeaderboard] Checking doc: requester=${requester}, recipient=${recipient}, invite=${inviteStatus}`);
+
+    if (inviteStatus === 'mutual') {
+      friendIDs.add(requester);
+      friendIDs.add(recipient);
+      console.log(`[FriendLeaderboard] Added ${requester} and ${recipient} to leaderboard set`);
+    }
+  }
+
+  const uniqueIDs = [...friendIDs];
+  if (uniqueIDs.length === 0) return [];
+
+  console.log(`[FriendLeaderboard] Unique IDs in leaderboard: ${uniqueIDs.join(', ')}`);
+
+  // Firestore allows max 10 values in "in" queries per batch
+  const batches: string[][] = [];
+  while (uniqueIDs.length) batches.push(uniqueIDs.splice(0, 10));
+
+  const results: FirebaseFirestore.QueryDocumentSnapshot[] = [];
+
+  for (const batch of batches) {
+    const snap = await db.collection(LEADERBOARD_COLLECTION)
+      .where(admin.firestore.FieldPath.documentId(), 'in', batch)
+      .orderBy('score', 'desc')
+      .get();
+    results.push(...snap.docs);
+  }
+
+  console.log(`[FriendLeaderboard] Retrieved ${results.length} leaderboard entries.`);
+
+  return results.map((doc: QueryDocumentSnapshot) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
 };

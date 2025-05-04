@@ -268,3 +268,18 @@ body.dark-mode .cancel-button {
     background-color: #c82333;
     color: white;
 }
+
+.invite-button {
+    background-color: #6c5dd3;
+    color: white;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .invite-button:hover {
+    background-color: #8677e9;
+  }
+  
