@@ -1,5 +1,7 @@
 import "./Character.css";
 import {useState} from 'react';
+import { useContext } from 'react';
+import { DarkModeContext } from './DarkMode';
 import React from 'react'; //
 import male from './assets/male_model.png'
 import female from './assets/female_model.png'
@@ -9,6 +11,7 @@ import knightPants from './assets/knightPantsModel.png'
 import knightShoes from './assets/knightShoesModel.png'
 
 function Character() {
+const { darkMode } = useContext(DarkModeContext);
 const [gender, setGender] = useState("Male");
 const [hat, setHat] = useState('');
 const [top, setTop] = useState('');
@@ -38,7 +41,7 @@ const changeShoes = (SelectedShoes) => {
 // Shoes first, then pants, then helmet, then armor
 
     return (
-        <div className="background"> 
+        <div className={`background ${darkMode ? 'dark' : ''}`}> 
             <div className="characterScreen">
                 <h1 className="characterTitle">Character Screen</h1>
 
