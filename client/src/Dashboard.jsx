@@ -227,11 +227,11 @@ const staminaColors = [
 
 
   const taskTypes = [
-    { value: 'very_easy', label: 'Very Easy', reward: { coins: 0.5, xp: 0.5 } },
-    { value: 'easy', label: 'Easy', reward: { coins: 1, xp: 1 } },
-    { value: 'medium', label: 'Medium', reward: { coins: 3, xp: 3 } },
+    { value: 'easy', label: 'Easy', reward: { coins: 0.5, xp: 0.5 } },
+    { value: 'medium', label: 'Medium', reward: { coins: 1, xp: 1 } },
+    { value: 'medium-hard', label: 'Medium Hard', reward: { coins: 3, xp: 3 } },
     { value: 'hard', label: 'Hard', reward: { coins: 5, xp: 5 } },
-    { value: 'very_hard', label: 'Very Hard' }
+    { value: 'very-hard', label: 'Very Hard' }
   ];
 
 
@@ -397,7 +397,9 @@ const staminaColors = [
             {
               quest.difficulty === 'easy' ? 'Easy' :
               quest.difficulty === 'medium' ? 'Medium' :
-              'Hard'
+              quest.difficulty === 'medium-hard' ? 'Medium Hard' :
+              quest.difficulty === 'hard' ? 'Hard' :
+              'Very Hard'
             }
           </span>
         </div>
