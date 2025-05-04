@@ -43,6 +43,47 @@
     text-align: center;
 }
 
+
+
+/* .maleModel {
+    background-image: url('./assets/male_model.png');
+    width: 100px;
+    height: 100px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-color: gray;
+} */
+
+.CharacterModel{
+    display: flex;
+    width: 100%;
+    height: 75%;
+    justify-content: center;
+    align-items: center;
+    position:relative;
+}
+
+.maleModel {
+    position:absolute;
+}
+
+.knightShoesModel {
+    position:absolute;
+}
+
+.knightBottomModel {
+    position:absolute;
+}
+
+.knightTopModel {
+    position: absolute;
+}
+
+.knightHelmetModel {
+    position:absolute;
+}
+
+
 .wardrobe {
     width: 50%;
     height: 100%;
@@ -65,38 +106,62 @@
     align-content: space-between;
 }
 
-.defaultSet {
-    display: flex;
-    justify-content: center;
-}
-
 .defaultTitle {
     display: flex;
     justify-content: center;
 }
 
-.default_hat {
-    width: 100px;
-    height: 100px;
-
+.default {
+    display: flex;
+    justify-content: center;
 }
 
-.default_top {
+.defaultHat {
     width: 100px;
     height: 100px;
-
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-color: gray;
 }
 
-.default_bottom {
-    width: 100px;
-    height: 100px;
-
+.defaultHat:hover {
+    background-color: lightgray;
 }
 
-.default_shoes {
+.defaultTop {
     width: 100px;
     height: 100px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-color: gray;
+}
 
+.defaultTop:hover {
+    background-color: lightgray;
+}
+
+.defaultBottom {
+    width: 100px;
+    height: 100px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-color: gray;
+}
+
+.defaultBottom:hover {
+    background-color: lightgray;
+}
+
+.defaultShoes {
+    width: 100px;
+    height: 100px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-color: gray;
+}
+
+.defaultShoes:hover {
+    background-color: lightgray;
 }
 
 .knightTitle {
