@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   CheckCircle2, Trophy, Coins, LayoutDashboard, ListChecks, User, Award,
-  BarChart2, ChevronLeft, ChevronRight, Edit, Trash, Plus, Cog, Users, NotebookPen
+  BarChart2, ChevronLeft, ChevronRight, Edit, Flame, Trash, Plus, Cog, Users, NotebookPen
 } from 'lucide-react';
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -15,6 +15,7 @@ import Friends from './Friends';
 import Reflections from './Reflections';
 
 function Dashboard() {
+  const [streak, setStreak] = useState(0);
   const [quests, setQuests] = useState([]);
   const [newQuest, setNewQuest] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('easy');
@@ -113,20 +114,18 @@ const staminaColors = [
 
     const tasks = await res.json();
 
-    const activeTasks = tasks
-        .filter(task => !task.isComplete)
-        .map(task => ({
-        id: task.id,
-        title: task.title,
-        difficulty: task.difficulty,
-        estimatedTime: task.estimatedTime || { hours: 0, minutes: 0 },
-        dueDate: task.dueDate,
-        completed: false,
-        late: new Date(task.dueDate) < new Date(),
-        xp: task.xp
-        }));
-
-    setQuests(activeTasks);
+    const formattedTasks = tasks.map(task => ({
+      id: task.id,
+      title: task.title,
+      difficulty: task.difficulty,
+      estimatedTime: task.estimatedTime || { hours: 0, minutes: 0 },
+      dueDate: task.dueDate,
+      completed: task.isComplete,
+      late: new Date(task.dueDate) < new Date(),
+      xp: task.xp,
+    }));
+    
+    setQuests(formattedTasks);    
   };
 
   useEffect(() => {
@@ -486,7 +485,6 @@ const staminaColors = [
             <div className="user-info">
               <h2>{username}</h2>
               <p>XP: {userXP} | Coins: {userCoins}</p>
-              <h3>Rank: #123</h3> 
             </div>
           </div>
       
@@ -543,6 +541,8 @@ const staminaColors = [
                     icon: <Coins size={24} />, label: 'Total Coins', value: totalCoins
                   }, {
                     icon: <Trophy size={24} />, label: 'Total XP', value: totalXP
+                  }, { 
+                    icon: <Flame size={24} />, label: 'Streaks', value: `${streak} days` 
                   }].map(({ icon, label, value }) => (
                     <div key={label} className="stat-item">
                       {icon}
@@ -563,7 +563,7 @@ const staminaColors = [
                       <div className="quest-header">
                         <h4>
                           {quest.title}
-                          {quest.late && <span className="late-indicator-inline"> (Late)</span>}
+                          {/*{quest.late && <span className="late-indicator-inline"> (Late)</span>}*/}
                         </h4>
                         
                       </div>
@@ -611,14 +611,70 @@ const staminaColors = [
                   <Plus size={20} /> Add Quest
                 </button>
               </div>
-              <div className="tasks-grid">
-                {taskTypes.map((type) => (
-                  <div key={type.value} className="task-column">
-                    <h3>{type.label} Tasks </h3>
-                    <hr className="task-divider" />
-                    {quests.filter((q) => q.difficulty === type.value && !q.completed).map(renderQuest)}
+              <div className="tasks-group">
+              {/* Tasks Due Today or Late */}
+              <div className="task-column">
+                <h3>Tasks Due Today or Late Tasks</h3>
+                <hr className="task-divider" />
+                  {quests
+                    .filter((q) => {
+                      const now = new Date();
+                      const due = new Date(q.dueDate);
+                      return (
+                        !q.completed &&
+                        (q.late || (
+                          due.getFullYear() === now.getFullYear() &&
+                          due.getMonth() === now.getMonth() &&
+                          due.getDate() === now.getDate()
+                        ))
+                      );
+                    })
+                    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                    .map(renderQuest)}
                   </div>
-                ))}
+
+                  {/* Tasks Due This Week */}
+                  <div className="task-column">
+                    <h3>Tasks Due This Week</h3>
+                    <hr className="task-divider" />
+                    {quests
+                      .filter((q) => {
+                        const now = new Date();
+                        const due = new Date(q.dueDate);
+                        const isToday = due.getFullYear() === now.getFullYear() &&
+                          due.getMonth() === now.getMonth() &&
+                          due.getDate() === now.getDate();
+                        const diff = (due - now) / (1000 * 60 * 60 * 24);
+                        return (
+                          !q.completed &&
+                          !q.late &&
+                          !isToday &&
+                          diff > 0 && diff <= 7
+                        );
+
+                      })
+                    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                    .map(renderQuest)}
+                  </div>
+
+                  {/* Other Tasks */}
+                  <div className="task-column">
+                    <h3>Other Tasks</h3>
+                    <hr className="task-divider" />
+                    {quests
+                      .filter((q) => {
+                        const now = new Date();
+                        const due = new Date(q.dueDate);
+                        const diff = (due - now) / (1000 * 60 * 60 * 24);
+                          return (
+                            !q.completed &&
+                            !q.late &&
+                            diff > 7
+                          );
+                        })
+                    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                    .map(renderQuest)}
+                </div>
               </div>
             </>
           )}
