@@ -1,12 +1,46 @@
 import './Settings.css';
 import { useState, useContext } from 'react';
 import { DarkModeContext } from './DarkMode';
+import { auth } from './firebase'
 
 export default function Settings() {
     const [Username, SetnewUsername] = useState('');
     const [Password, SetnewPassword] = useState('');
     const { darkMode, toggleDarkMode } = useContext(DarkModeContext);
 
+    const handleUpdateUsername = async (e) => {
+        e.preventDefault(); // prevent form reload
+    
+        if (!Username.trim()) {
+            alert("Please enter a valid username.");
+            return;
+        }
+    
+        try {
+            const token = await auth.currentUser.getIdToken();
+    
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/user/update-username`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ newUsername: Username.trim() }),
+            });
+    
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || "Failed to update username");
+            }
+    
+            alert("Username updated successfully!");
+            SetnewUsername(""); // reset field
+        } catch (err) {
+            console.error(err);
+            alert("Error: " + err.message);
+        }
+    };
+    
     return (
         <div className="settings-container">
             <form>
@@ -19,7 +53,9 @@ export default function Settings() {
                         value={Username}
                         onChange={(e) => SetnewUsername(e.target.value)}
                     />
-                    <button className="SubmitName">Update Username</button>
+                    <button className="SubmitName" onClick={handleUpdateUsername}>
+                        Update Username
+                    </button>
                 </div>
 
                 <div className="PasswordChange">

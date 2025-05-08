@@ -97,3 +97,29 @@ export const consumeStamina = async (req: Request, res: Response): Promise<void>
       res.status(500).json({ error: "Failed to consume stamina" });
     }
 };
+
+export const updateUsername = async (req: Request, res: Response) => {
+  const uid = (req as any).user.uid;
+  const { newUsername } = req.body;
+
+  if (!newUsername || typeof newUsername !== "string" || newUsername.trim() === "") {
+    return res.status(400).json({ error: "Invalid username" });
+  }
+
+  try {
+    // Update username in Firestore
+    await db.collection("users").doc(uid).update({
+      userName: newUsername.trim(),
+    });
+
+    // Update displayName in Firebase Auth
+    await admin.auth().updateUser(uid, {
+      displayName: newUsername.trim(),
+    });
+
+    res.status(200).json({ message: "Username updated successfully" });
+  } catch (err: any) {
+    console.error("Error updating username:", err);
+    res.status(500).json({ error: "Failed to update username", details: err.message });
+  }
+};
