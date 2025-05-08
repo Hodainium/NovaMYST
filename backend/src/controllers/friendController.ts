@@ -398,4 +398,4 @@ export const getLeaderboardInvites = async (req: Request, res: Response): Promis
   }
 };
 
-// fixed
+// friendcontroller update
