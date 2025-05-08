@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { authenticateFirebaseToken } from '../middleware/authMiddleware';
 import { getUserData, getUserStamina, consumeStamina, updateUsername } from '../controllers/userController';
+import type { Request, Response, NextFunction} from 'express';
 
 const router = Router();
 
@@ -10,9 +11,9 @@ const wrapAsync = (fn: any) => (req: any, res: any, next: any) => {
   };
 
 
-router.get('/data', (req, res, next) => {
+router.get('/data', (req: Request, res: Response, next: NextFunction) => {
     authenticateFirebaseToken(req, res, next);
-  }, getUserData);
+  }, wrapAsync(getUserData));
 
 
 router.get('/stamina', (req, res, next) => {
