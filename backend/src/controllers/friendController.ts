@@ -359,33 +359,33 @@ export const getLeaderboardInvites = async (req: Request, res: Response): Promis
   const userId = (req as any).user.uid;
 
   try {
-    const snapshot = await db.collection('friends')
+    const snapshot1 = await db.collection('friends')
       .where('status', '==', 'accepted')
-      .where('requesterId', 'in', [userId])
+      .where('requesterId', '==', userId)
       .get();
 
-    const reverseSnapshot = await db.collection('friends')
+    const snapshot2 = await db.collection('friends')
       .where('status', '==', 'accepted')
       .where('recipientId', '==', userId)
       .get();
 
-    const combined = [...snapshot.docs, ...reverseSnapshot.docs];
-
+    const combined = [...snapshot1.docs, ...snapshot2.docs];
     const pendingInvites = [];
 
     for (const doc of combined) {
       const data = doc.data();
       const { requesterId, recipientId, leaderboardInvite } = data;
 
-      // You're the recipient of a leaderboard invite
+      // You're the recipient of an invite
       if (leaderboardInvite === userId) {
         const inviterId = requesterId === userId ? recipientId : requesterId;
         const inviterSnap = await db.collection('users').doc(inviterId).get();
-        const inviterData = inviterSnap.exists ? inviterSnap.data() : null;
-        if (inviterData) {
+
+        if (inviterSnap.exists) {
+          const inviterData = inviterSnap.data();
           pendingInvites.push({
             userID: inviterId,
-            userName: inviterData.userName,
+            userName: inviterData?.userName || "Unknown",
           });
         }
       }
