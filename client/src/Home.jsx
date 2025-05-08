@@ -21,31 +21,48 @@ function Home() {
         e.preventDefault();
         if (password !== confirmPassword) return alert("Passwords don't match!");
       
+        let userCred;
         try {
-            const userCred = await createUserWithEmailAndPassword(auth, email, password);
-            await updateProfile(userCred.user, { displayName: username });
+          userCred = await createUserWithEmailAndPassword(auth, email, password);
+          await updateProfile(userCred.user, { displayName: username });
       
-            const token = await userCred.user.getIdToken();
-
-            console.log("Firebase token from signup:", token);
+          const token = await userCred.user.getIdToken();
       
-            // Optional: send token to backend to create user doc
-            await fetch(`${import.meta.env.VITE_API_URL}/tasks/register`, {
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks/register`, {
             method: "POST",
             headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json"
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify({ name: username })
+            body: JSON.stringify({ name: username }),
           });
       
-          navigate('/login');
+          if (res.status === 409) {
+            alert("That username is already taken. Please choose a different one.");
+            // 🧹 Cleanup: delete Firebase user since registration failed
+            await userCred.user.delete();
+            return;
+          }
+      
+          if (!res.ok) {
+            const error = await res.json();
+            throw new Error(error?.error || "Unknown registration error");
+          }
+      
+          navigate("/login");
         } catch (error) {
-          console.error("Firebase Registration Error:", error.message);
+          console.error("Registration Error:", error.message);
+          if (userCred?.user) {
+            try {
+              await userCred.user.delete();
+            } catch (cleanupError) {
+              console.warn("Failed to delete Firebase user after failed registration:", cleanupError.message);
+            }
+          }
           alert("Registration failed: " + error.message);
         }
-    };
-
+      };
+      
     const handleGoogleLogin = async () => {
         try {
           const result = await signInWithPopup(auth, googleProvider);

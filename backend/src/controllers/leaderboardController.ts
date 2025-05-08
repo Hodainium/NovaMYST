@@ -1,8 +1,29 @@
 import type { Request, Response } from 'express';
-import { admin, db } from '../index'; 
+import { admin, db } from '../index';
 import * as userController from './userController';
-import { Query, QueryDocumentSnapshot } from 'firebase-admin/firestore';
+import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
+
 const LEADERBOARD_COLLECTION = 'leaderboard';
+const USERS_COLLECTION = 'users';
+const FRIENDS_COLLECTION = 'friends';
+
+// --- Helper: Attach usernames from users/{uid} ---
+const attachUsernames = async (
+  docs: FirebaseFirestore.QueryDocumentSnapshot[]
+): Promise<object[]> => {
+  return await Promise.all(
+    docs.map(async (doc) => {
+      const data = doc.data();
+      const userSnap = await db.collection(USERS_COLLECTION).doc(data.userID).get();
+      const userName = userSnap.exists ? userSnap.data()?.userName || "Unknown" : "Unknown";
+      return {
+        id: doc.id,
+        ...data,
+        userName,
+      };
+    })
+  );
+};
 
 // --- Update leaderboard for a user ---
 export const updateLeaderboard = async (userID: string): Promise<void> => {
@@ -22,8 +43,7 @@ export const updateLeaderboard = async (userID: string): Promise<void> => {
     const doc = await leaderboardRef.get();
 
     const updateData = {
-      userName: userData.userName ?? 'Unknown User',
-      score: monthlyXP, // Always use monthlyXP
+      score: monthlyXP,
       lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
     };
 
@@ -47,10 +67,7 @@ export const getGlobalLeaderboard = async (): Promise<object[]> => {
       .limit(20)
       .get();
 
-    return snapshot.docs.map((doc: FirebaseFirestore.QueryDocumentSnapshot) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    return await attachUsernames(snapshot.docs);
   } catch (error) {
     console.error('Error fetching global leaderboard:', error);
     throw error;
@@ -67,7 +84,7 @@ export const getSimilarXPLeaderboard = async (userID: string): Promise<object[]>
     const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const myXP = userData.monthlyXP?.[monthKey] || 0;
 
-    const lowerBound = Math.max(myXP * 0.9, myXP - 50); // query for the XP range decided to go
+    const lowerBound = Math.max(myXP * 0.9, myXP - 50);
     const upperBound = myXP * 1.1 + 50;
 
     const snapshot = await db.collection(LEADERBOARD_COLLECTION)
@@ -77,18 +94,15 @@ export const getSimilarXPLeaderboard = async (userID: string): Promise<object[]>
       .limit(20)
       .get();
 
-    return snapshot.docs.map((doc: FirebaseFirestore.QueryDocumentSnapshot)  => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    return await attachUsernames(snapshot.docs);
   } catch (error) {
     console.error('Error fetching similar XP leaderboard:', error);
     throw error;
   }
 };
 
+// --- Get Friend Leaderboard ---
 export const getFriendLeaderboard = async (userID: string): Promise<object[]> => {
-  const FRIENDS_COLLECTION = 'friends';
   console.log(`[FriendLeaderboard] Fetching leaderboard for user: ${userID}`);
 
   const snapshot1 = await db.collection(FRIENDS_COLLECTION)
@@ -102,10 +116,8 @@ export const getFriendLeaderboard = async (userID: string): Promise<object[]> =>
     .get();
 
   const allDocs = [...snapshot1.docs, ...snapshot2.docs];
-  console.log(`[FriendLeaderboard] Found ${allDocs.length} total friendship records.`);
-
   const friendIDs = new Set<string>();
-  friendIDs.add(userID); // Include self
+  friendIDs.add(userID); // include self
 
   for (const doc of allDocs) {
     const data = doc.data();
@@ -113,19 +125,14 @@ export const getFriendLeaderboard = async (userID: string): Promise<object[]> =>
     const requester = data.requesterId;
     const recipient = data.recipientId;
 
-    console.log(`[FriendLeaderboard] Checking doc: requester=${requester}, recipient=${recipient}, invite=${inviteStatus}`);
-
     if (inviteStatus === 'mutual') {
       friendIDs.add(requester);
       friendIDs.add(recipient);
-      console.log(`[FriendLeaderboard] Added ${requester} and ${recipient} to leaderboard set`);
     }
   }
 
   const uniqueIDs = [...friendIDs];
   if (uniqueIDs.length === 0) return [];
-
-  console.log(`[FriendLeaderboard] Unique IDs in leaderboard: ${uniqueIDs.join(', ')}`);
 
   // Firestore allows max 10 values in "in" queries per batch
   const batches: string[][] = [];
@@ -141,10 +148,5 @@ export const getFriendLeaderboard = async (userID: string): Promise<object[]> =>
     results.push(...snap.docs);
   }
 
-  console.log(`[FriendLeaderboard] Retrieved ${results.length} leaderboard entries.`);
-
-  return results.map((doc: QueryDocumentSnapshot) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+  return await attachUsernames(results);
 };

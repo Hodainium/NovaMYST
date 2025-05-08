@@ -217,7 +217,20 @@ exports.registerUser = async (req: Request, res: Response) => {
         const now = new Date();
         return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
       };
-  
+          // no duplicate username check
+      const chosenName = name || user.name || "Anonymous";
+      const lowercaseName = chosenName.trim().toLowerCase();
+
+      // Check for duplicate (case-insensitive)
+      const existingNameSnap = await db.collection("users")
+        .where("userName", "==", lowercaseName)
+        .limit(1)
+        .get();
+
+      if (!existingNameSnap.empty) {
+        return res.status(409).json({ error: "Username already taken (case-insensitive)." });
+      }
+
       if (!userSnap.exists) {
         const newUser = {
           userID: user.uid,

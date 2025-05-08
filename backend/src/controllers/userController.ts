@@ -3,6 +3,7 @@ const admin = require('firebase-admin'); // we are reinitalizing firebase here; 
 const db = admin.firestore();
 import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { Timestamp } from 'firebase-admin/firestore';
+import { updateLeaderboard } from './leaderboardController';
 
 export function calculateStamina(lastSignInDate: Timestamp, currentStamina: number): { newStamina: number, newTimestamp: Timestamp } {
   const now = Timestamp.now();
@@ -22,16 +23,16 @@ export const getUserData = async (req: Request, res: Response) => {
     const userSnap = await userRef.get();
 
     if (!userSnap.exists) {
-      res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: 'User not found' });
     }
 
     const userData = userSnap.data();
-    const { xp = 0, coins = 0 } = userData;
+    const { xp = 0, coins = 0 } = userData || {};
 
     res.status(200).json({ xp, coins });
   } catch (err) {
     console.error("Error fetching user data:", err);
-    res.status(500).json({ error: 'Failed to fetch user data' });
+    return res.status(500).json({ error: 'Failed to fetch user data' });
   }
 };
 
@@ -96,4 +97,46 @@ export const consumeStamina = async (req: Request, res: Response): Promise<void>
     } catch (err) {
       res.status(500).json({ error: "Failed to consume stamina" });
     }
+};
+
+export const updateUsername = async (req: Request, res: Response) => {
+  const uid = (req as any).user.uid;
+  const { newUsername } = req.body;
+
+  if (!newUsername || typeof newUsername !== "string" || newUsername.trim() === "") {
+    return res.status(400).json({ error: "Invalid username." });
+  }
+
+  const trimmedName = newUsername.trim();
+  const lowercaseName = trimmedName.toLowerCase();
+
+  try {
+    // Check if lowercase version already exists (excluding self)
+    const existingSnap = await db.collection("users")
+      .where("userName", "==", lowercaseName)
+      .get();
+
+    const conflict = existingSnap.docs.find((doc: QueryDocumentSnapshot) => doc.id !== uid);
+    if (conflict) {
+      return res.status(409).json({ error: "Username already taken." });
+    }
+
+    // Update username in Firestore (store as-is)
+    await db.collection("users").doc(uid).update({
+      userName: trimmedName,
+    });
+
+    // Optional: Update displayName in Firebase Auth
+    await admin.auth().updateUser(uid, {
+      displayName: trimmedName,
+    });
+
+    // Optional: Refresh leaderboard (fetches username dynamically anyway)
+    await updateLeaderboard(uid);
+
+    res.status(200).json({ message: "Username updated successfully." });
+  } catch (err: any) {
+    console.error("Error updating username:", err);
+    res.status(500).json({ error: "Failed to update username", details: err.message });
+  }
 };

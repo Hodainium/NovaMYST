@@ -1,12 +1,19 @@
 import { Router } from 'express';
 import { authenticateFirebaseToken } from '../middleware/authMiddleware';
-import { getUserData, getUserStamina, consumeStamina } from '../controllers/userController';
+import { getUserData, getUserStamina, consumeStamina, updateUsername } from '../controllers/userController';
+import type { Request, Response, NextFunction} from 'express';
 
 const router = Router();
 
-router.get('/data', (req, res, next) => {
+// Wrap async middleware manually because having issues with overload
+const wrapAsync = (fn: any) => (req: any, res: any, next: any) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+
+
+router.get('/data', (req: Request, res: Response, next: NextFunction) => {
     authenticateFirebaseToken(req, res, next);
-  }, getUserData);
+  }, wrapAsync(getUserData));
 
 
 router.get('/stamina', (req, res, next) => {
@@ -16,5 +23,8 @@ router.get('/stamina', (req, res, next) => {
 router.post('/consumeStamina', (req, res, next) => {
     authenticateFirebaseToken(req, res, next);
 }, consumeStamina);
+
+router.put("/update-username", wrapAsync(authenticateFirebaseToken), wrapAsync(updateUsername));
+
 
 export default router;
