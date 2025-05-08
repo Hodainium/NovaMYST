@@ -148,7 +148,7 @@ const staminaColors = [
 
 
         const userData = await userRes.json();
-        setUsername(userData.username || user.displayName || "Player");
+        setUsername(userData.userName || user.displayName || "Player");
         setUserXP(userData.xp || 0);
         setUserCoins(userData.coins || 0);
 
