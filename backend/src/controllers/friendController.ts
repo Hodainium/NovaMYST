@@ -397,3 +397,5 @@ export const getLeaderboardInvites = async (req: Request, res: Response): Promis
     res.status(500).json({ error: 'Failed to fetch leaderboard invites.' });
   }
 };
+
+// fixed
