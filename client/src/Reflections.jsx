@@ -161,9 +161,9 @@ const Reflections = () => {
                     className={`task-box ${selectedTask?.id === task.id ? 'selected-task' : ''}`}
                     onClick={() => handleTaskClick(task)}
                   >
-                    <div>{task.title}</div>
-                    <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                      {task.completedAt?.toLocaleDateString() || 'No date'}
+                    <div className="task-content">
+                      <span className="task-title">{task.title}</span>
+                      <span className="task-date">{task.completedAt?.toLocaleDateString() || 'No date'}</span>
                     </div>
                   </div>
                 ))

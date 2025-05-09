@@ -89,6 +89,21 @@
     padding: 1rem;
 }
 
+.task-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.task-title {
+  font-weight: 600;
+}
+
+.task-date {
+  font-size: 0.8rem;
+  color: #666;
+}
+
 .reflections-form {
     display: flex;
     flex-direction: column;
