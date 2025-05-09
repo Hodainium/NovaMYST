@@ -140,3 +140,35 @@ export const updateUsername = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to update username", details: err.message });
   }
 };
+
+export const deleteAccount = async (req: Request, res: Response) => {
+  const uid = (req as any).user.uid;
+
+  try {
+    // Delete user document
+    await db.collection("users").doc(uid).delete();
+
+    // Optionally: delete related tasks
+    const tasksSnapshot = await db.collection("tasks").where("assignedTo", "==", uid).get();
+    const batch = db.batch();
+    tasksSnapshot.forEach((doc: QueryDocumentSnapshot) => batch.delete(doc.ref));
+    await batch.commit();
+
+    // Optionally: delete friendships
+    const friendSnap = await db.collection("friends")
+      .where("requesterId", "in", [uid])
+      .get();
+    const friendSnap2 = await db.collection("friends")
+      .where("recipientId", "in", [uid])
+      .get();
+    const allFriendDocs = [...friendSnap.docs, ...friendSnap2.docs];
+    const friendBatch = db.batch();
+    allFriendDocs.forEach(doc => friendBatch.delete(doc.ref));
+    await friendBatch.commit();
+
+    res.status(200).json({ message: "User data deleted from Firestore." });
+  } catch (err: any) {
+    console.error("Error deleting user data:", err);
+    res.status(500).json({ error: "Failed to delete user data." });
+  }
+};
