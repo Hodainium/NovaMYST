@@ -47,7 +47,7 @@ export default function Settings({ setUsername }) {
 
       alert("Username updated successfully!");
       SetnewUsername("");
-      setUsername(Username.trim()); // 👈 Add this right after alert("Username updated successfully!")
+      setUsername(Username.trim()); // Add this right after alert("Username updated successfully!")
     } catch (err) {
       console.error(err);
       alert("Error: " + err.message);
