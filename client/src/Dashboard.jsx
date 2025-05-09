@@ -97,6 +97,7 @@ const staminaColors = [
       setUserXP(data.xp || 0);
       setUserCoins(data.coins || 0);
       setStreak(data.streak || 0); 
+      // setUsername(data.userName || user.displayName || "Player");
     } catch (err) {
       console.error("Failed to refresh user data:", err);
     }
@@ -772,7 +773,7 @@ const staminaColors = [
           {activeSection === 'settings' && (
             <div className="setting-section">
               <h2>Settings</h2>
-              <Settings/>
+              <Settings setUsername={setUsername} /> {/* Pass settings username change here */}
             </div>
           )}
         </div>

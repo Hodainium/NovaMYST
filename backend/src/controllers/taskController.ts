@@ -120,7 +120,8 @@ exports.updateTask = async (req: Request, res: Response) => {
       await taskRef.update(updatedData);
   
       if (!wasPreviouslyComplete && isNowComplete) {
-        const now = admin.firestore.FieldValue.serverTimestamp();
+        const now = new Date(); // Real Date object
+
 
         await taskRef.update({
           ...updatedData,
@@ -140,23 +141,6 @@ exports.updateTask = async (req: Request, res: Response) => {
           throw new Error('User data not found while updating task XP');
         }
 
-          // --- STREAK UPDATE ---
-        const lastStreakDate = userData.lastStreakDate?.toDate();
-        const today = new Date(now.toDate().toDateString());
-        const lastDate = lastStreakDate ? new Date(lastStreakDate.toDateString()) : null;
-
-        let newStreak = 1;
-        if (lastDate) {
-          const diffInDays = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
-          if (diffInDays === 1) {
-            newStreak = (userData.streakCount || 0) + 1;
-          } else if (diffInDays > 1) {
-            newStreak = 1; // streak resets
-          } else {
-            newStreak = userData.streakCount || 1; // same day task
-          }
-        }
-  
         const stamina = userData.stamina ?? 0;
         const staminaCost =
           difficulty === 'easy' ? 30 :
@@ -166,6 +150,30 @@ exports.updateTask = async (req: Request, res: Response) => {
         const updates: any = {
           completedTasks: admin.firestore.FieldValue.arrayUnion(id)
         };
+
+          // --- STREAK UPDATE ---
+        const lastStreakDateRaw = userData.lastStreakDate;
+        const lastStreakDate = lastStreakDateRaw instanceof admin.firestore.Timestamp
+          ? lastStreakDateRaw.toDate()
+          : lastStreakDateRaw ?? null;
+
+        const today = new Date(now.toDateString()); // strip time
+        const lastDate = lastStreakDate ? new Date(lastStreakDate.toDateString()) : null;
+
+        let newStreak = 1;
+        if (lastDate) {
+          const diffInDays = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+          if (diffInDays === 1) {
+            newStreak = (userData.streak || 0) + 1;
+          } else if (diffInDays > 1) {
+            newStreak = 0;
+          } else {
+            newStreak = userData.streak || 1;
+          }
+        }
+
+        updates.streak = newStreak;
+        updates.lastStreakDate = admin.firestore.Timestamp.fromDate(now);
   
         if (stamina >= staminaCost) {
           const now = new Date();
@@ -189,6 +197,7 @@ exports.updateTask = async (req: Request, res: Response) => {
   
       res.json({ message: 'Task updated successfully' });
     } catch (err: unknown) {
+      // console.error("Failed to update task:", err); // test
       if (err instanceof Error) {
         res.status(500).json({ error: 'Failed to update task', details: err.message });
       } else {
