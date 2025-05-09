@@ -96,6 +96,7 @@ const staminaColors = [
       const data = await res.json();
       setUserXP(data.xp || 0);
       setUserCoins(data.coins || 0);
+      setStreak(data.streak || 0); 
     } catch (err) {
       console.error("Failed to refresh user data:", err);
     }
