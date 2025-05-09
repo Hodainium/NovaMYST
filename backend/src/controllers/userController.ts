@@ -27,9 +27,9 @@ export const getUserData = async (req: Request, res: Response) => {
     }
 
     const userData = userSnap.data();
-    const { xp = 0, coins = 0 } = userData || {};
+    const { xp = 0, coins = 0, streak = 0 } = userData || {};
 
-    res.status(200).json({ xp, coins });
+    res.status(200).json({ xp, coins, streak });
   } catch (err) {
     console.error("Error fetching user data:", err);
     return res.status(500).json({ error: 'Failed to fetch user data' });

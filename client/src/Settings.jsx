@@ -12,7 +12,7 @@ import {
 } from 'firebase/auth';
 import DeleteAccountModal from './deleteAccountModal';
 
-export default function Settings() {
+export default function Settings({ setUsername }) {
   const [Username, SetnewUsername] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -47,6 +47,7 @@ export default function Settings() {
 
       alert("Username updated successfully!");
       SetnewUsername("");
+      setUsername(Username.trim()); // 👈 Add this right after alert("Username updated successfully!")
     } catch (err) {
       console.error(err);
       alert("Error: " + err.message);
