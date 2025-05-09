@@ -139,7 +139,6 @@
     font-weight: bold;
   }
   
-/* --- DARK MODE SUPPORT FOR REFLECTIONS --- */
 body.dark-mode .task-list {
     background: #2c2c2c;
     border-color: #444444;
@@ -183,8 +182,8 @@ body.dark-mode .task-list {
   }
   
   body.dark-mode .selected-task {
-    background-color: #8677e9; /* same purple */
+    background-color: #8677e9; 
     color: white;
     font-weight: bold;
-    border-color: #a78bfa; /* a slightly lighter purple for the border */
+    border-color: #a78bfa; 
   }  
