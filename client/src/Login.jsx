@@ -39,27 +39,61 @@ function Login() {
         }
     };
 
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+
+    //     try {
+    //         const userCred = await signInWithEmailAndPassword(auth, email, password);
+    //         const token = await userCred.user.getIdToken();
+
+    //         console.log("Firebase token from login:", token);
+
+    //         await fetch(`${import.meta.env.VITE_API_URL}/tasks/list`, {
+    //             headers: {
+    //                 Authorization: `Bearer ${token}`
+    //             }
+    //         });
+
+    //         navigate('/dashboard');
+    //     } catch (error) {
+    //         console.error("Firebase Login Error:", error.message);
+    //         alert("Login failed: " + error.message);
+    //     }
+    // };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+      
         try {
-            const userCred = await signInWithEmailAndPassword(auth, email, password);
-            const token = await userCred.user.getIdToken();
-
-            console.log("Firebase token from login:", token);
-
-            await fetch(`${import.meta.env.VITE_API_URL}/tasks/list`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            navigate('/dashboard');
+          const userCred = await signInWithEmailAndPassword(auth, email, password);
+          const user = userCred.user;
+      
+          await user.reload();
+        //   if (!user.emailVerified) {
+        //     alert("Please verify your email before logging in.");
+        //     await auth.signOut();
+        //     return;
+        //   }
+      
+          const token = await user.getIdToken();
+      
+          // Create/check Firestore user doc
+          await fetch(`${import.meta.env.VITE_API_URL}/tasks/register`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name: user.displayName }) // or user.name
+          });
+      
+          navigate('/dashboard');
         } catch (error) {
-            console.error("Firebase Login Error:", error.message);
-            alert("Login failed: " + error.message);
+          console.error("Login Error:", error.message);
+          alert("Login failed: " + error.message);
         }
-    };
+      };
+      
 
     const handleClose = () => {
         setOpen(false);
