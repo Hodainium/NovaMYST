@@ -69,11 +69,11 @@ function Login() {
           const user = userCred.user;
       
           await user.reload();
-        //   if (!user.emailVerified) {
-        //     alert("Please verify your email before logging in.");
-        //     await auth.signOut();
-        //     return;
-        //   }
+          if (!user.emailVerified) {
+            alert("Please verify your email before logging in.");
+            await auth.signOut();
+            return;
+          }
       
           const token = await user.getIdToken();
       

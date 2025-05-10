@@ -12,9 +12,9 @@ export const authenticateFirebaseToken = async (req: Request, res: Response, nex
 
   try {
     const decoded = await admin.auth().verifyIdToken(token);
-    // if (!decoded.email_verified) {
-    //   return res.status(403).json({ error: 'Email not verified' });
-    // }
+    if (!decoded.email_verified) {
+      return res.status(403).json({ error: 'Email not verified' });
+    }
     console.log("Verified Firebase token!");
     console.log("Decoded Firebase user:", decoded);
 
