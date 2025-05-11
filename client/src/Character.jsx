@@ -31,6 +31,8 @@ const [CannotBuy, setCannotBuy] = useState(false);
 
 const handleClose = () => {
         setIsPurchaseOpen(false);
+        setCanBuy(false);
+        setCannotBuy(false);
     };
 
 // Modal Styling
@@ -70,27 +72,28 @@ const Modal = ({isOpen, onClose, children }) => {
         );
     };
 
-const refreshUserData = async () => {
-    try {
-      console.log("refreshUserData called");
-      const user = auth.currentUser;
-      if (!user) return;
-      const token = await user.getIdToken();
+                                                                // GRABBING THE USER'S COINS 
+// const refreshUserData = async () => {
+//     try {
+//       console.log("refreshUserData called");
+//       const user = auth.currentUser;
+//       if (!user) return;
+//       const token = await user.getIdToken();
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/user/data`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+//       const res = await fetch(`${import.meta.env.VITE_API_URL}/user/data`, {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
 
-      const data = await res.json();
-      setUserCoins(data.coins || 0);
-    }
+//       const data = await res.json();
+//       setUserCoins(data.coins || 0);
+//     }
     
-    catch (err) {
-      console.error("Failed to refresh user data:", err);
-    }
-};
+//     catch (err) {
+//       console.error("Failed to refresh user data:", err);
+//     }
+// };
 
 
 
@@ -118,72 +121,49 @@ const handleOutfit = async (SelectedOutfitSet, Index, Part, OutfitName) => {
     if(SelectedOutfitSet[Index] === "Locked")
     {
         setIsPurchaseOpen(true);
-
-            <Modal className="PurchaseModal" isOpen={isPurchaseModalOpen}>
-                <h3 className="PurchaseQuestion"> Do you want to buy this piece? </h3>
-                <div>
-                    <button className="PurchaseButton" onClick={handlePurchase}> Yes </button>
-                    <button className="PurchaseButton" onClick={handleClose}> No </button>
-                </div>
-
-            </Modal>
     }
 
-    // const handlePurchase = () => {
-    //     if (coins < 35)
-    //     {
-    //         setIsPurchaseOpen(false);
-    //         setCannotBuy(True);
+    // What happens if the user just bought the item and wants to automatically wear it? --> If statement rather than else if
+    if(SelectedOutfitSet[Index] === "Unlocked") 
+    {
+        if (Part === "Hat")
+        {
+            changeHat(OutfitName);
+        }
+        if (Part === "Top")
+        {
+            changeTop(OutfitName);
+        }
+        if (Part === "Bottom")
+        {
+            changeBottom(OutfitName);
+        }
+        if (Part === "Shoes")
+        {
+            changeShoes(OutfitName)
+        }
+    }
+    await refreshUserData();
+}
 
-    //         <Modal className="Unpurchasable" CannotBuy={true}> 
-    //             <span className="close" onClick={setCannotBuy(false)}>&times;</span>
-    //             <h3> You don't have enough coins </h3>
-    //         </Modal>
 
+                                                            // CHECKING IF USER HAS COINS TO PURCHASE THE OUTFIT
+const handlePurchase = () => {
+    // if (coins < 35)
+    // {
+    //     setIsPurchaseOpen(false);
+    //     setCannotBuy(true);
+    // }
 
-    //     }
-        
-    //     if (coins >=35) 
+    // if (coins >=35) 
     //     {
     //         setUserCoins(coins - 35);
-
 
     //         SelectedOutfitSet[Index] = "Unlocked";
 
     //         setIsPurchaseOpen(false);
     //         setCanBuy(true);
-
-    //         <Modal className="Purchased" CanBuy={true}> 
-    //             <span className="close" onClick={setCanBuy(false)}>&times;</span>
-    //             <h3> You have purchased this piece </h3>
-    //         </Modal>
-
-            
     //     }
-    // }
-
-
-    // // What happens if the user just bought the item and wants to automatically wear it? --> If statement rather than else if
-    // if(SelectedOutfitSet[Index] === "Unlocked") 
-    // {
-    //     if (Part === "Hat")
-    //     {
-    //         changeHat(OutfitName);
-    //     }
-    //     if (Part === "Top")
-    //     {
-    //         changeTop(OutfitName);
-    //     }
-    //     if (Part === "Bottom")
-    //     {
-    //         changeBottom(OutfitName);
-    //     }
-    //     if (Part === "Shoes")
-    //     {
-    //         changeShoes(OutfitName)
-    //     }
-    // }
-    // await refreshUserData();
 }
 
 // Shoes first, then pants, then helmet, then armor
@@ -260,6 +240,31 @@ const handleOutfit = async (SelectedOutfitSet, Index, Part, OutfitName) => {
 
                 </div>
             </div>
+
+            {isPurchaseModalOpen && (
+                <Modal className="PurchaseModal" isOpen={isPurchaseModalOpen}>
+                    <div>
+                        <h3 className="PurchaseQuestion"> Do you want to buy this piece? </h3>
+                        <button className="PurchaseButton" onClick={handlePurchase}> Yes </button>
+                        <button className="PurchaseButton" onClick={handleClose}> No </button>
+                    </div>
+
+                </Modal>
+            )}
+
+            {CannotBuy && (
+                <Modal className="Unpurchasable" isOpen={CannotBuy}> 
+                    <span className="close" onClick={handleClose}>&times;</span>
+                    <h3 className="Able"> You don't have enough coins </h3>
+                </Modal>
+            )}
+
+            {CanBuy && (
+                <Modal className="Purchased" isOpen={CanBuy} > 
+                    <span className="close" onClick={handleClose} >&times;</span>
+                    <h3 className="Unable"> You have purchased this piece </h3>
+                </Modal>
+            )}
         </div>
     );
 }
