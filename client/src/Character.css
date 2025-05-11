@@ -104,6 +104,7 @@
     flex-direction: column;
     justify-content: space-between;
     align-content: space-between;
+    /*transform: translateX(-50px);*/
 }
 
 .defaultTitle {
