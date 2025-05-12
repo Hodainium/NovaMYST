@@ -110,15 +110,15 @@ const Reflections = () => {
     <div className="reflections-layout">
       <div className="reflections-top">
         <h2>Reflections</h2>
-        <div className="filter-alignment">
-          <button className="filter-button" onClick={toggleDropdown}>
+        <div className="reflections-buttons">
+          <button className="reflections-filter" onClick={toggleDropdown}>
             <AlignJustify size={20} />
             Sort By
           </button>
           {showDropdown && (
-            <div className="dropdown-filter">
+            <div className="reflections-dropdown">
               <button
-                className="dropdown-item"
+                className="reflections-dropdown-item"
                 onClick={() => {
                   setSortOrder('newest');
                   setDropdown(false);
@@ -127,7 +127,7 @@ const Reflections = () => {
                 Newest
               </button>
               <button
-                className="dropdown-item"
+                className="reflections-dropdown-item"
                 onClick={() => {
                   setSortOrder('oldest');
                   setDropdown(false);
@@ -146,7 +146,9 @@ const Reflections = () => {
             {loading ? (
               <div className="task-box">Loading...</div>
             ) : completedTasks.length === 0 ? (
-              <div className="task-box">No completed tasks yet.</div>
+              <div> 
+                <h4>No completed tasks yet.</h4>
+              </div>
             ) : (
               completedTasks
                 .slice()
@@ -169,7 +171,6 @@ const Reflections = () => {
                 ))
             )}
           </div>
-
           <div className="reflections-form">
             <label className="input-label">
               {selectedTask ? selectedTask.title : 'Select a task'}

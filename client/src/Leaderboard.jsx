@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { auth } from './firebase';
-import { AlignJustify, ArrowDown } from 'lucide-react';
+import { AlignJustify } from 'lucide-react';
 import "./Leaderboard.css";
 
 const Leaderboard = () => {
@@ -56,25 +56,21 @@ const Leaderboard = () => {
       ) : error ? (
         <p>Error: {error}</p>
       ) : (
-        <div className="leaderboard-flex">
+        <div className="leaderboard-layout">
           <div className="leaderboard-top">
             <h2>Leaderboard</h2>
             <div className="leaderboard-buttons">
-              <button className="jump-button"><ArrowDown size={20} /> <span>Jump to Me</span></button>
-
-              <div className="filter-alignment">
-                <button className="filter-button" onClick={toggleDropdown}>
-                  <AlignJustify size={20} />
-                  <span>Sort By</span>
-                </button>
-                {showDropdown && (
-                  <div className="dropdown-filter">
-                    <button className="dropdown-item" onClick={() => handleSortChange('global')}>Global</button>
-                    <button className="dropdown-item" onClick={() => handleSortChange('similar')}>Similar Rankings</button>
-                    <button className="dropdown-item" onClick={() => handleSortChange('friends')}>Friends</button>
-                  </div>
-                )}
-              </div>
+              <button className="leaderboard-filter" onClick={toggleDropdown}>
+                <AlignJustify size={20} />
+                <span>Sort By</span>
+              </button>
+              {showDropdown && (
+                <div className="leaderboard-dropdown">
+                  <button className="leaderboard-dropdown-item" onClick={() => handleSortChange('global')}>Global</button>
+                  <button className="leaderboard-dropdown-item" onClick={() => handleSortChange('similar')}>Similar Rankings</button>
+                  <button className="leaderboard-dropdown-item" onClick={() => handleSortChange('friends')}>Friends</button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -85,12 +81,12 @@ const Leaderboard = () => {
               "Friends Leaderboard"}
             </h1>
             <div className="leaderboard-table">
-              <div className="leaderboard-heading">
-                <h3>Rank</h3>
-                <h3>User Name</h3>
-                <h3>XP</h3>
-              </div>
-
+                <div className="leaderboard-heading">
+                  <h3>Rank</h3>
+                  <h3>User Name</h3>
+                  <h3>XP</h3>
+                </div>
+              
               {leaderboard.map((user, index) => {
                 let rankMedal = '';
                 if (index === 0) rankMedal = 'gold';

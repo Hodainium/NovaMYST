@@ -1,0 +1,88 @@
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: relative;
+    background: #ffffff;
+    padding: 2.5rem;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    color: #000000;
+    width: 20rem;
+}
+
+.modal-delete-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+.modal-cancel-button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+.delete-input {
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    background-color: #fff;
+    color: #000000;
+}
+
+.delete-input:focus {
+    outline: none;
+    border-color: #6c5dd3;
+    box-shadow: 0 0 0 3px rgba(108, 93, 211, 0.1);
+}
+
+.modal-delete-button:hover, .modal-cancel-button:hover {
+    background-color: #c82333;
+}
+
+.modal-content h2 {
+    margin: 0;
+}
+
+.modal-content label {
+    font-weight: "500";
+    color: "#333333";
+}
+
+body.dark-mode .modal-content {
+    background: #2a2a2a;
+    color: #f5f5f5;
+}
+
+body.dark-mode .delete-input {
+    background-color: #444;
+    color: #ffffff;
+}

@@ -4,7 +4,6 @@ import { DarkModeContext } from './DarkMode';
 import { auth, googleProvider } from './firebase';
 import {
   reauthenticateWithCredential,
-  reauthenticateWithPopup,
   deleteUser,
   EmailAuthProvider,
   updatePassword,

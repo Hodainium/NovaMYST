@@ -126,7 +126,6 @@ html, body {
 
 .dashboard-content {
     flex: 1;
-    padding: 2rem;
     overflow-y: auto;
 }
 
@@ -139,6 +138,9 @@ html, body {
     margin-bottom: 2rem;
 }
 
+.setting-section {
+    margin-bottom: 0;
+}
 
 .stats-grid {
     display: grid;
@@ -420,8 +422,7 @@ html, body {
 
 .modal-actions {
     display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
+    justify-content: space-between;
 }
 
 

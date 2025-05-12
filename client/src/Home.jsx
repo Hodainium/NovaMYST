@@ -3,7 +3,6 @@ import { useEffect, useState, useContext } from 'react';
 import './Home.css';
 import googleimg from './assets/google.png';
 import { DarkModeContext } from './DarkMode';
-import axios from 'axios';
 import { signInWithPopup, createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from "firebase/auth";
 import { auth, googleProvider } from "./firebase";
 
