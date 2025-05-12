@@ -14,6 +14,71 @@ html, body {
     display: flex;
     flex-direction: column;   
     gap: 2rem;
+    background-color: #f9f9f9;
+    padding: 1rem;
+    border: 1px solid #e0e0e0; 
+    border-radius: 16px;
+}
+
+.achievement-right {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.achievement-buttons {
+    display: flex;
+    position: relative;
+}
+
+.achievement-filter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 2rem;
+    width: 8rem;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-weight: 600;
+    background-color: #6c5dd3;
+    cursor: pointer;
+    padding: 1.3rem;
+    gap: 0.8rem;
+    transition: background-color 0.3s;
+    box-sizing: border-box;
+}
+
+.achievement-dropdown {
+    position: absolute;
+    top: 2.7rem;
+    display: flex;
+    flex-direction: column;
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0; 
+    border-radius: 8px;
+    gap: 0.2rem;
+    width: 8rem;
+    box-sizing: border-box;
+}
+
+.achievement-dropdown-item {
+    text-align: center;
+    background-color: transparent;
+    cursor: pointer;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    padding: 0.3rem;
+    transition: background-color 0.3s;
+}
+
+.achievement-dropdown-item:hover {
+    background-color: #e0e0e0;
+}
+
+.achievement-filter:hover {
+    background-color: #8677e9;
 }
 
 .achievement-stat-box {

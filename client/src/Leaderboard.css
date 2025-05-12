@@ -84,7 +84,6 @@
 
 .leaderboard-filter:hover {
     background-color: #8677e9;
-    transform: translateY(-1px);
 }
 
 .leaderboard-dropdown {
@@ -113,7 +112,6 @@
 
 .leaderboard-dropdown-item:hover {
     background-color: #e0e0e0;
-    transform: translateY(-1px);
 }
 
 .loading-leaderboard {

@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Award, CheckCircle2 } from 'lucide-react';
+import { Award, CheckCircle2, AlignJustify } from 'lucide-react';
 import { auth } from './firebase';
 import "./Achievements.css";
 
 function Achievements() {
     const [achievements, setAchievements] = useState([]);
     const [loading, setLoading] = useState(true)
+    const [showDropdown, setDropdown] = useState(false);
+    const [sortOrder, setSortOrder] = useState('default');
+    const toggleDropdown = () => setDropdown((open) => !open);
 
     useEffect(() => {
         const fetchAchievements = async () => {
@@ -79,26 +82,77 @@ function Achievements() {
         <>
             <h2>Achievements</h2>
             <div className="achievement-layout">
-                <AchievementStat 
-                    achievementCurrent={achievementCurrent}
-                    achievementProgress={achievementProgress}
-                    achievementTotal={achievementTotal}
-                />
+                <div className="achievement-right">
+                    <div className="achievement-buttons">
+                        <button className="achievement-filter" onClick={toggleDropdown}>
+                            <AlignJustify size={20} />
+                            Sort By
+                        </button>
+                        {showDropdown && (
+                            <div className="achievement-dropdown">
+                                <button
+                                    className="achievement-dropdown-item"
+                                    onClick={() => {
+                                        setSortOrder('default');
+                                        setDropdown(false);
+                                    }}
+                                >
+                                    Default
+                                </button>
+                                <button
+                                    className="achievement-dropdown-item"
+                                    onClick={() => {
+                                        setSortOrder('taskCompletion');
+                                        setDropdown(false);
+                                    }}
+                                >
+                                    Task Completion
+                                </button>
+                                <button
+                                    className="achievement-dropdown-item"
+                                    onClick={() => {
+                                        setSortOrder('xpGained');
+                                        setDropdown(false);
+                                    }}
+                                >
+                                    XP
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                    <AchievementStat 
+                        achievementCurrent={achievementCurrent}
+                        achievementProgress={achievementProgress}
+                        achievementTotal={achievementTotal}
+                    />
+                </div>
                 <div className="achievement-list">
-                    {achievements.map((a) => (
-                        <AchievementBox
-                            key={a.achievementID}
-                            icon={a.icon}
-                            title={a.name}
-                            description={a.description}
-                            type={a.goalType}
-                            amount={a.goalNum}
-                            reward={`${a.rewardValue} ${a.rewardType === 'xp' ? 'XP' : a.rewardType === 'coins' ? '💰' : '🎁'}`}
-                            current={a.current}
-                            claimed={a.claimed}
-                            onClaim={() => handleClaim(a.achievementID)} // We'll wire this in soon
-                        />
-                        ))}
+                    {achievements
+                        .slice()
+                        .filter((a) => {
+                            if (sortOrder === 'taskCompletion') {
+                                return a.goalType === 'taskCompletion';
+                            } else if (sortOrder === 'xpGained') {
+                                return a.goalType === 'xpGained';
+                            } else {
+                                return true;
+                            }
+                        })
+                        .sort((a, b) => a.goalNum - b.goalNum)
+                        .map((a) => (
+                            <AchievementBox
+                                key={a.achievementID}
+                                icon={a.icon}
+                                title={a.name}
+                                description={a.description}
+                                type={a.goalType}
+                                amount={a.goalNum}
+                                reward={`${a.rewardValue} ${a.rewardType === 'xp' ? 'XP' : a.rewardType === 'coins' ? '💰' : '🎁'}`}
+                                current={a.current}
+                                claimed={a.claimed}
+                                onClaim={() => handleClaim(a.achievementID)}
+                            />
+                    ))}
                 </div>
             </div>
         </>
