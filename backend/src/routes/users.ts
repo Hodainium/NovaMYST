@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authenticateFirebaseToken } from '../middleware/authMiddleware';
-import { getUserData, getUserStamina, consumeStamina, updateUsername, deleteAccount } from '../controllers/userController';
+import { getUserData, getUserStamina, consumeStamina, updateUsername, deleteAccount, getCharacterData, updateGender } from '../controllers/userController';
 import type { Request, Response, NextFunction} from 'express';
 
 const router = Router();
@@ -27,5 +27,9 @@ router.post('/consumeStamina', (req, res, next) => {
 router.put("/update-username", wrapAsync(authenticateFirebaseToken), wrapAsync(updateUsername));
 
 router.delete('/delete-account', wrapAsync(authenticateFirebaseToken), deleteAccount);
+
+router.post("/gender", wrapAsync(authenticateFirebaseToken), wrapAsync(updateGender));
+
+router.get('/character', (req, res, next) => {authenticateFirebaseToken(req, res, next); }, wrapAsync(getCharacterData));
 
 export default router;

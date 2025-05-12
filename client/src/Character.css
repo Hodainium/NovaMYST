@@ -104,6 +104,7 @@
     flex-direction: column;
     justify-content: space-between;
     align-content: space-between;
+    /*transform: translateX(-50px);*/
 }
 
 .defaultTitle {
@@ -352,4 +353,54 @@
 
 .wildwest_spurs:hover {
     background-color: lightgray;
+}
+
+.PurchaseQuestion {
+    color: black;
+}
+
+.Able {
+    color: black;
+}
+
+.Unable {
+    color: black;
+}
+
+.PurchaseModal,
+.Unpurchasable,
+.Purchased {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px;
+  background: white;
+  color: black;
+  border: 3px solid #333;
+  border-radius: 12px;
+  padding: 20px;
+  z-index: 1000;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+.PurchaseButton {
+  margin: 10px;
+  padding: 8px 16px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #f0c14b;
+  border: 1px solid #a88734;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.close {
+  position: absolute;
+  right: 12px;
+  top: 8px;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
 }

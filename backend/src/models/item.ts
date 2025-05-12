@@ -1,11 +1,11 @@
-export type SlotType = "hat" | "shirt" | "pants";
+export type SlotType = "hat" | "shirt" | "pants" | "shoes";
 
 export interface ItemDefinition {
   itemID: string;
   name: string;
-  emoji: string;
   slot: SlotType;
   cost: number;
+  set: string;
 }
 
 export interface InventoryItem {

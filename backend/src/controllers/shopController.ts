@@ -26,42 +26,45 @@ export const getShopItems = async (req: Request, res: Response): Promise<void> =
 };
 
 export const purchaseItem = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const user = (req as any).user;
-    const { itemID } = req.params;
-    const userRef = db.collection('users').doc(user.uid);
-    const userSnap = await userRef.get();
-    const userData = userSnap.data() as User;
-
-    const storeItemSnap = await db.collection('shop_items').doc(itemID).get();
-    if (!storeItemSnap.exists) res.status(404).json({ error: "Item not in store" });
-
-    const itemSnap = await db.collection('item_definitions').doc(itemID).get();
-    if (!itemSnap.exists) res.status(404).json({ error: "Item not found" });
-
-    const item = itemSnap.data() as ItemDefinition;
-
-    if ((userData.coins || 0) < item.cost) {
-      res.status(400).json({ error: "Insufficient coins" });
+    try {
+      const { itemID } = req.params;
+      const user = (req as any).user;
+  
+      const itemSnap = await db.collection('item_definitions').doc(itemID).get();
+      if (!itemSnap.exists) {
+        res.status(404).json({ error: 'Item not found' });
+        return;
+      }
+  
+      const item = itemSnap.data()!;
+      const userRef = db.collection('users').doc(user.uid);
+      const userSnap = await userRef.get();
+      const userData = userSnap.data();
+  
+      if ((userData.coins || 0) < item.cost) {
+        res.status(400).json({ error: 'Insufficient coins' });
+        return;
+      }
+  
+      const inventory = userData.inventory || [];
+      const alreadyOwned = inventory.some((i: any) => i.itemID === itemID);
+      if (alreadyOwned) {
+        res.status(400).json({ error: 'Item already owned' });
+        return;
+      }
+  
+      inventory.push({ itemID, equipped: false });
+  
+      await userRef.update({
+        coins: userData.coins - item.cost,
+        inventory
+      });
+  
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Something went wrong' });
     }
-
-    const alreadyOwned = (userData.inventory || []).some((i: InventoryItem) => i.itemID === itemID);
-    if (alreadyOwned) {
-      res.status(400).json({ error: "You already own this item" });
-    }
-
-    const updatedInventory = [...(userData.inventory || []), { itemID, equipped: false }];
-    const updatedCoins = userData.coins - item.cost;
-
-    await userRef.update({
-      coins: updatedCoins,
-      inventory: updatedInventory
-    });
-
-    res.json({ message: "Item purchased", newCoinBalance: updatedCoins });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to purchase item" });
-  }
 };
 
 export const equipItem = async (req: Request, res: Response): Promise<void> => {
@@ -84,6 +87,7 @@ export const equipItem = async (req: Request, res: Response): Promise<void> => {
       hat: userData.equipped?.hat || null,
       shirt: userData.equipped?.shirt || null,
       pants: userData.equipped?.pants || null,
+      shoes: userData.equipped?.shoes || null,
     };
 
     equipped[item.slot] = itemID;
@@ -95,3 +99,24 @@ export const equipItem = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ error: "Failed to equip item" });
   }
 };
+
+export const unequipSlot = async (req: Request, res: Response) => {
+    try {
+      const user = (req as any).user;
+      const slot = req.params.slot; // should be "hat", "shirt", "pants", or "shoes"
+
+      console.log("User UID:", user.uid);
+      console.log("Slot to unequip:", slot);
+  
+      const userRef = db.collection('users').doc(user.uid);
+      await userRef.update({
+        [`equipped.${slot}`]: null
+      });
+      
+      console.log(`Successfully unequipped slot: ${slot}`);
+      res.json({ success: true });
+    } catch (err) {
+      console.error("Failed to unequip slot:", err);
+      res.status(500).json({ error: "Failed to unequip slot" });
+    }
+  };

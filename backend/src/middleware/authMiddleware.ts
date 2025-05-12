@@ -16,7 +16,7 @@ export const authenticateFirebaseToken = async (req: Request, res: Response, nex
       return res.status(403).json({ error: 'Email not verified' });
     }
     console.log("Verified Firebase token!");
-    console.log("Decoded Firebase user:", decoded);
+    //console.log("Decoded Firebase user:", decoded);
 
     (req as any).user = decoded;
     next();
