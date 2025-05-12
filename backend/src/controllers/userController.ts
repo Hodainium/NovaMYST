@@ -172,3 +172,49 @@ export const deleteAccount = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to delete user data." });
   }
 };
+
+export const getCharacterData = async (req: Request, res: Response) => {
+    try {
+      const user = (req as any).user;
+      const userRef = db.collection('users').doc(user.uid);
+      const userSnap = await userRef.get();
+  
+      if (!userSnap.exists) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      const userData = userSnap.data();
+  
+      const itemSnap = await db.collection('item_definitions').get();
+      const shopItems = itemSnap.docs.map((doc: FirebaseFirestore.QueryDocumentSnapshot) => doc.data());
+  
+      return res.json({
+        coins: userData.coins || 0,
+        inventory: userData.inventory || [],
+        equipped: userData.equipped || { hat: null, shirt: null, pants: null },
+        shopItems,
+        gender: userData.gender || "Male"
+      });
+    } catch (err) {
+      console.error("Failed to fetch character data:", err);
+      return res.status(500).json({ error: 'Failed to fetch character data' });
+    }
+};
+
+export const updateGender = async (req: Request, res: Response) => {
+    try {
+      const user = (req as any).user;
+      const { gender } = req.body;
+  
+      if (!["Male", "Female"].includes(gender)) {
+        return res.status(400).json({ error: "Invalid gender value" });
+      }
+  
+      const userRef = db.collection("users").doc(user.uid);
+      await userRef.update({ gender });
+      res.json({ success: true });
+    } catch (err) {
+      console.error("Failed to update gender:", err);
+      res.status(500).json({ error: "Failed to update gender" });
+    }
+};

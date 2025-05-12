@@ -14,7 +14,7 @@ export const authenticateFirebaseToken = async (req: Request, res: Response, nex
     const decoded = await admin.auth().verifyIdToken(token);
 
     console.log("Verified Firebase token!");
-    console.log("Decoded Firebase user:", decoded);
+    //console.log("Decoded Firebase user:", decoded);
 
     (req as any).user = decoded;
     next();

@@ -1,272 +1,259 @@
 import "./Character.css";
-import {useState} from 'react';
-import { useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { DarkModeContext } from './DarkMode';
-import React from 'react'; //
-import {auth} from "./firebase"
-import male from './assets/male_model.png'
-import female from './assets/female_model.png'
-import knightHelmet from './assets/knightHelmetModel.png'
-import knightChest from './assets/knightChestModel.png'
-import knightPants from './assets/knightPantsModel.png'
-import knightShoes from './assets/knightShoesModel.png'
+import { auth } from "./firebase";
+import male from './assets/male_model.png';
+import female from './assets/female_model.png';
+import knightHelmet from './assets/knightHelmetModel.png';
+import knightChest from './assets/knightChestModel.png';
+import knightPants from './assets/knightPantsModel.png';
+import knightShoes from './assets/knightShoesModel.png';
 
 function Character() {
+  const { darkMode } = useContext(DarkModeContext);
+  const [gender, setGender] = useState("Male");
+  const [coins, setCoins] = useState(0);
+  const [inventory, setInventory] = useState([]);
+  const [equipped, setEquipped] = useState({ hat: null, shirt: null, pants: null, shoes: null });
+  const [isPurchaseModalOpen, setIsPurchaseOpen] = useState(false);
+  const [CanBuy, setCanBuy] = useState(false);
+  const [CannotBuy, setCannotBuy] = useState(false);
+  const [selectedItemID, setSelectedItemID] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-const defaultUnlocks = ["Unlocked", "Unlocked", "Unlocked", "Unlocked"];
-const knightUnlocks = ["Locked", "Locked", "Locked", "Locked"];
-const princessUnlocks = ["Locked", "Locked", "Locked", "Locked"];
-const cowboyUnlocks = ["Locked", "Locked", "Locked", "Locked"];
+  const ownsItem = (itemID) => inventory.some(i => i.itemID === itemID);
 
-const { darkMode } = useContext(DarkModeContext);
-const [coins, setUserCoins] = useState(0);
-const [gender, setGender] = useState("Male");
-const [hat, setHat] = useState('');
-const [top, setTop] = useState('');
-const [bottom, setBottom] = useState('');
-const [shoes, setShoes] = useState('');
-const [isPurchaseModalOpen, setIsPurchaseOpen] = useState(false);
-const [CanBuy, setCanBuy] = useState(false);
-const [CannotBuy, setCannotBuy] = useState(false);
+  const fetchCharacterData = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+    const token = await user.getIdToken();
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/user/character`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    setCoins(data.coins);
+    setInventory(data.inventory);
+    setEquipped(data.equipped);
+    setGender(data.gender || "Male");
+    setLoading(false);
+  };
 
-const handleClose = () => {
-        setIsPurchaseOpen(false);
-        setCanBuy(false);
-        setCannotBuy(false);
-    };
+  useEffect(() => {
+    fetchCharacterData();
+  }, []);
 
-// Modal Styling
-const Modal = ({isOpen, onClose, children }) => {
-        if (!isOpen) return null;
+  const handleClose = () => {
+    setIsPurchaseOpen(false);
+    setCanBuy(false);
+    setCannotBuy(false);
+  };
 
-        return (
-            <div onClick = {onClose}
-            style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                background: "rgba(0, 0, 0, 0.5)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-            }}
-            > 
-                <div
-                    style={{
-                        background: "white",
-                        margin: "auto",
-                        padding: "20px",
-                        border: "3px solid",
-                        width: "20%",
-                        borderRadius: "10px",
-                        borderColor: "#6c5dd3",
-                        justifyContent: "center",
-                        alignItems: "center",
-                    }}
-                >
-                    {children}
-                </div>
-            </div>
-        );
-    };
+  const clearEquippedSlot = async (slot) => {
+    try {
+        const token = await auth.currentUser.getIdToken();
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/shop/unequip/${slot}`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        console.log("clearEquippedSlot response:", data);
+      } catch (err) {
+        console.error("Failed to clear slot:", err);
+      }
+  };
 
-                                                                // GRABBING THE USER'S COINS 
-// const refreshUserData = async () => {
-//     try {
-//       console.log("refreshUserData called");
-//       const user = auth.currentUser;
-//       if (!user) return;
-//       const token = await user.getIdToken();
+  const handlePurchase = async () => {
+    const token = await auth.currentUser.getIdToken();
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/shop/purchase/${selectedItemID}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
-//       const res = await fetch(`${import.meta.env.VITE_API_URL}/user/data`, {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//         },
-//       });
-
-//       const data = await res.json();
-//       setUserCoins(data.coins || 0);
-//     }
-    
-//     catch (err) {
-//       console.error("Failed to refresh user data:", err);
-//     }
-// };
-
-
-
-const changeGender = (SelectedGender) => {
-    setGender(SelectedGender);
-}
-
-const changeHat = (SelectedHat) => {
-    setHat(SelectedHat);
-}
-
-const changeTop = (SelectedTop) => {
-    setTop(SelectedTop);
-}
-
-const changeBottom = (SelectedBottom) => {
-    setBottom(SelectedBottom);
-}
-
-const changeShoes = (SelectedShoes) => {
-    setShoes(SelectedShoes);
-}
-
-const handleOutfit = async (SelectedOutfitSet, Index, Part, OutfitName) => {
-    if(SelectedOutfitSet[Index] === "Locked")
-    {
-        setIsPurchaseOpen(true);
+    if (res.ok) {
+      await fetchCharacterData();
+      setCanBuy(true);
+    } else {
+      setCannotBuy(true);
     }
 
-    // What happens if the user just bought the item and wants to automatically wear it? --> If statement rather than else if
-    if(SelectedOutfitSet[Index] === "Unlocked") 
-    {
-        if (Part === "Hat")
-        {
-            changeHat(OutfitName);
-        }
-        if (Part === "Top")
-        {
-            changeTop(OutfitName);
-        }
-        if (Part === "Bottom")
-        {
-            changeBottom(OutfitName);
-        }
-        if (Part === "Shoes")
-        {
-            changeShoes(OutfitName)
-        }
+    setIsPurchaseOpen(false);
+  };
+
+  const equipItem = async (itemID) => {
+    const token = await auth.currentUser.getIdToken();
+    await fetch(`${import.meta.env.VITE_API_URL}/shop/equip/${itemID}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    await fetchCharacterData();
+  };
+
+  const updateGender = async (newGender) => {
+    setGender(newGender); // Update locally for visual display
+  
+    try {
+      const token = await auth.currentUser.getIdToken();
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/user/gender`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ gender: newGender })
+      });
+  
+      if (!res.ok) {
+        console.error("Failed to update gender on backend");
+      }
+    } catch (err) {
+      console.error("Error updating gender:", err);
     }
-    await refreshUserData();
-}
+  };
 
+  const handleOutfit = async (unlockSet, index, slotType, setName) => {
+    const itemMap = {
+      Hat: {
+        knight: "knight_helmet",
+        default: "default_hat",
+        princess: "princess_tiara",
+        cowboy: "wildwest_hat"
+      },
+      Top: {
+        knight: "knight_chest",
+        default: "default_shirt",
+        princess: "princess_dress",
+        cowboy: "wildwest_vest"
+      },
+      Bottom: {
+        knight: "knight_legs",
+        default: "default_pants",
+        princess: "princess_stockings",
+        cowboy: "wildwest_pants"
+      },
+      Shoes: {
+        knight: "knight_boots",
+        default: "default_shoes",
+        princess: "princess_heels",
+        cowboy: "wildwest_spurs"
+      }
+    };
 
-                                                            // CHECKING IF USER HAS COINS TO PURCHASE THE OUTFIT
-const handlePurchase = () => {
-    // if (coins < 35)
-    // {
-    //     setIsPurchaseOpen(false);
-    //     setCannotBuy(true);
-    // }
+    const itemID = itemMap[slotType][setName];
 
-    // if (coins >=35) 
-    //     {
-    //         setUserCoins(coins - 35);
+    if (!ownsItem(itemID)) {
+      setSelectedItemID(itemID);
+      setIsPurchaseOpen(true);
+      return;
+    }
 
-    //         SelectedOutfitSet[Index] = "Unlocked";
+    if (itemID.startsWith("default")) {
+        const slotMap = {
+            Hat: "hat",
+            Top: "shirt",
+            Bottom: "pants",
+            Shoes: "shoes"
+        };
 
-    //         setIsPurchaseOpen(false);
-    //         setCanBuy(true);
-    //     }
-}
+        const slot = slotMap[slotType];
 
-// Shoes first, then pants, then helmet, then armor
+        if (!slot) {
+            console.error("Invalid slotType:", slotType);
+            return;
+        }
 
-    return (
-        <div className={`background ${darkMode ? 'dark' : ''}`}> 
-            <div className="characterScreen">
-                <h1 className="characterTitle">Character Screen</h1>
+        await clearEquippedSlot(slot);
+        await fetchCharacterData();
+        console.log("Successfully called clearEquippedSlot");
+        return;
+    }
 
-                <div className="gender">
-                    <button className="genderButton" onClick={() => changeGender("Male")}> Male </button>
-                    <button className="genderButton" onClick={() => changeGender("Female")}> Female </button>
-                </div>
+    await equipItem(itemID);
+  };
 
-                <div className="CharacterModel">
-                    {gender === "Male" && (<img className="maleModel" src={male} alt="Male" />)}
-                    {gender === "Female" && (<img className="femaleModel" src={female} alt="Female"/>)}
+  if (loading) return <div className={`background ${darkMode ? 'dark' : ''}`} />;
 
-                    {shoes === "knight" && (<img className="knightShoesModel" src={knightShoes} alt="Knight Shoes"/>)}
-                    
-                    {bottom === "knight" && (<img className="knightBottomModel" src={knightPants} alt="Knight Pants"/>)}
+  return (
+    <div className={`background ${darkMode ? 'dark' : ''}`}> 
+      <div className="characterScreen">
+        <h1 className="characterTitle">Character Screen</h1>
 
-                    {top === "knight" && (<img className="knightTopModel" src={knightChest} alt="Knight Chest"/>)}
-
-                    {hat === "knight" && (<img className="knightHelmetModel" src={knightHelmet} alt="Knight Helmet"/>)}
-                </div>
-                
-
-            </div>
-
-            <div className="wardrobe">
-                <h1 className="wardrobeTitle"> Wardrobe </h1>
-
-                <div className="clothingSelection">
-
-                <h3 className="defaultTitle">Default</h3>
-                    <div className="default"> 
-                        {/* <button className="defaultHat" onClick={() => changeHat('')}>  </button> */}
-                        <button className="defaultHat" onClick={() => handleOutfit(defaultUnlocks, 0, "Hat", '')}>  </button>
-                        <button className="defaultTop" onClick={() => changeTop('')}>  </button>
-                        <button className="defaultBottom" onClick={() => changeBottom('')}>  </button>
-                        <button className="defaultShoes" onClick={() => changeShoes('')}>  </button>
-                    </div>
-                    
-
-                    <h3 className="knightTitle"> Knight Set </h3>
-                    <div className="knightSet">
-                        {/* <button className="knight_helmet" onClick={() => changeHat('knight')}>  </button> */}
-                        <button className="knight_helmet" onClick={() => handleOutfit(knightUnlocks, 0, "Hat", 'knight')}>  </button>
-                        <button className="knight_chest" onClick={() => changeTop('knight')}>  </button>
-                        <button className="knight_leggings" onClick={() => changeBottom('knight')}>  </button>
-                        <button className="knight_boots" onClick={() => changeShoes('knight')}>  </button>
-
-                        {/* line of prices for each item I guess*/}
-                        <div> </div>
-                    </div>
-
-                    <h3 className="princessTitle"> Princess Set </h3>
-                    <div className="princessSet"> 
-                        <button className="princess_tiara"> </button>
-                        <button className="princess_dress"> </button>
-                        <button className="princess_stockings"> </button>
-                        <button className="princess_heels"> </button>
-                    </div>
-
-                    <h3 className="cowboyTitle"> Cowboy Set </h3>
-                    <div className="cowboySet">
-                        <button className="wildwest_hat"> </button>
-                        <button className="wildwest_vest"> </button>
-                        <button className="wildwest_pants"> </button>
-                        <button className="wildwest_spurs"> </button>    
-                    </div>
-
-
-                </div>
-            </div>
-
-            {isPurchaseModalOpen && (
-                <Modal className="PurchaseModal" isOpen={isPurchaseModalOpen}>
-                    <div>
-                        <h3 className="PurchaseQuestion"> Do you want to buy this piece? </h3>
-                        <button className="PurchaseButton" onClick={handlePurchase}> Yes </button>
-                        <button className="PurchaseButton" onClick={handleClose}> No </button>
-                    </div>
-
-                </Modal>
-            )}
-
-            {CannotBuy && (
-                <Modal className="Unpurchasable" isOpen={CannotBuy}> 
-                    <span className="close" onClick={handleClose}>&times;</span>
-                    <h3 className="Able"> You don't have enough coins </h3>
-                </Modal>
-            )}
-
-            {CanBuy && (
-                <Modal className="Purchased" isOpen={CanBuy} > 
-                    <span className="close" onClick={handleClose} >&times;</span>
-                    <h3 className="Unable"> You have purchased this piece </h3>
-                </Modal>
-            )}
+        <div className="gender">
+            <button className="genderButton" onClick={() => updateGender("Male")}> Male </button>
+            <button className="genderButton" onClick={() => updateGender("Female")}> Female </button>
         </div>
-    );
+
+        <div className="CharacterModel">
+          {gender === "Male" && (<img className="maleModel" src={male} alt="Male" />)}
+          {gender === "Female" && (<img className="femaleModel" src={female} alt="Female" />)}
+
+          {equipped.shoes === 'knight_boots' && <img className="knightShoesModel" src={knightShoes} alt="Knight Shoes" />}
+          {equipped.pants === 'knight_legs' && <img className="knightBottomModel" src={knightPants} alt="Knight Pants" />}
+          {equipped.shirt === 'knight_chest' && <img className="knightTopModel" src={knightChest} alt="Knight Chest" />}
+          {equipped.hat === 'knight_helmet' && <img className="knightHelmetModel" src={knightHelmet} alt="Knight Helmet" />}
+        </div>
+      </div>
+
+      <div className="wardrobe">
+        <h1 className="wardrobeTitle"> Wardrobe </h1>
+        <div className="clothingSelection">
+
+          <h3 className="defaultTitle">Default</h3>
+          <div className="default"> 
+            <button className="defaultHat" onClick={() => handleOutfit(null, 0, "Hat", 'default')}> </button>
+            <button className="defaultTop" onClick={() => handleOutfit(null, 1, "Top", 'default')}> </button>
+            <button className="defaultBottom" onClick={() => handleOutfit(null, 2, "Bottom", 'default')}> </button>
+            <button className="defaultShoes" onClick={() => handleOutfit(null, 3, "Shoes", 'default')}> </button>
+          </div>
+
+          <h3 className="knightTitle"> Knight Set </h3>
+          <div className="knightSet">
+            <button className="knight_helmet" onClick={() => handleOutfit(null, 0, "Hat", 'knight')}> </button>
+            <button className="knight_chest" onClick={() => handleOutfit(null, 1, "Top", 'knight')}> </button>
+            <button className="knight_leggings" onClick={() => handleOutfit(null, 2, "Bottom", 'knight')}> </button>
+            <button className="knight_boots" onClick={() => handleOutfit(null, 3, "Shoes", 'knight')}> </button>
+          </div>
+
+          <h3 className="princessTitle"> Princess Set </h3>
+          <div className="princessSet"> 
+            <button className="princess_tiara" onClick={() => handleOutfit(null, 0, "Hat", 'princess')}> </button>
+            <button className="princess_dress" onClick={() => handleOutfit(null, 1, "Top", 'princess')}> </button>
+            <button className="princess_stockings" onClick={() => handleOutfit(null, 2, "Bottom", 'princess')}> </button>
+            <button className="princess_heels" onClick={() => handleOutfit(null, 3, "Shoes", 'princess')}> </button>
+          </div>
+
+          <h3 className="cowboyTitle"> Cowboy Set </h3>
+          <div className="cowboySet">
+            <button className="wildwest_hat" onClick={() => handleOutfit(null, 0, "Hat", 'cowboy')}> </button>
+            <button className="wildwest_vest" onClick={() => handleOutfit(null, 1, "Top", 'cowboy')}> </button>
+            <button className="wildwest_pants" onClick={() => handleOutfit(null, 2, "Bottom", 'cowboy')}> </button>
+            <button className="wildwest_spurs" onClick={() => handleOutfit(null, 3, "Shoes", 'cowboy')}> </button>    
+          </div>
+        </div>
+      </div>
+
+      {isPurchaseModalOpen && (
+        <div className="PurchaseModal">
+          <h3 className="PurchaseQuestion"> Do you want to buy this piece? </h3>
+          <button className="PurchaseButton" onClick={handlePurchase}> Yes </button>
+          <button className="PurchaseButton" onClick={handleClose}> No </button>
+        </div>
+      )}
+
+      {CannotBuy && (
+        <div className="Unpurchasable">
+          <span className="close" onClick={handleClose}>&times;</span>
+          <h3 className="Able"> You don't have enough coins </h3>
+        </div>
+      )}
+
+      {CanBuy && (
+        <div className="Purchased">
+          <span className="close" onClick={handleClose}>&times;</span>
+          <h3 className="Unable"> You have purchased this piece </h3>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default Character;

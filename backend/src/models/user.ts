@@ -8,6 +8,7 @@ export type EquippedSlots = {
     hat: string | null;
     shirt: string | null;
     pants: string | null;
+    shoes: string | null;
 };
 
 export interface User {
@@ -31,6 +32,7 @@ export interface User {
       [month: string]: number;
     }
     lastSignInDate: FirebaseFirestore.Timestamp;
+    gender: "Male" | "Female"
     // add in profile pictures; store them as strings here to the URL of their picture?
     // add in character fields when that is implemented
 }
@@ -54,10 +56,12 @@ module.exports = {
       equipped: {
         hat: null,
         shirt: null,
-        pants: null
+        pants: null,
+        shoes: null
       },
       coins: 0,
       monthlyXP: {},
       lastSignInDate: null,
+      gender: "Male"
     }
   };
