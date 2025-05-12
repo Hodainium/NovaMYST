@@ -1,16 +1,10 @@
-.settings-container {
-    width: 100%;
-    padding: 1rem;
+.settings-container form {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
 }
 
-form {
-    width: 95%;
-}
-
-form h4 {
+.settings-container form h4 {
     color: #6c5dd3;
     margin: 0 0 1rem 0;
     font-size: 1.1rem;
@@ -23,10 +17,11 @@ form h4 {
     gap: 1rem;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    background: #fafafa;
+    background: #f9f9f9;
     border-radius: 8px;
     border: 1px solid #e0e0e0;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .TypeUsername, .TypePassword {
@@ -58,6 +53,7 @@ form h4 {
     transition: all 0.2s ease;
     width: 100%;
     margin-top: 0.5rem;
+    box-sizing: border-box;
 }
 
 .SubmitName:hover, .SubmitPassword:hover {
@@ -70,6 +66,7 @@ form h4 {
     justify-content: space-between;
     gap: 1.5rem;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .appearance-settings, .danger-zone {
@@ -79,12 +76,12 @@ form h4 {
 }
 
 .appearance-settings {
-    background: #fafafa;
+    background: #f9f9f9;
     border: 1px solid #e0e0e0;
 }
 
 .danger-zone {
-    background: #fde4e4;
+    background: #faeaea;
     border: 1px solid #e0e0e0;
 }
 
@@ -175,7 +172,7 @@ body.dark-mode .appearance-settings {
 }
 
 body.dark-mode .danger-zone {
-    background: #fde4e4;
+    background: #faeaea;
     border: 1px solid #e0e0e0;
 }
 
@@ -203,7 +200,6 @@ body.dark-mode .AccountDeletion {
 
     .SubmitName, .SubmitPassword {
         width: auto;
-        align-self: flex-start;
     }
 }
 
