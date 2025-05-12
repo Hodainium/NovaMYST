@@ -1,6 +1,5 @@
 import { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
 import './Login.css';
 import googleimg from './assets/google.png';
 import { signInWithPopup } from "firebase/auth";

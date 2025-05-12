@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { auth } from './firebase';
-import { UserPlus, Forward, Mail } from 'lucide-react';
+import { UserPlus, Forward, Mail, Swords, Sword } from 'lucide-react';
 import { DarkModeContext } from './DarkMode'; 
 import "./Friends.css";
 
@@ -229,7 +229,7 @@ const Friends = () => {
               <span>Incoming Requests</span>
             </button>
             <button className="mail-button" onClick={fetchLeaderboardInvites}>
-              <Mail size={20} />
+              <Swords size={20} />
             <span>Leaderboard Invites</span>
             </button>
           </div>
@@ -241,17 +241,18 @@ const Friends = () => {
           ) : (
             <>
               {friendsList.map(friend => (
-                <div className="friend-request-box" key={friend.userID}>
+                <div className="request-box" key={friend.userID}>
                   <p>{friend.userName}</p>
-                  <div className="friend-request-buttons">
-                    <button className="cancel-button" onClick={() => handleRemoveFriend(friend.userID)}>
-                      Remove
-                    </button>
-                    <button className="invite-button" onClick={() => handleInviteToLeaderboard(friend.userID)}>
+                  <div className="request-buttons">
+                    <button className="leaderboard-button" onClick={() => handleInviteToLeaderboard(friend.userID)}>
+                      <Sword size={20} />
                       Invite to Leaderboard
                     </button>
                     <button className="remove-leaderboard-button" onClick={() => handleRemoveFromLeaderboard(friend.userID)}>
                       Remove from Leaderboard
+                    </button>
+                    <button className="request-cancel-button" onClick={() => handleRemoveFriend(friend.userID)}>
+                      Remove Friend
                     </button>
                   </div>
                 </div>
@@ -273,11 +274,11 @@ const Friends = () => {
                 onChange={(e) => setSearchUsername(e.target.value)}
               />
             </div>
-            <div className="request-modal-buttons">
-              <button className="request-button" onClick={handleSendRequest}>
+            <div className="friend-request-buttons">
+              <button className="send-request-button" onClick={handleSendRequest}>
                 <Forward size={20} /> Send Request
               </button>
-              <button className="cancel-button" onClick={() => setRequestModal(false)}>Cancel</button>
+              <button className="request-cancel-button" onClick={() => setRequestModal(false)}>Cancel</button>
             </div>
           </div>
         </div>
@@ -289,19 +290,25 @@ const Friends = () => {
             <h4>Leaderboard Invites</h4>
             <hr className="mail-divider" />
             {leaderboardInvites.length > 0 ? (
-              leaderboardInvites.map((friend) => (
-                <div className="friend-request-box" key={friend.userID}>
-                  <p>{friend.userName}</p>
-                  <div className="friend-request-buttons">
-                    <button className="accept-button" onClick={() => handleAcceptLeaderboardInvite(friend.userID)}>Accept</button>
-                    <button className="cancel-button" onClick={() => handleDeclineLeaderboardInvite(friend.userID)}>Decline</button>
-                  </div>
-                </div>
-              ))
+              <div className="request-list">
+                {leaderboardInvites.map((friend) => (
+                  <Request
+                    key={friend.userID}
+                    user={friend.userName}
+                    onAccept={() => handleAcceptLeaderboardInvite(friend.userID)}
+                    onCancel={() => handleDeclineLeaderboardInvite(friend.userID)}
+                  />
+                ))}
+              </div>
             ) : (
               <p>No pending invites.</p>
             )}
-            <button className="cancel-button" onClick={() => setShowLeaderboardInvites(false)}>Cancel</button>
+            <button
+              className="request-cancel-button"
+              onClick={() => setShowLeaderboardInvites(false)}
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}
@@ -315,9 +322,9 @@ const Friends = () => {
             {loadingRequests ? (
               <p>Loading...</p>
             ) : friendRequests.length > 0 ? (
-              <div className="friend-request-list">
+              <div className="request-list">
                 {friendRequests.map((req) => (
-                  <FriendRequest
+                  <Request
                     key={req.id}
                     user={req.requester?.userName || 'Unknown'}
                     onAccept={() => handleAccept(req.id)}
@@ -328,7 +335,7 @@ const Friends = () => {
             ) : (
               <p>No friend requests.</p>
             )}
-            <button className="cancel-button" onClick={() => setMailModal(false)}>
+            <button className="request-cancel-button" onClick={() => setMailModal(false)}>
               Cancel
             </button>
           </div>
@@ -338,12 +345,12 @@ const Friends = () => {
   );
 };
 
-const FriendRequest = ({ user, onAccept, onCancel }) => (
-  <div className="friend-request-box">
+const Request = ({ user, onAccept, onCancel }) => (
+  <div className="request-box">
     <p>{user}</p>
-    <div className="friend-request-buttons">
-      <button className="accept-button" onClick={onAccept}>Accept</button>
-      <button className="cancel-button" onClick={onCancel}>Decline</button>
+    <div className="request-buttons">
+      <button className="request-accept-button" onClick={onAccept}>Accept</button>
+      <button className="request-cancel-button" onClick={onCancel}>Decline</button>
     </div>
   </div>
 );

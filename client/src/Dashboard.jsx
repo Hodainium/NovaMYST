@@ -479,7 +479,10 @@ const staminaColors = [
           </div>
         </div>
 
-        <div className="dashboard-content">
+        <div 
+          className="dashboard-content"
+          style={{ padding: (activeSection === 'character' ? '0' : '2rem') }}
+        >
         {!['character', 'leaderboard', 'settings'].includes(activeSection) && (
           <div className="minimal-header">
           <div className="header-left">

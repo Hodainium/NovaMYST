@@ -128,8 +128,9 @@ html, body {
 }
 
 .form-input:focus {
-    border-color: var(--primary-color);
     outline: none;
+    border-color: #6c5dd3;
+    box-shadow: 0 0 0 3px rgba(108, 93, 211, 0.1);
 }
 
 .forgot-button {
@@ -287,7 +288,7 @@ html, body {
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     font-size: 14px;
-    color: #333;
+    color: #333333;
 }
 
 input:not(:checked) + .slider:before {
@@ -297,7 +298,7 @@ input:not(:checked) + .slider:before {
 input:checked + .slider:before {
     content: "\f186";
     transform: translateX(30px);
-    color: #333;
+    color: #333333;
 }
 
 input:checked + .slider {
