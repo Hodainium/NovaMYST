@@ -244,7 +244,6 @@ const Friends = () => {
                 <div className="friend-request-box" key={friend.userID}>
                   <p>{friend.userName}</p>
                   <div className="friend-request-buttons">
-                    <button className="leaderboard-button">Invite to leaderboard</button>
                     <button className="cancel-button" onClick={() => handleRemoveFriend(friend.userID)}>
                       Remove
                     </button>
