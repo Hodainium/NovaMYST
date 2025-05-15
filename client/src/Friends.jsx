@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { auth } from './firebase';
-import { UserPlus, Forward, Mail, Swords, Sword } from 'lucide-react';
+import { UserPlus, UserMinus, Forward, Mail, Swords, Sword, Ban } from 'lucide-react';
 import { DarkModeContext } from './DarkMode'; 
 import "./Friends.css";
 
@@ -249,9 +249,11 @@ const Friends = () => {
                       Invite to Leaderboard
                     </button>
                     <button className="remove-leaderboard-button" onClick={() => handleRemoveFromLeaderboard(friend.userID)}>
+                      <Ban size={20} />
                       Remove from Leaderboard
                     </button>
-                    <button className="request-cancel-button" onClick={() => handleRemoveFriend(friend.userID)}>
+                    <button className="remove-friend-button" onClick={() => handleRemoveFriend(friend.userID)}>
+                      <UserMinus size={20} />
                       Remove Friend
                     </button>
                   </div>

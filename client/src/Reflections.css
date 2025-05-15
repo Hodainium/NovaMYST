@@ -34,7 +34,7 @@
 
 .reflections-dropdown {
     position: absolute;
-    top: 2.7rem;
+    top: 2.8rem;
     display: flex;
     flex-direction: column;
     background-color: #f9f9f9;
@@ -43,6 +43,7 @@
     gap: 0.2rem;
     width: 8rem;
     box-sizing: border-box;
+    z-index: 999;
 }
 
 .reflections-dropdown-item {
@@ -54,6 +55,7 @@
     border-radius: 8px;
     padding: 0.3rem;
     transition: background-color 0.3s;
+    color: #333333;
 }
 
 .reflections-dropdown-item:hover {
@@ -76,7 +78,8 @@
 }
 
 .task-list {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid #e0e0e0; 
     border-radius: 8px;
     max-height: 67vh;
@@ -94,6 +97,16 @@
     font-size: 1.2rem;
     background-color: transparent;
     padding: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.task-box:not(:last-child) {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.task-box:hover {
+    transform: translateY(-1px);
+    box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1); 
 }
 
 .task-content {
@@ -103,12 +116,13 @@
 }
 
 .task-title {
-    font-weight: 600;
+    color: #333333;
+    font-weight: 800;
 }
 
 .task-date {
     font-size: 0.8rem;
-    color: #666;
+    color: #666666;
 }
 
 .reflections-form {
@@ -147,8 +161,17 @@
 }
 
 .input-label {
-    font-weight: 500;
-    color: #333;
+    font-weight: 600;
+    color: #333333;
+}
+
+.loading-tasks {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 2rem;
+    height: 100%;
 }
 
 .reflections-filter:hover, .save-button:hover {
@@ -157,55 +180,52 @@
 
 .selected-task {
     background-color: #e0e0e0;
-    color: white;
-    font-weight: bold;
-}
-  
-body.dark-mode .task-list {
-    background: #2c2c2c;
-    border-color: #444444;
-}
-
-body.dark-mode .task-box {
-    background: #3c3c3c;
-    border-color: #555555;
-    color: #ffffff;
-}
-
-body.dark-mode .reflections-input {
-    background-color: #2c2c2c;
-    color: #ffffff;
-    border-color: #444444;
-}
-
-body.dark-mode .input-label {
-    color: #ffffff;
-}
-
-body.dark-mode .dropdown-filter {
-    background-color: #2c2c2c;
-    border-color: #444444;
-}
-
-body.dark-mode .dropdown-item {
-    color: #ffffff;
-}
-
-body.dark-mode .dropdown-item:hover {
-    background-color: #444444;
-}
-
-body.dark-mode .save-button {
-    background-color: #6c5dd3;
-}
-
-body.dark-mode .save-button:hover {
-    background-color: #8677e9;
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
 }
 
 body.dark-mode .selected-task {
-    background-color: #8677e9; 
-    color: white;
-    font-weight: bold;
-    border-color: #a78bfa; 
+    background-color: #6c5dd3; 
 }  
+
+body.dark-mode .task-list {
+    border: 1px solid #555555; 
+    box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .task-title {
+    color: #ffffff;
+}
+
+body.dark-mode .task-date {
+    color: #cccccc;
+}
+
+body.dark-mode .task-list {
+    background-color: #2a2a2a;
+}
+
+body.dark-mode .task-box:not(:last-child) {
+    border-bottom: 1px solid #555555;
+}
+
+body.dark-mode .task-box:hover {
+    box-shadow: 0px 0px 16px rgba(255, 255, 255, 0.1); 
+}
+
+body.dark-mode .selected-task {
+    background-color: #6c5dd3;
+}
+
+body.dark-mode .reflections-dropdown {
+    background-color: #2a2a2a;
+    border: 1px solid #555555;
+}
+
+body.dark-mode .reflections-dropdown-item {
+    color: #ffffff;
+}
+
+body.dark-mode .reflections-dropdown-item:hover {
+    background-color: #3a3a3a;
+}

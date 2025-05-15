@@ -260,6 +260,10 @@ html, body {
     height: 0;
 }
 
+.dark-mode .login-header {
+    background-color: #3a3a3a;
+}
+
 .slider {
     position: absolute;
     cursor: pointer;

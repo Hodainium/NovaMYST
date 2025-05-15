@@ -144,7 +144,7 @@ const Reflections = () => {
         <div className="reflections-bottom-layout">
           <div className="task-list">
             {loading ? (
-              <div className="task-box">Loading...</div>
+              <div className="loading-tasks">Loading tasks...</div>
             ) : completedTasks.length === 0 ? (
               <div> 
                 <h4>No completed tasks yet.</h4>

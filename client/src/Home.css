@@ -156,7 +156,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc;
+    background-color: #cccccc;
     transition: 0.3s;
     border-radius: 30px;
 }
@@ -177,7 +177,7 @@ body {
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     font-size: 14px;
-    color: #333;
+    color: #333333;
 }
 
 input:not(:checked) + .slider:before {
@@ -187,7 +187,7 @@ input:not(:checked) + .slider:before {
 input:checked + .slider:before {
     content: "\f186";
     transform: translateX(30px);
-    color: #333;
+    color: #333333;
 }
 
 input:checked + .slider {
@@ -471,6 +471,10 @@ input:checked + .slider {
 .dark-mode .form-group label,
 .dark-mode label {
   color: #ffffff !important;
+}
+
+.dark-mode .sticky-nav {
+    background-color: #3a3a3a;
 }
 
 @media (max-width: 1024px) {
