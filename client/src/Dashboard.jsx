@@ -484,7 +484,7 @@ const staminaColors = [
           style={{ padding: (activeSection === 'character' ? '0' : '2rem') }}
         >
         {!['character', 'leaderboard', 'settings'].includes(activeSection) && (
-          <div className="minimal-header">
+        <div className="minimal-header">
           <div className="header-left">
             <div className="profile-pic-placeholder">test</div>
             <div className="user-info">

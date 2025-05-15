@@ -29,7 +29,7 @@
     background: #ffffff;
     border: 1px solid #e0e0e0;
     border-radius: 6px;
-    color: #333;
+    color: #333333;
     font-size: 15px;
     transition: all 0.2s ease;
     width: 100%;
@@ -142,12 +142,12 @@ input:checked + .slider:before {
 
 .toggle-label {
     font-weight: 500;
-    color: #333;
+    color: #333333;
 }
 
 .AccountDeletion {
     padding: 12px 24px;
-    background: #dc3545;
+    background-color: #dc3545;
     color: #ffffff;
     font-weight: 600;
     cursor: pointer;
@@ -158,40 +158,20 @@ input:checked + .slider:before {
 }
 
 .AccountDeletion:hover {
-    background: #c82333;
+    background-color: #c82333;
     transform: translateY(-1px);
 }
 
-body.dark-mode .settings-container,
 body.dark-mode .UsernameChange,
 body.dark-mode .PasswordChange,
 body.dark-mode .appearance-settings {
-    background-color: #2c2c2c;
-    color: #ffffff;
-    border-color: #444444;
+    background-color: #2a2a2a;
+    border: 1px solid #555555;
 }
 
 body.dark-mode .danger-zone {
-    background: #faeaea;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #555555;
 }
-
-body.dark-mode .TypeUsername,
-body.dark-mode .TypePassword {
-    background-color: #333333;
-    color: #ffffff;
-    border-color: #555555;
-}
-
-body.dark-mode .SubmitName,
-body.dark-mode .SubmitPassword {
-    background-color: #6c5dd3;
-}
-
-body.dark-mode .AccountDeletion {
-    background-color: #dc3545;
-}
-
 
 @media (max-width: 768px) {
     .side-by-side-boxes {

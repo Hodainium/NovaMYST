@@ -233,7 +233,7 @@ html, body {
 .quest-header h4, .finished-task-item h4 {
     margin: 0;
     font-size: 1.1rem;
-    color: #333;
+    color: #333333;
 }
 
 
@@ -276,7 +276,7 @@ html, body {
 
 
 .meta-value {
-    color: #333;
+    color: #333333;
     font-weight: 500;
 }
 
@@ -373,7 +373,7 @@ html, body {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #333;
+    color: #333333;
 }
 
 
@@ -418,7 +418,7 @@ html, body {
 .time-input-group span {
     margin-top: 0.25rem;
     font-size: 0.8rem;
-    color: #666;
+    color: #666666;
 }
 
 
@@ -487,6 +487,7 @@ html, body {
     align-items: center;
     height: 100vh;
     font-size: 1.2rem;
+    font-weight: 600;
 }
 
 
@@ -531,36 +532,36 @@ html, body {
 .user-info h2 {
     margin: 0;
     font-size: 1.1rem;
-  }
+}
   
-  .user-info p {
+.user-info p {
     margin: 0;
     font-size: 0.85rem;
     color: #666666; 
-  }
+}
 
-  .user-info h3 {
+.user-info h3 {
     margin: 0;
     font-size: 0.9rem;
     color: #666666; 
     font-weight: 500;
-  }
+}
 
 .stamina-container {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     margin-right: 2rem;
-  }
+}
   
-  .stamina-text {
+.stamina-text {
     font-size: 0.85rem;
     font-weight: 600;
     margin: 0;
-    color: #000000; /* Black text for light mode */
-  }
+    color: #333333; /* Black text for light mode */
+}
   
-  .stamina-bar {
+.stamina-bar {
     width: 100px;
     height: 10px;
     border: 1px solid #6c5dd3; /* Purple border */
@@ -568,56 +569,49 @@ html, body {
     background: #f0f0f0;
     overflow: hidden;
     margin-top: 4px;
-  }
+}
   
-  .stamina-fill {
+.stamina-fill {
     height: 100%;
     background: #6c5dd3; /* Always purple fill */
-  }
+}
   
   /* Dark mode adjustments */
-  body.dark-mode .stamina-text {
+body.dark-mode .stamina-text {
     color: #ffffff; /* White text in dark mode */
-  }
+}
   
-  body.dark-mode .stamina-bar {
+body.dark-mode .stamina-bar {
     background: #333333; /* Dark background behind purple bar if needed */
-  }
-  
-body.dark-mode .dashboard-header {
-    background-color: #2c2c2c;
-    color: white;
-    border-color: #444;
 }
 
-body.dark-mode .user-info p,
-body.dark-mode .user-info h3 {
+body.dark-mode .user-info p {
   color: #cccccc; 
 }
 
 body.dark-mode {
-    background-color: #1e1e1e;
+    background-color: #2a2a2a;
     color: #ffffff;
 }
 
+body.dark-mode .dashboard-content {
+    background-color: #3a3a3a;
+}
 
 body.dark-mode .dashboard-container,
 body.dark-mode .dashboard-section,
 body.dark-mode .tasks-section,
 body.dark-mode .taskbar,
 body.dark-mode .taskbar-section,
-body.dark-mode .modal,
-body.dark-mode .setting-section {
-    background-color: #2c2c2c;
+body.dark-mode .modal {
+    background-color: #2a2a2a;
     color: #ffffff;
     border-color: #444444;
 }
 
-
 body.dark-mode .taskbar-section:hover {
     background-color: #3a3a3a;
 }
-
 
 body.dark-mode input,
 body.dark-mode select,
@@ -627,29 +621,35 @@ body.dark-mode textarea {
     border-color: #555555;
 }
 
-
-body.dark-mode .add-quest-btn,
-body.dark-mode .complete-btn {
-    background-color: #6c5dd3;
+body.dark-mode input:focus,
+body.dark-mode select:focus,
+body.dark-mode textarea:focus {
+    outline: none;
+    border-color: #6c5dd3;
+    box-shadow: 0 0 0 3px rgba(108, 93, 211, 0.1);
 }
-
 
 body.dark-mode .logout-btn {
     border-color: #a59fff;
     color: #a59fff;
 }
 
-
-body.dark-mode .stat-item,
-body.dark-mode .quest-item,
-body.dark-mode .finished-task-item {
-    background: #333333 !important;
-    color: #ffffff;
-    border-color: #555555;
+body.dark-mode .stat-item {
+    background: #3a3a3a;
+    border: 1px solid #555555;
 }
 
+body.dark-mode .quest-item,
+body.dark-mode .finished-task-item {
+    background: #2a2a2a;
+    color: #ffffff;
+    border: 1px solid #555555;
+}
 
-body.dark-mode .stat-text h4,
+body.dark-mode .stat-text h4 {
+    color: #cccccc;
+}
+
 body.dark-mode .stat-text p,
 body.dark-mode .meta-label,
 body.dark-mode .meta-value,
@@ -658,11 +658,9 @@ body.dark-mode .finished-task-item h4 {
     color: #ffffff;
 }
 
-
 body.dark-mode .task-divider {
-    background: #555;
+    background: #555555;
 }
-
 
 body.dark-mode .modal h2 {
     color: #ffffff;
