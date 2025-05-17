@@ -4,15 +4,24 @@ import { DarkModeContext } from './DarkMode';
 import { auth } from "./firebase";
 import male from './assets/male_model.png';
 import female from './assets/female_model.png';
+import chains from './assets/Chains.png';
 import knightHelmet from './assets/knightHelmetModel.png';
 import knightChest from './assets/knightChestModel.png';
 import knightPants from './assets/knightPantsModel.png';
 import knightShoes from './assets/knightShoesModel.png';
+import princessTiara from './assets/princessTiaraModel.png';
+import princessDress from './assets/princessDressModel.png';
+import princessPants from './assets/princessPantsModel.png';
+import princessHeels from './assets/princessHeelsModel.png';
+import cowboyHat from './assets/cowboyHatModel.png';
+import cowboyVest from './assets/cowboyVestModel.png';
+import cowboyPants from './assets/cowboyPantsModel.png';
+import cowboySpurs from './assets/cowboySpursModel.png';
 
 function Character() {
   const { darkMode } = useContext(DarkModeContext);
   const [gender, setGender] = useState("Male");
-  const [coins, setCoins] = useState(0);
+  const [playerCoins, setCoins] = useState(0);
   const [inventory, setInventory] = useState([]);
   const [equipped, setEquipped] = useState({ hat: null, shirt: null, pants: null, shoes: null });
   const [isPurchaseModalOpen, setIsPurchaseOpen] = useState(false);
@@ -186,23 +195,43 @@ function Character() {
           {gender === "Male" && (<img className="maleModel" src={male} alt="Male" />)}
           {gender === "Female" && (<img className="femaleModel" src={female} alt="Female" />)}
 
+          {/* For the Character model */}
+          {/* Knight Models */}
           {equipped.shoes === 'knight_boots' && <img className="knightShoesModel" src={knightShoes} alt="Knight Shoes" />}
           {equipped.pants === 'knight_legs' && <img className="knightBottomModel" src={knightPants} alt="Knight Pants" />}
           {equipped.shirt === 'knight_chest' && <img className="knightTopModel" src={knightChest} alt="Knight Chest" />}
           {equipped.hat === 'knight_helmet' && <img className="knightHelmetModel" src={knightHelmet} alt="Knight Helmet" />}
+
+          {/* Princess Models */}
+          {equipped.shoes === 'princess_heels' && <img className="princessShoesModel" src={princessHeels} alt="Princess Shoes" />}
+          {equipped.shoes === 'pincess_stockings' && <img className="princessPantsModel" src={princessPants} alt="Princess Pants" />}
+          {equipped.shoes === 'princess_dress' && <img className="princessDressModel" src={princessDress} alt="Princess Dress" />}
+          {equipped.shoes === 'princess_tiara' && <img className="princessTiaraModel" src={princessTiara} alt="Princess Tiara" />}
+
+          {/* Cowboy Models */}
+          {equipped.shoes === 'wildwest_spurs' && <img className="cowboySpursModel" src={cowboySpurs} alt="Cowboy Spurs" />}
+          {equipped.shoes === 'wildwest_pants' && <img className="cowboyPantsModel" src={cowboyPants} alt="Cowboy Pants" />}
+          {equipped.shoes === 'wildwest_vest' && <img className="cowboyVestModel" src={cowboyVest} alt="Cowboy Vest" />}
+          {equipped.shoes === 'wildwest_hat' && <img className="cowboyHatModel" src={cowboyHat} alt="Cowboy Hat" />}
+
+
+
         </div>
       </div>
 
       <div className="wardrobe">
         <h1 className="wardrobeTitle"> Wardrobe </h1>
+        <h3 className="playerCoins"> Coins: {playerCoins}</h3> 
+
         <div className="clothingSelection">
 
+          {/* For the Buttons */}
           <h3 className="defaultTitle">Default</h3>
-          <div className="default"> 
-            <button className="defaultHat" onClick={() => handleOutfit(null, 0, "Hat", 'default')}> </button>
-            <button className="defaultTop" onClick={() => handleOutfit(null, 1, "Top", 'default')}> </button>
-            <button className="defaultBottom" onClick={() => handleOutfit(null, 2, "Bottom", 'default')}> </button>
-            <button className="defaultShoes" onClick={() => handleOutfit(null, 3, "Shoes", 'default')}> </button>
+          <div className="defaultSet"> 
+            <button className="default" onClick={() => handleOutfit(null, 0, "Hat", 'default')}> </button>
+            <button className="default" onClick={() => handleOutfit(null, 1, "Top", 'default')}> </button>
+            <button className="default" onClick={() => handleOutfit(null, 2, "Bottom", 'default')}> </button>
+            <button className="default" onClick={() => handleOutfit(null, 3, "Shoes", 'default')}> </button>
           </div>
 
           <h3 className="knightTitle"> Knight Set </h3>
@@ -233,7 +262,7 @@ function Character() {
 
       {isPurchaseModalOpen && (
         <div className="PurchaseModal">
-          <h3 className="PurchaseQuestion"> Do you want to buy this piece? </h3>
+          <h3 className="PurchaseQuestion"> Do you want to buy this piece for 35 coins? </h3>
           <button className="PurchaseButton" onClick={handlePurchase}> Yes </button>
           <button className="PurchaseButton" onClick={handleClose}> No </button>
         </div>
