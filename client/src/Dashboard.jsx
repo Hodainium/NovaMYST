@@ -39,7 +39,7 @@ function Dashboard() {
 
 // RGB wheel-based stamina loop (green start → clockwise):
 const staminaColors = [
-    '#4ade80', // 
+    '#4ade80', // Green
     '#34d399', // Spring Green
     '#22d3ee', // Cyan
     '#3b82f6', // Blue
