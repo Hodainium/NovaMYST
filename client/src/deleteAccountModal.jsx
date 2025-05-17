@@ -1,6 +1,7 @@
 import { Trash2 } from 'lucide-react';
 import "./deleteAccountModal.css";
 
+// this file handles the account deletion
 export default function DeleteAccountModal({
   isOpen,
   onClose,

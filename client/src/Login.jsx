@@ -38,28 +38,6 @@ function Login() {
         }
     };
 
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-
-    //     try {
-    //         const userCred = await signInWithEmailAndPassword(auth, email, password);
-    //         const token = await userCred.user.getIdToken();
-
-    //         console.log("Firebase token from login:", token);
-
-    //         await fetch(`${import.meta.env.VITE_API_URL}/tasks/list`, {
-    //             headers: {
-    //                 Authorization: `Bearer ${token}`
-    //             }
-    //         });
-
-    //         navigate('/dashboard');
-    //     } catch (error) {
-    //         console.error("Firebase Login Error:", error.message);
-    //         alert("Login failed: " + error.message);
-    //     }
-    // };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
       
