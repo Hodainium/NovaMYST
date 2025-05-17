@@ -69,14 +69,26 @@ export const getUserStamina = async (req: Request, res: Response) => {
         const userSnap = await userRef.get();
         const userData = userSnap.data();
 
-        const { newStamina, newTimestamp } = calculateStamina(userData.lastSignInDate, userData.stamina || 0);
+        let stamina = 0;
+        let lastSignInDate = Timestamp.now();
+
+        if (!userData.lastSignInDate || userData.stamina == null) {
+            console.log("New user detected. Initializing with default stamina.");
+            stamina = 1000;
+        } 
+        else 
+        {
+            const result = calculateStamina(userData.lastSignInDate, userData.stamina);
+            stamina = result.newStamina;
+            lastSignInDate = result.newTimestamp;
+        }
 
         await userRef.update({
-        stamina: newStamina,
-        lastSignInDate: newTimestamp
+            stamina,
+            lastSignInDate
         });
 
-        res.json({ stamina: newStamina });
+        res.json({ stamina });
     } catch (err) {
         res.status(500).json({ error: "Failed to fetch stamina" });
     }
