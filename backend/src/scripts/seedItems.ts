@@ -27,13 +27,13 @@ const itemList = [
     // Princess Set
     { itemID: "princess_tiara", name: "Princess Tiara", slot: "hat", cost: 35, set: "princess" },
     { itemID: "princess_dress", name: "Princess Dress", slot: "shirt", cost: 35, set: "princess" },
-    { itemID: "princess_slippers", name: "Princess Slippers", slot: "pants", cost: 35, set: "princess" },
+    { itemID: "princess_stockings", name: "Princess Stockings", slot: "pants", cost: 35, set: "princess" },
     { itemID: "princess_heels", name: "Princess Heels", slot: "shoes", cost: 35, set: "princess" },
   
     // Cowboy Set
     { itemID: "cowboy_hat", name: "Cowboy Hat", slot: "hat", cost: 35, set: "cowboy" },
     { itemID: "cowboy_vest", name: "Cowboy Vest", slot: "shirt", cost: 35, set: "cowboy" },
-    { itemID: "cowboy_chaps", name: "Cowboy Chaps", slot: "pants", cost: 35, set: "cowboy" },
+    { itemID: "cowboy_pants", name: "Cowboy Pants", slot: "pants", cost: 35, set: "cowboy" },
     { itemID: "cowboy_spurs", name: "Cowboy Spurs", slot: "shoes", cost: 35, set: "cowboy" }
   ];
   
