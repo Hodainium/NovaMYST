@@ -39,7 +39,7 @@ function Dashboard() {
 
 // RGB wheel-based stamina loop (green start → clockwise):
 const staminaColors = [
-    '#4ade80', // Green
+    '#4ade80', // 
     '#34d399', // Spring Green
     '#22d3ee', // Cyan
     '#3b82f6', // Blue
@@ -153,6 +153,7 @@ const staminaColors = [
         setUsername(userData.userName || user.displayName || "Player");
         setUserXP(userData.xp || 0);
         setUserCoins(userData.coins || 0);
+        setStreak(userData.streak || 0);
 
         // const fetchStamina = async () => {
         //     try {
