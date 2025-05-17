@@ -204,7 +204,7 @@ function Character() {
 
           {/* Princess Models */}
           {equipped.shoes === 'princess_heels' && <img className="princessShoesModel" src={princessHeels} alt="Princess Shoes" />}
-          {equipped.pants === 'pincess_stockings' && <img className="princessPantsModel" src={princessPants} alt="Princess Pants" />}
+          {equipped.pants === 'princess_stockings' && <img className="princessPantsModel" src={princessPants} alt="Princess Pants" />}
           {equipped.shirt === 'princess_dress' && <img className="princessDressModel" src={princessDress} alt="Princess Dress" />}
           {equipped.hat === 'princess_tiara' && <img className="princessTiaraModel" src={princessTiara} alt="Princess Tiara" />}
 
@@ -213,8 +213,6 @@ function Character() {
           {equipped.pants === 'cowboy_pants' && <img className="cowboyPantsModel" src={cowboyPants} alt="Cowboy Pants" />}
           {equipped.shirt === 'cowboy_vest' && <img className="cowboyVestModel" src={cowboyVest} alt="Cowboy Vest" />}
           {equipped.hat === 'cowboy_hat' && <img className="cowboyHatModel" src={cowboyHat} alt="Cowboy Hat" />}
-
-
 
         </div>
       </div>
