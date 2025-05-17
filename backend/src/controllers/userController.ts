@@ -10,6 +10,14 @@ export function calculateStamina(lastSignInDate: Timestamp, currentStamina: numb
   const msElapsed = now.toMillis() - lastSignInDate.toMillis();
   const staminaGained = Math.floor(msElapsed / (5 * 1000)); // 2 per 1 minute 0.5 * 60 * 1000
 
+  const testStamina = Math.min(currentStamina + staminaGained, 9999);
+  console.log("Stamina Regen Debug:");
+  console.log("Last sign-in:", lastSignInDate.toDate());
+  console.log("Now:", now.toDate());
+  console.log("Elapsed (ms):", msElapsed);
+  console.log("Stamina gained:", staminaGained);
+  console.log("New stamina:", testStamina);
+
   return {
     newStamina: Math.min(currentStamina + staminaGained, 9999),
     newTimestamp: now
