@@ -3,7 +3,8 @@ import { authenticateFirebaseToken } from '../middleware/authMiddleware';
 import {
   updateLeaderboard,
   getGlobalLeaderboard,
-  getSimilarXPLeaderboard,
+  // getSimilarXPLeaderboard,
+  getFrozenSimilarXPLeaderboard,
   getFriendLeaderboard
 } from '../controllers/leaderboardController';
 import type { Request, Response } from 'express';
@@ -36,13 +37,15 @@ router.get('/global', wrapAsync(authenticateFirebaseToken), async (req: Request,
 
 router.get('/similar', wrapAsync(authenticateFirebaseToken), async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
-    const leaderboard = await getSimilarXPLeaderboard(user.uid);
-    res.status(200).json(leaderboard);
-  } catch (error: any) {
-    res.status(500).json({ error: 'Failed to fetch similar XP leaderboard' });
+    const userId = (req as any).user.uid;
+    const leaderboard = await getFrozenSimilarXPLeaderboard(userId); // suspect function
+    res.json(leaderboard);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch frozen similar XP leaderboard" });
   }
 });
+
+
 
 router.get('/friends', wrapAsync(authenticateFirebaseToken), async (req: Request, res: Response) => {
   const userId = (req as any).user.uid;

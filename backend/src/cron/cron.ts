@@ -3,9 +3,37 @@ import { admin, db } from '../index';
 import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { updateLeaderboard } from '../controllers/leaderboardController'
 
+// This function saves last month's XP into a frozen monthlyLeaderboard collection to compare users from last month who got similar xp to you
+const generateMonthlyLeaderboardSnapshot = async () => {
+  console.log("Creating frozen leaderboard snapshot...");
+  try {
+    const usersSnapshot = await db.collection('users').get();
+    const batch = db.batch();
+    const now = new Date();
+    const lastMonthKey = `${now.getFullYear()}-${String(now.getMonth()).padStart(2, '0')}`; // e.g., 2025-04
+
+    usersSnapshot.forEach((userDoc: QueryDocumentSnapshot) => {
+      const userData = userDoc.data();
+      const userID = userDoc.id;
+      const monthlyXP = userData.monthlyXP || 0;
+
+      const frozenRef = db.collection('monthlyLeaderboard').doc(`${lastMonthKey}_${userID}`);
+      batch.set(frozenRef, {
+        userID,
+        score: monthlyXP,
+        month: lastMonthKey,
+      });
+    });
+
+    await batch.commit();
+    console.log("Frozen monthlyLeaderboard saved.");
+  } catch (error) {
+    console.error("Failed to create monthly leaderboard snapshot:", error);
+  }
+};
 // Export the function to be called in index.ts this function will be used for the monthly reset on the leaderboard
 export const startMonthlyXPResetCron = () => {
-  cron.schedule('0 0 1 * *', async () => {  // reset every month
+  cron.schedule('0 0 1 * *', async () => {  // reset every minute (* * * * *); reset every month (0 0 1 * *)
     console.log("Running monthly XP reset job!");
 
     try {
@@ -42,7 +70,7 @@ export const startMonthlyXPResetCron = () => {
       });
       
       await Promise.all(updatePromises);
-      
+      await generateMonthlyLeaderboardSnapshot();
       console.log("Leaderboard reset completed!");
 
     } catch (error) {
