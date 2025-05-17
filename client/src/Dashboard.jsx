@@ -153,6 +153,7 @@ const staminaColors = [
         setUsername(userData.userName || user.displayName || "Player");
         setUserXP(userData.xp || 0);
         setUserCoins(userData.coins || 0);
+        setStreak(userData.streak || 0);
 
         // const fetchStamina = async () => {
         //     try {
