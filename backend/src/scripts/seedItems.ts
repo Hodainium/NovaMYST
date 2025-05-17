@@ -13,16 +13,16 @@ const db = admin.firestore();
 
 const itemList = [
     // Default Set
-    { itemID: "default_hat", name: "Default Hat", slot: "hat", cost: 0, set: "default" },
-    { itemID: "default_shirt", name: "Default Shirt", slot: "shirt", cost: 0, set: "default" },
-    { itemID: "default_pants", name: "Default Pants", slot: "pants", cost: 0, set: "default" },
-    { itemID: "default_shoes", name: "Default Shoes", slot: "shoes", cost: 0, set: "default" },
+    // { itemID: "default_hat", name: "Default Hat", slot: "hat", cost: 0, set: "default" },
+    // { itemID: "default_shirt", name: "Default Shirt", slot: "shirt", cost: 0, set: "default" },
+    // { itemID: "default_pants", name: "Default Pants", slot: "pants", cost: 0, set: "default" },
+    // { itemID: "default_shoes", name: "Default Shoes", slot: "shoes", cost: 0, set: "default" },
   
-    // Knight Set
-    { itemID: "knight_helmet", name: "Knight Helmet", slot: "hat", cost: 35, set: "knight" },
-    { itemID: "knight_chest", name: "Knight Chest", slot: "shirt", cost: 35, set: "knight" },
-    { itemID: "knight_legs", name: "Knight Leggings", slot: "pants", cost: 35, set: "knight" },
-    { itemID: "knight_boots", name: "Knight Boots", slot: "shoes", cost: 35, set: "knight" },
+    // // Knight Set
+    // { itemID: "knight_helmet", name: "Knight Helmet", slot: "hat", cost: 35, set: "knight" },
+    // { itemID: "knight_chest", name: "Knight Chest", slot: "shirt", cost: 35, set: "knight" },
+    // { itemID: "knight_legs", name: "Knight Leggings", slot: "pants", cost: 35, set: "knight" },
+    // { itemID: "knight_boots", name: "Knight Boots", slot: "shoes", cost: 35, set: "knight" },
   
     // Princess Set
     { itemID: "princess_tiara", name: "Princess Tiara", slot: "hat", cost: 35, set: "princess" },

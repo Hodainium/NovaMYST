@@ -10,6 +10,14 @@ export function calculateStamina(lastSignInDate: Timestamp, currentStamina: numb
   const msElapsed = now.toMillis() - lastSignInDate.toMillis();
   const staminaGained = Math.floor(msElapsed / (5 * 1000)); // 2 per 1 minute 0.5 * 60 * 1000
 
+  const testStamina = Math.min(currentStamina + staminaGained, 9999);
+  console.log("Stamina Regen Debug:");
+  console.log("Last sign-in:", lastSignInDate.toDate());
+  console.log("Now:", now.toDate());
+  console.log("Elapsed (ms):", msElapsed);
+  console.log("Stamina gained:", staminaGained);
+  console.log("New stamina:", testStamina);
+
   return {
     newStamina: Math.min(currentStamina + staminaGained, 9999),
     newTimestamp: now
@@ -61,14 +69,26 @@ export const getUserStamina = async (req: Request, res: Response) => {
         const userSnap = await userRef.get();
         const userData = userSnap.data();
 
-        const { newStamina, newTimestamp } = calculateStamina(userData.lastSignInDate, userData.stamina || 0);
+        let stamina = 0;
+        let lastSignInDate = Timestamp.now();
+
+        if (!userData.lastSignInDate || userData.stamina == null) {
+            console.log("New user detected. Initializing with default stamina.");
+            stamina = 1000;
+        } 
+        else 
+        {
+            const result = calculateStamina(userData.lastSignInDate, userData.stamina);
+            stamina = result.newStamina;
+            lastSignInDate = result.newTimestamp;
+        }
 
         await userRef.update({
-        stamina: newStamina,
-        lastSignInDate: newTimestamp
+            stamina,
+            lastSignInDate
         });
 
-        res.json({ stamina: newStamina });
+        res.json({ stamina });
     } catch (err) {
         res.status(500).json({ error: "Failed to fetch stamina" });
     }

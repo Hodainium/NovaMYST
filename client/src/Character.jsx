@@ -149,12 +149,6 @@ function Character() {
 
     const itemID = itemMap[slotType][setName];
 
-    if (!ownsItem(itemID)) {
-      setSelectedItemID(itemID);
-      setIsPurchaseOpen(true);
-      return;
-    }
-
     if (itemID.startsWith("default")) {
         const slotMap = {
             Hat: "hat",
@@ -174,6 +168,12 @@ function Character() {
         await fetchCharacterData();
         console.log("Successfully called clearEquippedSlot");
         return;
+    }
+
+    if (!ownsItem(itemID)) {
+      setSelectedItemID(itemID);
+      setIsPurchaseOpen(true);
+      return;
     }
 
     await equipItem(itemID);

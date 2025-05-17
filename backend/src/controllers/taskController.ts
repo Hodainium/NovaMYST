@@ -275,7 +275,8 @@ exports.registerUser = async (req: Request, res: Response) => {
           monthlyXP: {
             [getCurrentMonthKey()]: 0
           },
-          lastSignInDate: currentTime
+          lastSignInDate: currentTime,
+          stamina: 1000
         };
   
         await userRef.set(newUser);
