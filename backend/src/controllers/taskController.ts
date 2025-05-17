@@ -188,10 +188,10 @@ exports.updateTask = async (req: Request, res: Response) => {
           await userRef.update(updates);
           await syncUserAchievements(user.uid);
           await updateLeaderboard(user.uid);
-          console.log(`✅ Task ${id} complete — granted ${taskXP} XP, -${staminaCost} stamina to ${user.uid}`);
+          console.log(`Task ${id} complete — granted ${taskXP} XP, -${staminaCost} stamina to ${user.uid}`);
         } else {
           await userRef.update(updates);
-          console.log(`⚠️ Task ${id} completed with no XP (insufficient stamina: ${stamina}/${staminaCost})`);
+          console.log(`Task ${id} completed with no XP (insufficient stamina: ${stamina}/${staminaCost})`);
         }
       }
   
@@ -541,7 +541,7 @@ export const getDifficultyFromGemini = async (
   Task: ${taskTitle}  
   Estimated time: ${estimatedMinutes} minutes`;
   
-    console.log("🚀 Calling Gemini with:", { taskTitle, estimatedMinutes });
+    console.log("Calling Gemini with:", { taskTitle, estimatedMinutes });
   
     try {
       const geminiRes = await fetch(
@@ -559,7 +559,7 @@ export const getDifficultyFromGemini = async (
       const data = await geminiRes.json();
       const outputText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
   
-      console.log("🔎 Gemini raw output:", outputText);
+      console.log("Gemini raw output:", outputText);
   
       const cleanedText = outputText
         ?.replace(/```json|```/g, '')
@@ -568,18 +568,18 @@ export const getDifficultyFromGemini = async (
       const parsed = JSON.parse(cleanedText || '');
   
       if (parsed.status === 'ok' && typeof parsed.difficulty === 'string') {
-        console.log(`✅ Assigned difficulty: ${parsed.difficulty}`);
+        console.log(`Assigned difficulty: ${parsed.difficulty}`);
         return parsed.difficulty;
       }
   
       if (parsed.status === 'error' && parsed.message) {
-        console.warn(`⚠️ Gemini rejected task: ${parsed.message}`);
+        console.warn(`Gemini rejected task: ${parsed.message}`);
         return 'unclear';
       }
   
       throw new Error("Unexpected response structure");
     } catch (err: any) {
-      console.error("❌ Gemini API call or parsing failed:", err);
+      console.error("Gemini API call or parsing failed:", err);
       return 'medium'; // fallback difficulty
     }
 };
@@ -593,7 +593,7 @@ export const getLastCompletedTask = async (req: Request, res: Response) => {
 
     const completedTaskIds = userData?.completedTasks || [];
 
-        // ✅ Log completed task IDs
+        // Log completed task IDs
         console.log("Fetched completed tasks:", completedTaskIds);
 
     if (completedTaskIds.length === 0) {
@@ -612,7 +612,7 @@ export const getLastCompletedTask = async (req: Request, res: Response) => {
     .map(doc => {
       const task = { id: doc.id, ...doc.data() };
 
-      // ✅ Log each task and its completedAt field
+      // Log each task and its completedAt field
       console.log("Task:", task.id, "completedAt:", task.completedAt);
 
       return task;

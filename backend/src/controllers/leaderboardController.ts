@@ -7,7 +7,7 @@ const LEADERBOARD_COLLECTION = 'leaderboard';
 const USERS_COLLECTION = 'users';
 const FRIENDS_COLLECTION = 'friends';
 
-// --- Helper: Attach usernames from users/{uid} ---
+// Helper to attach usernames from users/{uid} 
 const attachUsernames = async (
   docs: FirebaseFirestore.QueryDocumentSnapshot[]
 ): Promise<object[]> => {
@@ -25,7 +25,6 @@ const attachUsernames = async (
   );
 };
 
-// --- Update leaderboard for a user ---
 export const updateLeaderboard = async (userID: string): Promise<void> => {
   console.log(`[LEADERBOARD UPDATE] for user: ${userID}`);
   try {
@@ -58,7 +57,7 @@ export const updateLeaderboard = async (userID: string): Promise<void> => {
   }
 };
 
-// --- Get Global Leaderboard (Top 20 Monthly XP) ---
+// Get global leaderboard (top 20 monthly XP)
 export const getGlobalLeaderboard = async (): Promise<object[]> => {
   try {
     const snapshot = await db
@@ -74,7 +73,7 @@ export const getGlobalLeaderboard = async (): Promise<object[]> => {
   }
 };
 
-// --- Get Similar XP Leaderboard ---
+// get similar XP Leaderboard 
 export const getSimilarXPLeaderboard = async (userID: string): Promise<object[]> => {
   try {
     const userData = await userController.fetchUserData(userID);
@@ -101,7 +100,7 @@ export const getSimilarXPLeaderboard = async (userID: string): Promise<object[]>
   }
 };
 
-// --- Get Friend Leaderboard ---
+// get friend leaderboard 
 export const getFriendLeaderboard = async (userID: string): Promise<object[]> => {
   console.log(`[FriendLeaderboard] Fetching leaderboard for user: ${userID}`);
 
@@ -134,7 +133,7 @@ export const getFriendLeaderboard = async (userID: string): Promise<object[]> =>
   const uniqueIDs = [...friendIDs];
   if (uniqueIDs.length === 0) return [];
 
-  // Firestore allows max 10 values in "in" queries per batch
+  // Firestore only allows max 10 values in "in" queries per batch
   const batches: string[][] = [];
   while (uniqueIDs.length) batches.push(uniqueIDs.splice(0, 10));
 

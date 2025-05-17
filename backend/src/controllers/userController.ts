@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-const admin = require('firebase-admin'); // we are reinitalizing firebase here; might need to change that in the future to call firebase from index file
+const admin = require('firebase-admin'); 
 const db = admin.firestore();
 import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { Timestamp } from 'firebase-admin/firestore';
