@@ -81,39 +81,42 @@ function Login() {
     };
 
     const Modal = ({ isOpen, onClose, children }) => {
-        if (!isOpen) return null;
+    if (!isOpen) return null;
 
-        return (
-            <div onClick={onClose}
+    return (
+        <div
+            onClick={onClose}
+            style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                background: "rgba(0, 0, 0, 0.5)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+            }}
+        >
+            <div
+                onClick={(e) => e.stopPropagation()}
                 style={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    background: "rgba(0, 0, 0, 0.5)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    background: darkMode ? "#2a2a2a" : "white",
+                    color: darkMode ? "#f5f5f5" : "#333333",
+                    margin: "auto",
+                    padding: "20px",
+                    border: "3px solid",
+                    width: "20%",
+                    borderRadius: "10px",
+                    borderColor: "#6c5dd3",
                 }}
-            > 
-                <div
-                    style={{
-                        background: darkMode ? "#2a2a2a" : "white",
-                        color: darkMode ? "#f5f5f5" : "#333333",
-                        margin: "auto",
-                        padding: "20px",
-                        border: "3px solid",
-                        width: "20%",
-                        borderRadius: "10px",
-                        borderColor: "#6c5dd3",
-                    }}
-                >
-                    {children}
-                </div>
+            >
+                {children}
             </div>
-        );
-    };
+        </div>
+    );
+};
+
 
     return (
         <div className={`login-page ${darkMode ? 'dark-mode' : ''}`}>
