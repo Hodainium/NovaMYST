@@ -18,17 +18,17 @@ const Leaderboard = () => {
       setError('');
       const user = auth.currentUser;
       if (!user) throw new Error('User not authenticated.');
-
+  
       const token = await user.getIdToken();
       const response = await fetch(`${API_URL}/leaderboard/${sortMode}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
+  
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to fetch leaderboard');
-
+  
       setLeaderboard(data);
     } catch (err) {
       console.error('Error fetching leaderboard:', err);

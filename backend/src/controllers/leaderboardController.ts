@@ -1,9 +1,10 @@
 import type { Request, Response } from 'express';
 import { admin, db } from '../index';
 import * as userController from './userController';
-import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
+import { Query, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 const LEADERBOARD_COLLECTION = 'leaderboard';
+const MONTHLY_LEADERBOARD_COLLECTION = 'monthlyLeaderboards';
 const USERS_COLLECTION = 'users';
 const FRIENDS_COLLECTION = 'friends';
 
@@ -73,33 +74,6 @@ export const getGlobalLeaderboard = async (): Promise<object[]> => {
   }
 };
 
-// get similar XP Leaderboard 
-export const getSimilarXPLeaderboard = async (userID: string): Promise<object[]> => {
-  try {
-    const userData = await userController.fetchUserData(userID);
-    if (!userData) throw new Error('User data not found.');
-
-    const now = new Date();
-    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    const myXP = userData.monthlyXP?.[monthKey] || 0;
-
-    const lowerBound = Math.max(myXP * 0.9, myXP - 50);
-    const upperBound = myXP * 1.1 + 50;
-
-    const snapshot = await db.collection(LEADERBOARD_COLLECTION)
-      .where('score', '>=', lowerBound)
-      .where('score', '<=', upperBound)
-      .orderBy('score', 'desc')
-      .limit(20)
-      .get();
-
-    return await attachUsernames(snapshot.docs);
-  } catch (error) {
-    console.error('Error fetching similar XP leaderboard:', error);
-    throw error;
-  }
-};
-
 // get friend leaderboard 
 export const getFriendLeaderboard = async (userID: string): Promise<object[]> => {
   console.log(`[FriendLeaderboard] Fetching leaderboard for user: ${userID}`);
@@ -148,4 +122,71 @@ export const getFriendLeaderboard = async (userID: string): Promise<object[]> =>
   }
 
   return await attachUsernames(results);
+};
+
+// get leaderboard from document created in cron file
+export const getFrozenSimilarXPLeaderboard = async (userID: string): Promise<object[]> => {
+  try {
+    const userDoc = await db.collection(USERS_COLLECTION).doc(userID).get();
+    const userData = userDoc.data();
+    if (!userData) throw new Error('User data not found');
+
+    const now = new Date();
+    const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthKey = `${prevMonth.getFullYear()}-${String(prevMonth.getMonth() + 1).padStart(2, '0')}`;
+
+    const myXP = userData.monthlyXPMap?.[lastMonthKey] || 0;
+    const lowerBound = Math.max(myXP * 0.9, myXP - 50);
+    const upperBound = myXP * 1.1 + 50;
+
+    const frozenSnapshot = await db.collection("monthlyLeaderboard")
+      .where("month", "==", lastMonthKey)
+      .where("score", ">=", lowerBound)
+      .where("score", "<=", upperBound)
+      .orderBy("score", "desc")
+      .get();
+
+    const docs = frozenSnapshot.docs;
+
+    // Ensure the user is included in the frozen list 
+    const alreadyIncluded = docs.some((doc: QueryDocumentSnapshot) => doc.id === userID);
+    if (!alreadyIncluded) {
+      const selfDoc = await db.collection("monthlyLeaderboard").doc(userID).get();
+      if (selfDoc.exists && selfDoc.data()?.month === lastMonthKey) {
+        docs.push(selfDoc);
+      }
+    }
+
+    const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    const enrichedDocs = await Promise.all(
+      docs.map(async (doc: QueryDocumentSnapshot) => {
+        const frozenData = doc.data();
+        const userId = frozenData.userID;
+
+        const userSnap = await db.collection(USERS_COLLECTION).doc(userId).get();
+        const liveXP = userSnap.exists
+          ? userSnap.data()?.monthlyXP?.[currentMonthKey] ?? 0
+          : 0;
+
+        const userName = userSnap.exists
+          ? userSnap.data()?.userName ?? "Unknown"
+          : "Unknown";
+
+        return {
+          userID: userId,
+          userName,
+          score: liveXP,
+        };
+      })
+    );
+
+    // Sort based on live XP
+    enrichedDocs.sort((a, b) => b.score - a.score);
+
+    return enrichedDocs;
+  } catch (error) {
+    console.error("Error fetching frozen similar leaderboard:", error);
+    throw error;
+  }
 };
