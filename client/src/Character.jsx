@@ -125,25 +125,25 @@ function Character() {
         knight: "knight_helmet",
         default: "default_hat",
         princess: "princess_tiara",
-        cowboy: "wildwest_hat"
+        cowboy: "cowboy_hat"
       },
       Top: {
         knight: "knight_chest",
         default: "default_shirt",
         princess: "princess_dress",
-        cowboy: "wildwest_vest"
+        cowboy: "cowboy_vest"
       },
       Bottom: {
         knight: "knight_legs",
         default: "default_pants",
         princess: "princess_stockings",
-        cowboy: "wildwest_pants"
+        cowboy: "cowboy_pants"
       },
       Shoes: {
         knight: "knight_boots",
         default: "default_shoes",
         princess: "princess_heels",
-        cowboy: "wildwest_spurs"
+        cowboy: "cowboy_spurs"
       }
     };
 
@@ -204,15 +204,15 @@ function Character() {
 
           {/* Princess Models */}
           {equipped.shoes === 'princess_heels' && <img className="princessShoesModel" src={princessHeels} alt="Princess Shoes" />}
-          {equipped.shoes === 'pincess_stockings' && <img className="princessPantsModel" src={princessPants} alt="Princess Pants" />}
-          {equipped.shoes === 'princess_dress' && <img className="princessDressModel" src={princessDress} alt="Princess Dress" />}
-          {equipped.shoes === 'princess_tiara' && <img className="princessTiaraModel" src={princessTiara} alt="Princess Tiara" />}
+          {equipped.pants === 'pincess_stockings' && <img className="princessPantsModel" src={princessPants} alt="Princess Pants" />}
+          {equipped.shirt === 'princess_dress' && <img className="princessDressModel" src={princessDress} alt="Princess Dress" />}
+          {equipped.hat === 'princess_tiara' && <img className="princessTiaraModel" src={princessTiara} alt="Princess Tiara" />}
 
           {/* Cowboy Models */}
-          {equipped.shoes === 'wildwest_spurs' && <img className="cowboySpursModel" src={cowboySpurs} alt="Cowboy Spurs" />}
-          {equipped.shoes === 'wildwest_pants' && <img className="cowboyPantsModel" src={cowboyPants} alt="Cowboy Pants" />}
-          {equipped.shoes === 'wildwest_vest' && <img className="cowboyVestModel" src={cowboyVest} alt="Cowboy Vest" />}
-          {equipped.shoes === 'wildwest_hat' && <img className="cowboyHatModel" src={cowboyHat} alt="Cowboy Hat" />}
+          {equipped.shoes === 'cowboy_spurs' && <img className="cowboySpursModel" src={cowboySpurs} alt="Cowboy Spurs" />}
+          {equipped.pants === 'cowboy_pants' && <img className="cowboyPantsModel" src={cowboyPants} alt="Cowboy Pants" />}
+          {equipped.shirt === 'cowboy_vest' && <img className="cowboyVestModel" src={cowboyVest} alt="Cowboy Vest" />}
+          {equipped.hat === 'cowboy_hat' && <img className="cowboyHatModel" src={cowboyHat} alt="Cowboy Hat" />}
 
 
 
