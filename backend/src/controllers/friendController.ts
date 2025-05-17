@@ -6,7 +6,6 @@ import { updateLeaderboard } from './leaderboardController';
 
 const FRIENDS_COLLECTION = 'friends';
 
-// --- SEND FRIEND REQUEST ---
 export const sendFriendRequest = async (req: Request, res: Response): Promise<void> => {
     const requesterId = (req as any).user.uid;
     let { recipientId, username } = req.body; // get both fields!
@@ -63,7 +62,6 @@ export const sendFriendRequest = async (req: Request, res: Response): Promise<vo
   };
   
 
-// --- GET RECEIVED FRIEND REQUESTS ---
 export const getReceivedFriendRequests = async (req: Request, res: Response): Promise<void> => {
   const recipientId = (req as any).user.uid; // probably gonna have to change in here too
   
@@ -86,7 +84,6 @@ export const getReceivedFriendRequests = async (req: Request, res: Response): Pr
   }
 };
 
-// --- ACCEPT FRIEND REQUEST ---
 export const acceptFriendRequest = async (req: Request, res: Response): Promise<void> => {
   const recipientId = (req as any).user.uid;
   const { requestId } = req.params;
@@ -115,7 +112,6 @@ export const acceptFriendRequest = async (req: Request, res: Response): Promise<
   }
 };
 
-// --- DECLINE FRIEND REQUEST ---
 export const declineFriendRequest = async (req: Request, res: Response): Promise<void> => {
   const recipientId = (req as any).user.uid;
   const { requestId } = req.params;
@@ -144,7 +140,6 @@ export const declineFriendRequest = async (req: Request, res: Response): Promise
   }
 };
 
-// --- GET FRIENDS LIST ---
 export const getFriendsList = async (req: Request, res: Response): Promise<void> => {
   const userId = (req as any).user.uid;
 
@@ -174,7 +169,6 @@ export const getFriendsList = async (req: Request, res: Response): Promise<void>
   }
 };
 
-// --- REMOVE A FRIEND ---
 export const removeFriend = async (req: Request, res: Response): Promise<void> => {
   const userId = (req as any).user.uid;
   const { friendId } = req.params;
@@ -272,10 +266,8 @@ export const acceptLeaderboardInvite = async (req: Request, res: Response): Prom
     let newInviteStatus: string;
 
     if (currentInvite === userId) {
-      // They already invited us — now it's mutual
       newInviteStatus = 'mutual';
     } else {
-      // We are inviting them now
       newInviteStatus = userId;
     }
 
@@ -397,5 +389,3 @@ export const getLeaderboardInvites = async (req: Request, res: Response): Promis
     res.status(500).json({ error: 'Failed to fetch leaderboard invites.' });
   }
 };
-
-// update

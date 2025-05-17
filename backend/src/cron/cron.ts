@@ -3,7 +3,7 @@ import { admin, db } from '../index';
 import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { updateLeaderboard } from '../controllers/leaderboardController'
 
-// Export the function to be called in index.ts
+// Export the function to be called in index.ts this function will be used for the monthly reset on the leaderboard
 export const startMonthlyXPResetCron = () => {
   cron.schedule('0 0 1 * *', async () => {  // reset every month
     console.log("Running monthly XP reset job!");
