@@ -28,8 +28,7 @@ const Reflections = () => {
 
         if (!res.ok) throw new Error("Failed to fetch completed tasks");
         const data = await res.json();
-
-        // ✅ Convert Firestore timestamp to real JS Date object
+        
         const tasks = (data.tasks || []).map(task => ({
           ...task,
           completedAt: task.completedAt
