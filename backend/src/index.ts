@@ -1,8 +1,7 @@
 require('dotenv').config();
 const express = require('express');
-import type { Request, Response, NextFunction} from "express"; // have to import key words (types) for type script
+import type { Request, Response, NextFunction} from "express"; 
 const admin = require('firebase-admin');
-//const cors = require('cors');
 import cors from 'cors';
 import type { CorsOptionsDelegate, CorsRequest } from 'cors';
 
@@ -10,7 +9,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Firebase initialization
-const serviceAccount = require('../firebase-service-account.json'); // one dot means check src two dots means check backend
+const serviceAccount = require('../firebase-service-account.json');
 console.log("Initializing Firebase...");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -22,9 +21,6 @@ const db = admin.firestore(); // Initialize Firestore after app initialization
 // Middleware
 app.use(express.json());
 
-//cors 
-
-//app.use(cors({ origin: 'http://localhost:5173' }));
 
 const allowedOrigins = [
     "http://localhost:5173",
@@ -45,7 +41,7 @@ const allowedOrigins = [
 
 ////////////////////////////////////////////////////////
 
-const taskRoutes = require('./routes/tasks'); // you are in index.js here not index.ts; one dot go to dist then go to routes
+const taskRoutes = require('./routes/tasks'); 
 
 // Task routes
 app.use('/tasks', taskRoutes);
@@ -79,11 +75,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
 });
-
-// // Start server
-// app.listen(port, () => {
-//   console.log(`Server running at http://localhost:${port}`);
-// });
 
 // Start server
 app.listen(port, async () => {

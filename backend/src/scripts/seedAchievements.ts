@@ -36,7 +36,7 @@
 //     }
 //   }
 
-//   console.log('✅ Seeding complete!');
+//   console.log('Seeding complete!');
 //   process.exit(0);
 // }
 

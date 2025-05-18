@@ -16,9 +16,6 @@ const GEMINI_API_KEY = 'AIzaSyAiLjiiDRYgo129Pj7k7Ba5FTel42EmAFk';
 const TASKS_COLLECTION = 'tasks';
 const USERS_COLLECTION = 'users'; //users
 
-// console.log("Imported Task Model:", Task, difficultyConfig);
-// Create a new task
-
 exports.createTask = async (req: Request, res: Response) => {
     try {
       const user = (req as any).user;

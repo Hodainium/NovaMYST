@@ -8,7 +8,7 @@ import { updateLeaderboard } from './leaderboardController';
 export function calculateStamina(lastSignInDate: Timestamp, currentStamina: number): { newStamina: number, newTimestamp: Timestamp } {
   const now = Timestamp.now();
   const msElapsed = now.toMillis() - lastSignInDate.toMillis();
-  const staminaGained = Math.floor(msElapsed / (5 * 1000)); // 2 per 1 minute 0.5 * 60 * 1000
+  const staminaGained = Math.floor(msElapsed / (5 * 1000));
 
   const testStamina = Math.min(currentStamina + staminaGained, 9999);
   console.log("Stamina Regen Debug:");

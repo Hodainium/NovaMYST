@@ -103,7 +103,7 @@ export const equipItem = async (req: Request, res: Response): Promise<void> => {
 export const unequipSlot = async (req: Request, res: Response) => {
     try {
       const user = (req as any).user;
-      const slot = req.params.slot; // should be "hat", "shirt", "pants", or "shoes"
+      const slot = req.params.slot;
 
       console.log("User UID:", user.uid);
       console.log("Slot to unequip:", slot);

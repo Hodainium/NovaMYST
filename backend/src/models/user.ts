@@ -18,7 +18,7 @@ export interface User {
     password: string;
     xp: number;
     level: number;
-    rank: string; // might need to change rank to an enum depending on if the rank system is based on the leaderboard
+    rank: string;
     streak: number;
     currentTasks: string[]; // store an array of task IDs of current tasks
     completedTasks: string[]; // store an array of task IDs of finished tasks
