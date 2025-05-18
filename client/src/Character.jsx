@@ -247,7 +247,7 @@ function Character() {
             <button className="princess_heels" onClick={() => handleOutfit(null, 3, "Shoes", 'princess')}> </button>
           </div>
 
-          <h3 className="cowboyTitle"> Cowboy Set </h3>
+          <h3 className="cowboyTitle"> Wild West Set </h3>
           <div className="cowboySet">
             <button className="wildwest_hat" onClick={() => handleOutfit(null, 0, "Hat", 'cowboy')}> </button>
             <button className="wildwest_vest" onClick={() => handleOutfit(null, 1, "Top", 'cowboy')}> </button>
