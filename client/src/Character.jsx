@@ -202,18 +202,17 @@ function Character() {
           {equipped.shirt === 'knight_chest' && <img className="knightTopModel" src={knightChest} alt="Knight Chest" />}
           {equipped.hat === 'knight_helmet' && <img className="knightHelmetModel" src={knightHelmet} alt="Knight Helmet" />}
 
-          {/* Princess Models */}
-          {equipped.shoes === 'princess_heels' && <img className="princessShoesModel" src={princessHeels} alt="Princess Shoes" />}
-          {equipped.pants === 'princess_stockings' && <img className="princessPantsModel" src={princessPants} alt="Princess Pants" />}
-          {equipped.shirt === 'princess_dress' && <img className="princessDressModel" src={princessDress} alt="Princess Dress" />}
-          {equipped.hat === 'princess_tiara' && <img className="princessTiaraModel" src={princessTiara} alt="Princess Tiara" />}
-
           {/* Cowboy Models */}
           {equipped.shoes === 'cowboy_spurs' && <img className="cowboySpursModel" src={cowboySpurs} alt="Cowboy Spurs" />}
           {equipped.pants === 'cowboy_pants' && <img className="cowboyPantsModel" src={cowboyPants} alt="Cowboy Pants" />}
           {equipped.shirt === 'cowboy_vest' && <img className="cowboyVestModel" src={cowboyVest} alt="Cowboy Vest" />}
           {equipped.hat === 'cowboy_hat' && <img className="cowboyHatModel" src={cowboyHat} alt="Cowboy Hat" />}
 
+          {/* Princess Models */}
+          {equipped.shoes === 'princess_heels' && <img className="princessShoesModel" src={princessHeels} alt="Princess Shoes" />}
+          {equipped.pants === 'princess_stockings' && <img className="princessPantsModel" src={princessPants} alt="Princess Pants" />}
+          {equipped.shirt === 'princess_dress' && <img className="princessDressModel" src={princessDress} alt="Princess Dress" />}
+          {equipped.hat === 'princess_tiara' && <img className="princessTiaraModel" src={princessTiara} alt="Princess Tiara" />}
         </div>
       </div>
 
