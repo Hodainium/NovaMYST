@@ -20,7 +20,6 @@ firebase.json
 firestore.rules
 firestore.indexes.json
 serviceAccountKey.json
-firebase-service-account.json
 
 # Environment files (store sensitive keys locally, not in Git)
 # .env
