@@ -10,7 +10,7 @@ export function calculateStamina(lastSignInDate: Timestamp, currentStamina: numb
   const msElapsed = now.toMillis() - lastSignInDate.toMillis();
   const staminaGained = Math.floor(msElapsed / (5 * 1000));
 
-  const testStamina = Math.min(currentStamina + staminaGained, 9999);
+  const testStamina = Math.min(currentStamina + staminaGained, 1000);
   console.log("Stamina Regen Debug:");
   console.log("Last sign-in:", lastSignInDate.toDate());
   console.log("Now:", now.toDate());
@@ -19,7 +19,7 @@ export function calculateStamina(lastSignInDate: Timestamp, currentStamina: numb
   console.log("New stamina:", testStamina);
 
   return {
-    newStamina: Math.min(currentStamina + staminaGained, 9999),
+    newStamina: Math.min(currentStamina + staminaGained, 1000),
     newTimestamp: now
   };
 }
@@ -44,7 +44,7 @@ export const getUserData = async (req: Request, res: Response) => {
   }
 };
 
-// Helper function I added
+// Helper function
 export const fetchUserData = async (userID: string) => {
   try {
     const userRef = db.collection('users').doc(userID);
