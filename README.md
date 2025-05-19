@@ -58,6 +58,8 @@ A scalable, flexible NoSQL cloud database from Firebase that stores data in coll
 
 ### Frontend (Runtime)
 
+- **axios** – Promise-based HTTP client for interacting with the backend API.
+- **bootstrap** – CSS framework used for styling and responsive layout.
 - **firebase** – Client SDK to handle user authentication and interaction with Firebase services.
 - **lucide-react** – Icon library for clean, customizable SVG icons.
 - **react** – Library for building user interfaces with component-based architecture.
