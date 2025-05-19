@@ -111,22 +111,22 @@ https://novamystfrontend-production-1109.up.railway.app/
 ## Client deployment settings
 Set root directory to /client
 
-## Public networking
+### Public networking
 Add a public domain as a link to make it accessible
 
-## Private networking
+### Private networking
 The .env.production file in client is set to use the railway private address. If you are deploying it to railway yourself you may need to change this file to match the private address of your backend service
 
 ## Backend deployment settings
 Set root directory to /backend
 
-## Custom build command 
+### Custom build command 
 Set custom build command to "tsc"
 
-## Custom start command
+### Custom start command
 Set custom start command to "node dist/index.js"
 
-## Variables tab
+### Variables tab
 Create a variable named "FRONTEND_URL" and set its value to "https://novamystfrontend-production-1109.up.railway.app"
 
 You may need to change this link to the private address of your frontend service if it varies in your own railway deployment.
