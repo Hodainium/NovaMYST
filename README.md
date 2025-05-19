@@ -58,8 +58,6 @@ A scalable, flexible NoSQL cloud database from Firebase that stores data in coll
 
 ### Frontend (Runtime)
 
-- **axios** – Promise-based HTTP client used to make API requests to the backend.
-- **bootstrap** – CSS framework for responsive design and prebuilt UI components.
 - **firebase** – Client SDK to handle user authentication and interaction with Firebase services.
 - **lucide-react** – Icon library for clean, customizable SVG icons.
 - **react** – Library for building user interfaces with component-based architecture.
@@ -100,8 +98,36 @@ npm run dev
 ### 2. Set up the Backend
 ```bash
 cd backend
-npm install
-npm run build      # This will create the dist/ directory to run typescript files as javascript
-npm run dev        # Runs server with live reload using ts-node and nodemon
+tsc
+node dist/index.js
 ```
 ## Deployment
+
+## Accessible via the link:
+https://novamystfrontend-production-1109.up.railway.app/
+
+## The frontend and backend are deployed within the same Railway project as two separate services using the same GitHub repo
+
+## Client deployment settings
+Set root directory to /client
+
+## Public networking
+Add a public domain as a link to make it accessible
+
+## Private networking
+The .env.production file in client is set to use the railway private address. If you are deploying it to railway yourself you may need to change this file to match the private address of your backend service
+
+## Backend deployment settings
+Set root directory to /backend
+
+## Custom build command 
+Set custom build command to "tsc"
+
+## Custom start command
+Set custom start command to "node dist/index.js"
+
+## Variables tab
+Create a variable named "FRONTEND_URL" and set its value to "https://novamystfrontend-production-1109.up.railway.app"
+
+You may need to change this link to the private address of your frontend service if it varies in your own railway deployment.
+
