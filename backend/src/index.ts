@@ -9,7 +9,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Firebase initialization
-const serviceAccount = require('../firebase-service-account.json');
+const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG!);
 console.log("Initializing Firebase...");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
