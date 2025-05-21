@@ -133,3 +133,9 @@ Create a variable named "FRONTEND_URL" and set its value to "https://novamystfro
 
 You may need to change this link to the private address of your frontend service if it varies in your own railway deployment.
 
+Create a variable named "FIREBASE_CONFIG" and set its value to your Firebase Admin SDK service account JSON
+
+Create a variable named "GEMINI_API_KEY" and set its value to your Google Gemini API key
+
+
+
