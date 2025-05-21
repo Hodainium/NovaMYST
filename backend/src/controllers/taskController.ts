@@ -10,9 +10,7 @@ import { syncUserAchievements } from './achievementController';
 import { updateLeaderboard } from './leaderboardController';
 import { calculateStamina } from './userController';
 
-const API_URL = process.env.API_URL || "http://localhost:3000";
-
-const GEMINI_API_KEY = 'AIzaSyAiLjiiDRYgo129Pj7k7Ba5FTel42EmAFk';
+const API_KEY = process.env.GEMINI_API_KEY;
 const TASKS_COLLECTION = 'tasks';
 const USERS_COLLECTION = 'users'; //users
 
@@ -543,7 +541,7 @@ export const getDifficultyFromGemini = async (
   
     try {
       const geminiRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
